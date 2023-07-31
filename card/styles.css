@@ -1,0 +1,57 @@
+@font-face {
+    font-family: "CNstrokeorder";
+    src: url("_CNstrokeorder.ttf") format("truetype");
+}
+
+.card {
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.pinyin {
+    word-wrap: break-word;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0px;
+}
+
+.pinyin2 {
+    word-wrap: break-word;
+    font-size: 1.1rem;
+    margin: 0px;
+}
+
+.strokeOrder {
+    text-align: center;
+    font-family: CNstrokeorder;
+    color: #002626;
+    font-size: 10rem;
+    display: none;
+}
+
+.notes {
+    font-size: 1.2rem;
+    text-decoration: none;
+}
+
+.tone1 {
+    color: green;
+}
+
+.tone2 {
+    color: blue;
+}
+
+.tone3 {
+    color: red;
+}
+
+.tone4 {
+    color: black;
+}
+
+.tone5 {
+    color: gray;
+}

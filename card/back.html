@@ -1,0 +1,41 @@
+<script>
+    var injectScript = (src) => {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    };
+
+    (async () => {
+        if (typeof HanziWriter === "undefined") {
+            await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
+        }
+
+        var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
+            width: 300,
+            height: 300,
+            radicalColor: '#337ab7',
+            showCharacter: false,
+            showOutline: true,
+            delayBetweenStrokes: 100,
+            padding: 5
+        });
+
+        writer.loopCharacterAnimation();
+    })();
+</script>
+
+{{FrontSide}}
+
+<hr id=answer>
+<div class=notes style='color:gray'>HSK: {{HSK}} | Lesson: {{Lesson}}</div>
+
+<div class="strokeOrder">{{Hanzi}}</div>
+<a id="diagram" href='http://www.yellowbridge.com/chinese/charsearch.php?zi={{Hanzi}}'></a>
+
+<p class="notes">{{Words}}</p>
+<p class="notes">{{Notes}}</p>
