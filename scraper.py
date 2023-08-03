@@ -1,4 +1,5 @@
 import csv
+import re
 from tqdm import tqdm
 import requests_html
 
@@ -50,8 +51,8 @@ def scrapeChar(hanzi, numDefs, numExamples):
 
     examples = []
     for i in range(min(numExamples, len(exWords))):
-        hanzi = exWords[i].text.strip()
-        pinyin = exInfo[i + 1].find("p>a", first=True).text.strip()
+        hanzi = re.sub("\s+", "", exWords[i].text)
+        pinyin = re.sub("\s+", "", exInfo[i + 1].find("p>a", first=True).text)
         defn = ", ".join(
             exInfo[i + 1]
             .find("p", first=True)
