@@ -1,6 +1,6 @@
 import csv
+from tqdm import tqdm
 import requests_html
-from bs4 import BeautifulSoup
 
 ses = requests_html.HTMLSession()
 
@@ -12,7 +12,7 @@ def scrapeChar(hanzi, numDefs, numExamples):
     r = ses.get(
         "https://www.archchinese.com/chinese_english_dictionary.html?find=" + hanzi
     )
-    r.html.render(sleep=0.5)
+    r.html.render(sleep=1)
 
     # Get basic info
     charDef = (
@@ -79,19 +79,19 @@ with open("output.csv", "w", newline="", encoding="utf8") as f:
         ["Hanzi", "Definition", "Pinyin", "Pinyin2", "HSK", "Formation", "Examples"]
     )
 
-    for char in chars:
-        # try:
-        info = scrapeChar(char, 5, 3)
-        writer.writerow(
-            [
-                info["hanzi"],
-                info["definition"],
-                info["pinyin"],
-                info["pinyin2"],
-                info["hsk"],
-                info["formation"],
-                info["examples"],
-            ]
-        )
-    # except Exception as e:
-    #     print("error: " + char + " " + str(e))
+    for char in tqdm(chars):
+        try:
+            info = scrapeChar(char, 5, 3)
+            writer.writerow(
+                [
+                    info["hanzi"],
+                    info["definition"],
+                    info["pinyin"],
+                    info["pinyin2"],
+                    info["hsk"],
+                    info["formation"],
+                    info["examples"],
+                ]
+            )
+        except Exception as e:
+            print("\nerror: " + char + " " + str(e))
