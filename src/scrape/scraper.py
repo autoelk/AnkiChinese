@@ -16,7 +16,7 @@ def cleanStr(string):
 
 
 def scrapeWord(r, hanzi, numDefs=5, numExamples=3):
-    soup = BeautifulSoup(r, "lxml")
+    soup = BeautifulSoup(r, "html5lib")
 
     # Get basic info
     charDef = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
@@ -119,7 +119,7 @@ def cli():
 
     start = time.perf_counter()
     list_of_hanzi = []  # unfinished list of characters to scrape
-    with open(args.input, encoding="utf8", mode="r") as f:
+    with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
         for line in f:
             for hanzi in line:
                 if not hanzi.isspace():
@@ -137,3 +137,7 @@ def cli():
     print(
         f"Finished scraping in {time.perf_counter() - start} seconds, wrote to {args.output}"
     )
+
+
+if __name__ == "__main__":
+    cli()
