@@ -1,20 +1,22 @@
-import csv
-import re
-from tqdm import tqdm
-import requests_html
-
-ses = requests_html.HTMLSession()
+from requests_html import AsyncHTMLSession
+import pandas as pd
+import time
 
 
-def scrapeChar(hanzi, numDefs, numExamples):
-    info = dict()
-    info["hanzi"] = hanzi
+def cleanStr(string):
+    return string.strip().replace("\n", "")
 
-    r = ses.get(
+
+async def fetch(hanzi):
+    r = await asession.get(
         "https://www.archchinese.com/chinese_english_dictionary.html?find=" + hanzi
     )
-    r.html.render(sleep=1)
+    await r.html.arender(sleep=5, timeout=30)
 
+    return r
+
+
+def scrapeWord(r, numDefs=5, numExamples=3):
     # Get basic info
     charDef = (
         r.html.find("#charDef", first=True)
@@ -28,13 +30,18 @@ def scrapeChar(hanzi, numDefs, numExamples):
     for detail in charDef:
         x = detail.split(":")
         if len(x) >= 2:
-            details[x[0].strip()] = x[1].strip()
+            details[cleanStr(x[0])] = cleanStr(x[1])
 
+    info = dict()
     # Extract information we want
-    info["definition"] = ", ".join(details["Definition"].split(", ")[:numDefs])
+    info["definition"] = cleanStr(
+        ", ".join(details["Definition"].split(", ")[:numDefs])
+    )
     pinyinLst = details["Pinyin"].split(", ")
-    info["pinyin"] = pinyinLst[0]
-    info["pinyin2"] = ", ".join(pinyinLst[1:]) if len(pinyinLst) > 1 else ""
+    info["pinyin"] = cleanStr(pinyinLst[0])
+
+    # The following details may not always be available
+    info["pinyin2"] = cleanStr(", ".join(pinyinLst[1:])) if len(pinyinLst) > 1 else ""
     if "HSK Level" in details:
         info["hsk"] = details["HSK Level"]
     else:
@@ -51,8 +58,8 @@ def scrapeChar(hanzi, numDefs, numExamples):
 
     examples = []
     for i in range(min(numExamples, len(exWords))):
-        hanzi = re.sub("\s+", "", exWords[i].text)
-        pinyin = re.sub("\s+", "", exInfo[i + 1].find("p>a", first=True).text)
+        hanzi = exWords[i].text
+        pinyin = exInfo[i + 1].find("p>a", first=True).text
         defn = ", ".join(
             exInfo[i + 1]
             .find("p", first=True)
@@ -63,36 +70,35 @@ def scrapeChar(hanzi, numDefs, numExamples):
 
         examples.append(hanzi + "[" + pinyin + "]: " + defn)
 
-    info["examples"] = "<br>".join(examples) or ""
+    info["examples"] = cleanStr("<br>".join(examples))
     return info
 
 
-chars = []
-with open("input.txt", encoding="utf8") as f:
+start = time.perf_counter()
+list_of_hanzi = []  # unfinished list of characters to scrape
+with open("input.txt", encoding="utf8", mode="r") as f:
     for line in f:
-        for ch in line:
-            if not ch.isspace():
-                chars.append(ch)
+        for hanzi in line:
+            if not hanzi.isspace():
+                list_of_hanzi.append(hanzi)
 
-with open("output.csv", "w", newline="", encoding="utf8") as f:
-    writer = csv.writer(f, delimiter="\t")
-    writer.writerow(
-        ["Hanzi", "Definition", "Pinyin", "Pinyin2", "HSK", "Formation", "Examples"]
-    )
+print(
+    f"Finished reading input in {time.perf_counter() - start} seconds, now fetching..."
+)
 
-    for char in tqdm(chars):
-        try:
-            info = scrapeChar(char, 5, 3)
-            writer.writerow(
-                [
-                    info["hanzi"],
-                    info["definition"],
-                    info["pinyin"],
-                    info["pinyin2"],
-                    info["hsk"],
-                    info["formation"],
-                    info["examples"],
-                ]
-            )
-        except Exception as e:
-            print("\nerror: " + char + " " + str(e))
+asession = AsyncHTMLSession()
+tasks = [lambda hanzi=hanzi: fetch(hanzi) for hanzi in list_of_hanzi]
+results = asession.run(*tasks)
+asession.close()
+
+print(
+    f"Finished fetching {len(list_of_hanzi)} pages in {time.perf_counter() - start} seconds, now parsing..."
+)
+
+for result in results:
+    print(scrapeWord(result))
+
+# df = pd.DataFrame.from_dict(results)
+
+# df.to_csv("output.csv", index=False, encoding="utf8")
+print(f"Finished in {time.perf_counter() - start} seconds")
