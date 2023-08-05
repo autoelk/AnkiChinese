@@ -8,6 +8,7 @@ from playwright.async_api import async_playwright
 import pandas as pd
 import re as regex
 import time
+import argparse
 
 
 def cleanStr(string):
@@ -60,7 +61,7 @@ def scrapeWord(r, hanzi, numDefs=5, numExamples=3):
     return info
 
 
-async def fetch(context, hanzi):
+async def fetch(context, hanzi, numDefs, numExamples):
     page = await context.new_page()
     await page.goto(
         f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
@@ -68,28 +69,64 @@ async def fetch(context, hanzi):
     await page.wait_for_function("() => !!document.querySelector('#wordTable')")
     content = await page.content()
     await page.close()
-    return scrapeWord(content, hanzi)
+    return scrapeWord(content, hanzi, numDefs, numExamples)
 
 
-async def main(chars):
+async def main(chars, numDefs, numExamples):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
-        tasks = [functools.partial(fetch, context, hanzi) for hanzi in chars]
+        tasks = [
+            functools.partial(fetch, context, hanzi, numDefs, numExamples)
+            for hanzi in chars
+        ]
         return await aiometer.run_all(tasks, max_at_once=10, max_per_second=5)
 
 
+parser = argparse.ArgumentParser(
+    description="Scrape ArchChinese for definitions and example words"
+)
+parser.add_argument(
+    "--input",
+    "-i",
+    type=str,
+    default="input.txt",
+    help="Input file with characters to scrape",
+)
+parser.add_argument(
+    "--output",
+    "-o",
+    type=str,
+    default="output.csv",
+    help="Output file to write results to",
+)
+parser.add_argument(
+    "--numDefs",
+    "-d",
+    type=int,
+    default=5,
+    help="Number of definitions to scrape per character",
+)
+parser.add_argument(
+    "--numExamples",
+    "-e",
+    type=int,
+    default=3,
+    help="Number of example words to scrape per character",
+)
+args = parser.parse_args()
+
 start = time.perf_counter()
 list_of_hanzi = []  # unfinished list of characters to scrape
-with open("input.txt", encoding="utf8", mode="r") as f:
+with open(args.input, encoding="utf8", mode="r") as f:
     for line in f:
         for hanzi in line:
             if not hanzi.isspace():
                 list_of_hanzi.append(hanzi)
 
-results = asyncio.run(main(list_of_hanzi))
+results = asyncio.run(main(list_of_hanzi, args.numDefs, args.numExamples))
 
 df = pd.DataFrame(results)
-df.to_csv("output.csv", index=False)
+df.to_csv(args.output, index=False)
 
 print(f"Finished in {time.perf_counter() - start} seconds")
