@@ -16,7 +16,7 @@ def cleanStr(string):
 
 
 def scrapeWord(r, hanzi, numDefs=5, numExamples=3):
-    soup = BeautifulSoup(r, "html5lib")
+    soup = BeautifulSoup(r, "lxml")
 
     # Get basic info
     charDef = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
@@ -83,50 +83,57 @@ async def main(chars, numDefs, numExamples):
         return await aiometer.run_all(tasks, max_at_once=10, max_per_second=5)
 
 
-parser = argparse.ArgumentParser(
-    description="Scrape ArchChinese for definitions and example words"
-)
-parser.add_argument(
-    "--input",
-    "-i",
-    type=str,
-    default="input.txt",
-    help="Input file with characters to scrape",
-)
-parser.add_argument(
-    "--output",
-    "-o",
-    type=str,
-    default="output.csv",
-    help="Output file to write results to",
-)
-parser.add_argument(
-    "--numDefs",
-    "-d",
-    type=int,
-    default=5,
-    help="Number of definitions to scrape per character",
-)
-parser.add_argument(
-    "--numExamples",
-    "-e",
-    type=int,
-    default=3,
-    help="Number of example words to scrape per character",
-)
-args = parser.parse_args()
+def cli():
+    parser = argparse.ArgumentParser(
+        description="Scrape ArchChinese for definitions and example words"
+    )
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=str,
+        default="input.txt",
+        help="Input file with characters to scrape",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        default="output.csv",
+        help="Output file to write results to",
+    )
+    parser.add_argument(
+        "--numDefs",
+        "-d",
+        type=int,
+        default=5,
+        help="Number of definitions to scrape per character",
+    )
+    parser.add_argument(
+        "--numExamples",
+        "-e",
+        type=int,
+        default=3,
+        help="Number of example words to scrape per character",
+    )
+    args = parser.parse_args()
 
-start = time.perf_counter()
-list_of_hanzi = []  # unfinished list of characters to scrape
-with open(args.input, encoding="utf8", mode="r") as f:
-    for line in f:
-        for hanzi in line:
-            if not hanzi.isspace():
-                list_of_hanzi.append(hanzi)
+    start = time.perf_counter()
+    list_of_hanzi = []  # unfinished list of characters to scrape
+    with open(args.input, encoding="utf8", mode="r") as f:
+        for line in f:
+            for hanzi in line:
+                if not hanzi.isspace():
+                    list_of_hanzi.append(hanzi)
 
-results = asyncio.run(main(list_of_hanzi, args.numDefs, args.numExamples))
+    print(
+        f"Finished reading input in {time.perf_counter() - start} seconds, starting scraping"
+    )
 
-df = pd.DataFrame(results)
-df.to_csv(args.output, index=False)
+    results = asyncio.run(main(list_of_hanzi, args.numDefs, args.numExamples))
 
-print(f"Finished in {time.perf_counter() - start} seconds")
+    df = pd.DataFrame(results)
+    df.to_csv(args.output, index=False)
+
+    print(
+        f"Finished scraping in {time.perf_counter() - start} seconds, wrote to {args.output}"
+    )
