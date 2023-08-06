@@ -1,0 +1,19 @@
+.card {
+    font-size: 1.2rem;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.pinyin {
+    word-wrap: break-word;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0px;
+}
+
+.pinyin2 {
+    word-wrap: break-word;
+    font-size: 1rem;
+    margin: 0px;
+}

@@ -98,6 +98,16 @@ async def main_itr(chars, numDefs, numExamples):
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
+        front_html = open("card_template/front.html", "r")
+        front = front_html.read()
+        front_html.close()
+        back_html = open("card_template/back.html", "r")
+        back = back_html.read()
+        back_html.close()
+        styles_css = open("card_template/styles.css", "r")
+        styles = styles_css.read()
+        styles_css.close()
+
         chinese_model = genanki.Model(
             1607392319,
             "Chinese Model",
@@ -114,11 +124,11 @@ async def main_itr(chars, numDefs, numExamples):
             templates=[
                 {
                     "name": "Card 1",
-                    "qfmt": "<div>{{Audio}}</div>\n<h1 class='pinyin'>{{Pinyin}}</h1>\n<p class='pinyin2'>{{Pinyin 2}}</p>\n<p class='meaning'>{{Definition}}</p>\n",
-                    "afmt": "<script>\n\tvar injectScript = (src) => {\n\t\treturn new Promise((resolve, reject) => {\n\t\t\tconst script = document.createElement('script');\n\t\t\tscript.src = src;\n\t\t\tscript.async = true;\n\t\t\tscript.onload = resolve;\n\t\t\tscript.onerror = reject;\n\t\t\tdocument.head.appendChild(script);\n\t\t});\n\t};\n\n\t(async () => {\n\t\tif (typeof HanziWriter === 'undefined') {\n\t\t\tawait injectScript('https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js');\n\t\t}\n\n\t\tvar writer = HanziWriter.create('diagram', '{{Hanzi}}', {\n\t\t\twidth: 300,\n\t\t\theight: 300,\n\t\t\tradicalColor: '#337ab7',\n\t\t\tshowCharacter: false,\n\t\t\tshowOutline: true,\n\t\t\tdelayBetweenStrokes: 100,\n\t\t\tpadding: 5\n\t\t});\n\n\t\twriter.loopCharacterAnimation();\n\t})();\n</script>\n\n{{FrontSide}}\n\n<hr id=answer>\n<div class=notes style='color:gray'>HSK: {{HSK}}</div>\n<a id='diagram' href='plecoapi://x-callback-url/df?hw={{Hanzi}}'></a>\n\n<p>{{Words}}</p>\n<p>{{Formation}}</p>\n",
+                    "qfmt": front,
+                    "afmt": back,
                 }
             ],
-            css=".card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n }\n",
+            css=styles,
         )
 
         deck = genanki.Deck(2059400110, "AnkiChinese Deck")
