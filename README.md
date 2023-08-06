@@ -10,8 +10,6 @@ This program scrapes the ArchChinese dictionary to generate Anki flashcards.
 
     ankichinese
 
-### 2.1 Optional Arguments:
-
     -h, --help                  Show help message and exit 
 
     --input, -i INPUT           Input file with characters to scrape (default: input.txt)

@@ -157,14 +157,14 @@ def cli():
         "-i",
         type=str,
         default="input.txt",
-        help="Input file with characters to scrape",
+        help="Input file with characters to scrape (default: input.txt)",
     )
     parser.add_argument(
         "--output",
         "-o",
         type=str,
         default="ankchinese_output",
-        help="Name of output file (do not include extension)",
+        help="Name of output file (do not include extension) (default: ankichinese_output)",
     )
     parser.add_argument(
         "--type",
@@ -172,21 +172,21 @@ def cli():
         type=str,
         choices=["anki", "csv"],
         default="anki",
-        help="Output file type",
+        help="Output file type (default: anki)",
     )
     parser.add_argument(
         "--numDefs",
         "-d",
         type=int,
         default=5,
-        help="Number of definitions to scrape per character",
+        help="Number of definitions to scrape per character (default: 5)",
     )
     parser.add_argument(
         "--numExamples",
         "-e",
         type=int,
         default=3,
-        help="Number of example words to scrape per character",
+        help="Number of example words to scrape per character (default: 3)",
     )
 
     args = parser.parse_args()
