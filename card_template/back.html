@@ -11,21 +11,27 @@
     };
 
     (async () => {
-        if (typeof HanziWriter === "undefined") {
-            await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
+        if (window.navigator.onLine) {
+            if (typeof HanziWriter === "undefined") {
+                await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
+            }
+
+            var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
+                width: 300,
+                height: 300,
+                radicalColor: '#337ab7',
+                showCharacter: false,
+                showOutline: true,
+                delayBetweenStrokes: 100,
+                padding: 5
+            });
+
+            writer.loopCharacterAnimation();
+        }
+        else {
+            document.querySelector("#strokeOrder").style.display = "block"
         }
 
-        var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
-            width: 300,
-            height: 300,
-            radicalColor: '#337ab7',
-            showCharacter: false,
-            showOutline: true,
-            delayBetweenStrokes: 100,
-            padding: 5
-        });
-
-        writer.loopCharacterAnimation();
     })();
 </script>
 
@@ -33,6 +39,7 @@
 
 <hr id=answer>
 <div class=notes style='color:gray'>HSK: {{HSK}}</div>
+<a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
 <a id="diagram" href="plecoapi://x-callback-url/df?hw={{Hanzi}}"></a>
 
 <p>{{Words}}</p>

@@ -209,7 +209,7 @@ def cli():
                 if not hanzi.isspace():
                     list_of_hanzi.append(hanzi)
     print(
-        f"Finished reading input in {time.perf_counter() - start} seconds, starting scraping"
+        f"Finished reading input in {round(time.perf_counter() - start, 4)} seconds, starting scraping"
     )
 
     if args.type == "csv":
@@ -220,10 +220,12 @@ def cli():
     elif args.type == "anki":
         results = asyncio.run(main_itr(list_of_hanzi, args.numDefs, args.numExamples))
 
-        genanki.Package(results).write_to_file(args.output + ".apkg")
+        package = genanki.Package(results)
+        package.media_files = ["card_template/CNstrokeorder-0.0.4.7.ttf"]
+        package.write_to_file(args.output + ".apkg")
 
     print(
-        f"Finished scraping in {time.perf_counter() - start} seconds, wrote to {args.output} with file type {args.type}"
+        f"Finished scraping in {round(time.perf_counter() - start, 4)} seconds, wrote to {args.output} with file type {args.type}"
     )
 
 

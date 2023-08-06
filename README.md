@@ -19,3 +19,6 @@ This program scrapes the ArchChinese dictionary to generate Anki flashcards.
 
     --numDefs, -d NUM           Number of definitions to scrape per character (default: 5)
     --numExamples, -e NUM       Number of example words to scrape per character (default: 3)
+
+## Credits
+Offline stroke order font: https://rtega.be/chmn/index.php?subpage=68
