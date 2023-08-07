@@ -102,7 +102,11 @@ async def fetch(context, num_defs, num_examples, hanzi):
     await page.wait_for_function("() => !!document.querySelector('#wordTable')")
     content = await page.content()
     await page.close()
-    return scrape_word(content, num_defs, num_examples, hanzi)
+    try:
+        return scrape_word(content, num_defs, num_examples, hanzi)
+    except Exception as e:
+        print(f"Error scraping {hanzi}: {e}")
+        return None
 
 
 async def main_csv(chars, num_defs, num_examples):
@@ -119,6 +123,8 @@ async def main_csv(chars, num_defs, num_examples):
             max_per_second=5,
         ) as results:
             async for data in results:
+                if data is None:
+                    continue
                 result_list.append(data)
                 pbar.update(1)
         await browser.close()
@@ -174,6 +180,8 @@ async def main_anki(chars, num_defs, num_examples):
             max_per_second=5,
         ) as results:
             async for data in results:
+                if data is None:
+                    continue
                 note = genanki.Note(
                     model=chinese_model,
                     fields=[
@@ -199,6 +207,14 @@ def cli():
         description="Scrape ArchChinese for definitions and example words"
     )
     parser.add_argument(
+        "--type",
+        "-t",
+        type=str,
+        choices=["anki", "csv"],
+        default="anki",
+        help="Output file type (default: anki)",
+    )
+    parser.add_argument(
         "--input",
         "-i",
         type=str,
@@ -211,14 +227,6 @@ def cli():
         type=str,
         default="ankchinese_output",
         help="Name of output file (do not include extension) (default: ankichinese_output)",
-    )
-    parser.add_argument(
-        "--type",
-        "-t",
-        type=str,
-        choices=["anki", "csv"],
-        default="anki",
-        help="Output file type (default: anki)",
     )
     parser.add_argument(
         "--defs",
@@ -242,14 +250,15 @@ def cli():
             for hanzi in line:
                 if not hanzi.isspace():
                     hanzi_list.append(hanzi)
+    hanzi_list = set(hanzi_list)  # remove duplicates
 
     if args.type == "csv":
-        results = asyncio.run(main_csv(hanzi_list, args.num_defs, args.num_examples))
+        results = asyncio.run(main_csv(hanzi_list, args.defs, args.examples))
 
         df = pd.DataFrame(results)
         df.to_csv(args.output + ".csv", index=False)
     elif args.type == "anki":
-        results = asyncio.run(main_anki(hanzi_list, args.num_defs, args.num_examples))
+        results = asyncio.run(main_anki(hanzi_list, args.defs, args.examples))
 
         package = genanki.Package(results)
         audio_files = os.listdir("ankichinese_audio")
