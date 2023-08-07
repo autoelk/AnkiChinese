@@ -1,6 +1,11 @@
 # AnkiChinese
 
-This program scrapes the ArchChinese dictionary to generate Anki flashcards.
+Scrape the ArchChinese dictionary to generate Anki flashcards with:
+1. Pinyin & Audio
+2. Definitions
+3. Common examples
+4. Stroke order diagrams
+5. HSK level
 
 ## 1. Installation
 
@@ -21,4 +26,9 @@ This program scrapes the ArchChinese dictionary to generate Anki flashcards.
     --examples, -e NUM          Number of example words to scrape per character (default: 3)
 
 ## Credits
+Online stroke order diagrams: https://hanziwriter.org/
 Offline stroke order font: https://rtega.be/chmn/index.php?subpage=68
+
+Chinese audio:
+1. https://yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table
+2. https://www.purpleculture.net/chinese_pinyin_chart/
