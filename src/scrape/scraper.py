@@ -11,6 +11,8 @@ import time
 import argparse
 
 import genanki
+import requests
+import os
 
 
 class MyNote(genanki.Note):
@@ -25,6 +27,21 @@ def cleanStr(string):
 
 def scrapeWord(r, numDefs, numExamples, hanzi):
     soup = BeautifulSoup(r, "html5lib")
+
+    # Get audio
+    pinyinTone = regex.search(
+        '(?<=fn_playSinglePinyin\(")(.*)(?="\))',
+        soup.select_one("#primaryPinyin a.arch-pinyin-font").get("onclick"),
+    ).group(0)
+
+    filepath = f"ankichinese_audio/{pinyinTone}.mp3"
+    if not os.path.exists(filepath):
+        r = requests.get(f"https://cdn.yoyochinese.com/audio/pychart/{pinyinTone}.mp3")
+        if r.status_code == 404:
+            r = requests.get(f"https://www.purpleculture.net/mp3/{pinyinTone}.mp3")
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "wb") as f:
+            f.write(r.content)
 
     # Get basic info
     charDef = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
@@ -44,6 +61,7 @@ def scrapeWord(r, numDefs, numExamples, hanzi):
         "pinyin2": cleanStr(", ".join(pinyinLst[1:])) if len(pinyinLst) > 1 else "",
         "hsk": details["HSK Level"] if "HSK Level" in details else "",
         "formation": details["Formation"] if "Formation" in details else "",
+        "audio": f"[sound:{pinyinTone}.mp3]",
     }
 
     # Get examples
@@ -80,7 +98,7 @@ async def fetch(context, numDefs, numExamples, hanzi):
     return scrapeWord(content, numDefs, numExamples, hanzi)
 
 
-async def main_all(chars, numDefs, numExamples):
+async def main_csv(chars, numDefs, numExamples):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
@@ -93,7 +111,7 @@ async def main_all(chars, numDefs, numExamples):
         return results
 
 
-async def main_itr(chars, numDefs, numExamples):
+async def main_anki(chars, numDefs, numExamples):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
@@ -150,7 +168,7 @@ async def main_itr(chars, numDefs, numExamples):
                         data["examples"],
                         data["formation"],
                         data["hsk"],
-                        "",
+                        data["audio"],
                     ],
                 )
                 deck.add_note(note)
@@ -213,15 +231,18 @@ def cli():
     )
 
     if args.type == "csv":
-        results = asyncio.run(main_all(list_of_hanzi, args.numDefs, args.numExamples))
+        results = asyncio.run(main_csv(list_of_hanzi, args.numDefs, args.numExamples))
 
         df = pd.DataFrame(results)
         df.to_csv(args.output + ".csv", index=False)
     elif args.type == "anki":
-        results = asyncio.run(main_itr(list_of_hanzi, args.numDefs, args.numExamples))
+        results = asyncio.run(main_anki(list_of_hanzi, args.numDefs, args.numExamples))
 
         package = genanki.Package(results)
-        package.media_files = ["card_template/CNstrokeorder-0.0.4.7.ttf"]
+        audio_files = os.listdir("ankichinese_audio")
+        for file in audio_files:
+            package.media_files.append("ankichinese_audio/" + file)
+        package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
         package.write_to_file(args.output + ".apkg")
 
     print(
