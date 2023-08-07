@@ -18,7 +18,7 @@ Scrape the ArchChinese dictionary to generate Anki flashcards with:
 
     -h, --help                  Show help message and exit 
 
-    --type, -t {anki,csv}       Output file type (default: anki)
+    -csv                        Output to CSV instead of Anki deck    
     --input, -i INPUT           Input file with characters to scrape (default: input.txt)
     --output, -o OUTPUT         Name of output file (do not include extension) 
                                 (default: ankichinese_output)
@@ -50,7 +50,7 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
         1. Go to `File` -> `Import` -> `Upload` and select the exported deck file. 
         2. Set separator type to `Tab` and click `Import data`.
     3. Copy the entire column of Chinese characters into `input.txt`.
-4. Run `ankichinese --type csv`
+4. Run `ankichinese -csv`
 5. Open both your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. 
     1. Use the same method as before except the `ankichinese_output.csv` file is comma-separated instead of tab-separated
 6. Sort both tables by the column containing Chinese characters.

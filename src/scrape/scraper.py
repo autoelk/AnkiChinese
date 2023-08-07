@@ -207,12 +207,10 @@ def cli():
         description="Scrape ArchChinese for definitions and example words"
     )
     parser.add_argument(
-        "--type",
-        "-t",
-        type=str,
-        choices=["anki", "csv"],
-        default="anki",
-        help="Output file type (default: anki)",
+        "-csv",
+        default=False,
+        action="store_true",
+        help="Output to CSV instead of Anki deck",
     )
     parser.add_argument(
         "--input",
@@ -252,12 +250,12 @@ def cli():
                     hanzi_list.append(hanzi)
     hanzi_list = set(hanzi_list)  # remove duplicates
 
-    if args.type == "csv":
+    if args.csv:
         results = asyncio.run(main_csv(hanzi_list, args.defs, args.examples))
 
         df = pd.DataFrame(results)
         df.to_csv(args.output + ".csv", index=False)
-    elif args.type == "anki":
+    else:
         results = asyncio.run(main_anki(hanzi_list, args.defs, args.examples))
 
         package = genanki.Package(results)
@@ -267,7 +265,7 @@ def cli():
         package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
         package.write_to_file(args.output + ".apkg")
 
-    print(f"Finished scraping, wrote to {args.output} with file type {args.type}")
+    print(f"Finished scraping {len(hanzi_list)} characters!")
 
 
 if __name__ == "__main__":
