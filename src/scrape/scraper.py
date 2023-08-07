@@ -7,8 +7,8 @@ from playwright.async_api import async_playwright
 
 import pandas as pd
 import re as regex
-import time
 import argparse
+from tqdm import tqdm
 
 import genanki
 import requests
@@ -28,21 +28,6 @@ def cleanStr(string):
 def scrapeWord(r, numDefs, numExamples, hanzi):
     soup = BeautifulSoup(r, "html5lib")
 
-    # Get audio
-    pinyinTone = regex.search(
-        '(?<=fn_playSinglePinyin\(")(.*)(?="\))',
-        soup.select_one("#primaryPinyin a.arch-pinyin-font").get("onclick"),
-    ).group(0)
-
-    filepath = f"ankichinese_audio/{pinyinTone}.mp3"
-    if not os.path.exists(filepath):
-        r = requests.get(f"https://cdn.yoyochinese.com/audio/pychart/{pinyinTone}.mp3")
-        if r.status_code == 404:
-            r = requests.get(f"https://www.purpleculture.net/mp3/{pinyinTone}.mp3")
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, "wb") as f:
-            f.write(r.content)
-
     # Get basic info
     charDef = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
 
@@ -61,7 +46,6 @@ def scrapeWord(r, numDefs, numExamples, hanzi):
         "pinyin2": cleanStr(", ".join(pinyinLst[1:])) if len(pinyinLst) > 1 else "",
         "hsk": details["HSK Level"] if "HSK Level" in details else "",
         "formation": details["Formation"] if "Formation" in details else "",
-        "audio": f"[sound:{pinyinTone}.mp3]",
     }
 
     # Get examples
@@ -84,6 +68,23 @@ def scrapeWord(r, numDefs, numExamples, hanzi):
 
     info["examples"] = cleanStr("<br>".join(examples))
 
+    # Get audio
+    pinyinTone = regex.search(
+        '(?<=fn_playSinglePinyin\(")(.*)(?="\))',
+        soup.select_one("#primaryPinyin a.arch-pinyin-font").get("onclick"),
+    ).group(0)
+
+    filepath = f"ankichinese_audio/{pinyinTone}.mp3"
+    if not os.path.exists(filepath):
+        r = requests.get(f"https://cdn.yoyochinese.com/audio/pychart/{pinyinTone}.mp3")
+        if r.status_code == 404:
+            r = requests.get(f"https://www.purpleculture.net/mp3/{pinyinTone}.mp3")
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "wb") as f:
+            f.write(r.content)
+
+    info["audio"] = f"[sound:{pinyinTone}.mp3]"
+
     return info
 
 
@@ -102,13 +103,21 @@ async def main_csv(chars, numDefs, numExamples):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
-        tasks = [
-            functools.partial(fetch, context, numDefs, numExamples, hanzi)
-            for hanzi in chars
-        ]
-        results = await aiometer.run_all(tasks, max_at_once=10, max_per_second=5)
+
+        pbar = tqdm(total=len(chars))
+        list = []
+        async with aiometer.amap(
+            functools.partial(fetch, context, numDefs, numExamples),
+            chars,
+            max_at_once=10,
+            max_per_second=5,
+        ) as results:
+            async for data in results:
+                list.append(data)
+                pbar.update(1)
         await browser.close()
-        return results
+        pbar.close()
+        return list
 
 
 async def main_anki(chars, numDefs, numExamples):
@@ -151,6 +160,7 @@ async def main_anki(chars, numDefs, numExamples):
 
         deck = genanki.Deck(2059400110, "AnkiChinese Deck")
 
+        pbar = tqdm(total=len(chars))
         async with aiometer.amap(
             functools.partial(fetch, context, numDefs, numExamples),
             chars,
@@ -172,7 +182,9 @@ async def main_anki(chars, numDefs, numExamples):
                     ],
                 )
                 deck.add_note(note)
+                pbar.update(1)
         await browser.close()
+        pbar.close()
         return deck
 
 
@@ -216,19 +228,14 @@ def cli():
         default=3,
         help="Number of example words to scrape per character (default: 3)",
     )
-
     args = parser.parse_args()
 
-    start = time.perf_counter()
     list_of_hanzi = []  # unfinished list of characters to scrape
     with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
         for line in f:
             for hanzi in line:
                 if not hanzi.isspace():
                     list_of_hanzi.append(hanzi)
-    print(
-        f"Finished reading input in {round(time.perf_counter() - start, 4)} seconds, starting scraping"
-    )
 
     if args.type == "csv":
         results = asyncio.run(main_csv(list_of_hanzi, args.numDefs, args.numExamples))
@@ -245,9 +252,7 @@ def cli():
         package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
         package.write_to_file(args.output + ".apkg")
 
-    print(
-        f"Finished scraping in {round(time.perf_counter() - start, 4)} seconds, wrote to {args.output} with file type {args.type}"
-    )
+    print(f"Finished scraping, wrote to {args.output} with file type {args.type}")
 
 
 if __name__ == "__main__":
