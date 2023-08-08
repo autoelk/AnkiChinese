@@ -46,7 +46,7 @@ def scrape_word(r, num_defs, num_examples, hanzi):
         ),
         "pinyin": clean_string(pinyin_list[0]),
         "pinyin2": clean_string(", ".join(pinyin_list[1:])),
-        "hsk": details.get("HSK Level", ""),
+        "hsk": details.get("HSK Level", "None"),
         "formation": details.get("Formation", ""),
     }
 
@@ -59,14 +59,17 @@ def scrape_word(r, num_defs, num_examples, hanzi):
     examples = []
     for i in range(min(num_examples, len(ex_words))):
         word = ex_words[i].text
-        pinyin = ex_info[i + 1].select_one("p>a").get_text()
+        ruby_list = []  # Pinyin to appear above word
+        for part in ex_info[i + 1].select("p>a>span"):
+            ruby_list.append(part.get_text())
+        ruby_text = " ".join(ruby_list)
         defn = ", ".join(
             regex.sub(
                 "[\[].*?[\]]", "", ex_info[i + 1].select_one("p").get_text()
             ).split(", ")[:num_defs]
         )
 
-        examples.append(word + "[" + pinyin + "]: " + defn)
+        examples.append(word + "[" + ruby_text + "]: " + defn)
 
     info["examples"] = clean_string("<br>".join(examples))
 

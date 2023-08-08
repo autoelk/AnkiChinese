@@ -30,3 +30,11 @@
     font-size: 300px;
     display: none;
 }
+
+.meta {
+    color: grey;
+}
+
+.notes {
+    line-height: 1.7;
+}
