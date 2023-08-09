@@ -15,12 +15,6 @@ import requests
 import os
 
 
-class MyNote(genanki.Note):
-    @property
-    def guid(self):
-        return genanki.guid_for(self.fields[0])
-
-
 def clean_string(string):
     return regex.sub(" +", " ", string.strip().replace("\n", ""))
 
@@ -171,6 +165,7 @@ async def main_anki(chars, num_defs, num_examples):
                 }
             ],
             css=styles,
+            sort_field_index=0,
         )
 
         deck = genanki.Deck(2059400110, "AnkiChinese Deck")
@@ -197,6 +192,7 @@ async def main_anki(chars, num_defs, num_examples):
                         data["hsk"],
                         data["audio"],
                     ],
+                    guid=genanki.guid_for(data["hanzi"]),
                 )
                 deck.add_note(note)
                 pbar.update(1)
@@ -263,7 +259,8 @@ def cli():
 
         package = genanki.Package(results)
         audio_files = os.listdir("ankichinese_audio")
-        for file in audio_files:
+        print(f"Adding {len(audio_files)} audio files.")
+        for file in tqdm(audio_files):
             package.media_files.append("ankichinese_audio/" + file)
         package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
         package.write_to_file(args.output + ".apkg")
