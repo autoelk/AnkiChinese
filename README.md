@@ -1,9 +1,9 @@
 # AnkiChinese
 
-Scrape the ArchChinese dictionary to generate Anki flashcards with:
+Asynchronousy scrape the ArchChinese dictionary to generate Anki flashcards with:
 - Pinyin & Audio
 - Definitions
-- Common examples
+- Example words
 - Formation/Origin
 - Stroke order diagrams
 - HSK level
@@ -33,7 +33,7 @@ How to create an entirely new Anki deck with the name `ankichinese_output.apkg` 
 2. Run `ankichinese`.
 3. Open Anki and import `ankichinese_output.apkg`.
 
-### Updating is Easy
+**Updating is Easy!**  
 Just run `ankichinese` again with new characters in `input.txt` and import the new `ankichinese_output.apkg` file into Anki. Anki will automatically update the existing deck without losing progress.
 
 ## Update Existing (Non-AnkiChinese) Deck Without Losing Progress
@@ -41,7 +41,7 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
 1. Prepare current deck for export
     1. Decide what information you would like to add from the AnkiChinese deck.
     2. Create empty fields in your deck for the information you want to add.
-2. Export the deck you want to update from Anki using Notes in Plain Text (.txt) format. Make sure to check the `Include unique identifier` box.
+2. Export the deck you want to update from Anki using `Notes in Plain Text (.txt)` format. Check the `Include unique identifier` box.
 3. Open your deck in Excel or Google Sheets
     1. Excel
         1. Go to the `Data` -> `From Text/CSV` and import the exported deck file.
@@ -51,10 +51,19 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
         2. Set separator type to `Tab` and click `Import data`.
     3. Copy the entire column of Chinese characters into `input.txt`.
 4. Run `ankichinese -csv`
-5. Open both your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. (Use the same method as before)
+5. Open your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. (Use the same method as before)
 6. Sort both tables by the column containing Chinese characters.
-7. Copy your desired information from the `ankichinese_output.csv` table into your exported deck table. Do not add/delete columns or modify the GUID column of your deck.
+7. Copy your desired information from the `ankichinese_output.csv` table into your exported deck table. **Do not add/delete columns or modify the GUID column of your deck.**
 8. Save the file as a .csv file and import into Anki.
+
+# Tools Used
+- Asyncio: https://docs.python.org/3/library/asyncio.html
+- Playwright: https://playwright.dev/python/ 
+- Aiometer: https://github.com/florimondmanca/aiometer
+- Genanki: https://github.com/kerrickstaley/genanki
+- tqdm: https://github.com/tqdm/tqdm
+- Beautiful Soup: https://www.crummy.com/software/BeautifulSoup/
+- Pandas: https://pandas.pydata.org/
 
 # Credits
 Stroke order diagrams:
