@@ -57,19 +57,19 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
 8. Save the file as a .csv file and import into Anki.
 
 # Tools Used
-- Asyncio: https://docs.python.org/3/library/asyncio.html
-- Playwright: https://playwright.dev/python/ 
-- Aiometer: https://github.com/florimondmanca/aiometer
-- Genanki: https://github.com/kerrickstaley/genanki
-- tqdm: https://github.com/tqdm/tqdm
-- Beautiful Soup: https://www.crummy.com/software/BeautifulSoup/
-- Pandas: https://pandas.pydata.org/
+- Asynchronous I/O: [Asyncio](https://docs.python.org/3/library/asyncio.html)
+- Limit concurrency: [Aiometer](https://github.com/florimondmanca/aiometer)
+- Web Automation and HTML Interaction: [Playwright](https://playwright.dev/python/)
+- Anki deck generation: [Genanki](https://github.com/kerrickstaley/genanki)
+- Progress bars: [tqdm](https://github.com/tqdm/tqdm)
+- HTML parsing and scraping: [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
+- Data manipulation: [Pandas](https://pandas.pydata.org/)
 
 # Credits
 Stroke order diagrams:
-- Online stroke order diagrams: https://hanziwriter.org/
-- Offline stroke order font: https://rtega.be/chmn/index.php?subpage=68
+- Online stroke order diagrams: [Hanzi Writer](https://hanziwriter.org/)
+- Offline stroke order font: [Reinaert Albrecht](https://rtega.be/chmn/index.php?subpage=68)
 
 Chinese audio:
-- https://yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table
-- Neutral tones: https://www.purpleculture.net/chinese_pinyin_chart/
+- [Yoyo Chinese](https://yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table)
+- Neutral tones: [Purple Culture](https://www.purpleculture.net/chinese_pinyin_chart/)
