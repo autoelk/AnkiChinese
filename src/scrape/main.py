@@ -40,7 +40,22 @@ def cli():
         default=3,
         help="Number of example words to scrape per character (default: 3)",
     )
+    parser.add_argument(
+        "--requests-at-once",
+        "-r",
+        type=int,
+        default=10,
+        help="Maximum number of requests at once (default: 10)",
+    )
+    parser.add_argument(
+        "--requests-per-second",
+        "-rs",
+        type=int,
+        default=5,
+        help="Maximum number of requests per second (default: 5)",
+    )
     args = parser.parse_args()
+    print(args)
 
     hanzi_list = []  # unfinished list of characters to scrape
     with open(args.input, encoding="utf8", errors="replace", mode="r") as f:

@@ -16,15 +16,19 @@ Asynchronousy scrape the ArchChinese dictionary to generate Anki flashcards with
 
     ankichinese
 
-    -h, --help                  Show help message and exit 
+    -h, --help                          Show help message and exit 
 
-    -csv                        Output to CSV instead of Anki deck    
-    --input, -i INPUT           Input file with characters to scrape (default: input.txt)
-    --output, -o OUTPUT         Name of output file (do not include extension) 
-                                (default: ankichinese_output)
+    -csv                                Output to CSV instead of Anki deck    
+    --input, -i INPUT                   Input file with characters to scrape (default: input.txt)
+    --output, -o OUTPUT                 Name of output file (do not include extension) 
+                                        (default: ankichinese_output)
 
-    --defs, -d NUM              Number of definitions to scrape per character (default: 5)
-    --examples, -e NUM          Number of example words to scrape per character (default: 3)
+    --defs, -d NUM                      Number of definitions to scrape per character (default: 5)
+    --examples, -e NUM                  Number of example words to scrape per character (default: 3)
+
+    --requests-at-once, -r NUM          Maximum number of requests at once (default: 10)
+    --requests-per-second, -rs NUM      Maximum number of requests per second (default: 5)
+                                
 
 ## Generate New AnkiChinese Deck
 How to create an entirely new Anki deck with the name `ankichinese_output.apkg` in the current directory using custom AnkiChinese styling. 

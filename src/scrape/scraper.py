@@ -184,8 +184,8 @@ async def main_anki(chars, args):
         async with aiometer.amap(
             functools.partial(fetch, context, args),
             chars,
-            max_at_once=10,
-            max_per_second=5,
+            max_at_once=args.requests_at_once,
+            max_per_second=args.requests_per_second,
         ) as results:
             async for data in results:
                 if data is not None:
