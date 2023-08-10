@@ -1,6 +1,6 @@
 # AnkiChinese
 
-Asynchronousy scrape the ArchChinese dictionary to generate Anki flashcards with:
+Asynchronously scrape the ArchChinese dictionary to generate Anki flashcards with:
 - Pinyin & Audio
 - Definitions
 - Example words
