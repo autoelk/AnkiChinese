@@ -51,8 +51,7 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
         2. Set separator type to `Tab` and click `Import data`.
     3. Copy the entire column of Chinese characters into `input.txt`.
 4. Run `ankichinese -csv`
-5. Open both your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. 
-    1. Use the same method as before except the `ankichinese_output.csv` file is comma-separated instead of tab-separated
+5. Open both your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. (Use the same method as before)
 6. Sort both tables by the column containing Chinese characters.
 7. Copy your desired information from the `ankichinese_output.csv` table into your exported deck table. Do not add/delete columns or modify the GUID column of your deck.
 8. Save the file as a .csv file and import into Anki.

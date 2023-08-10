@@ -215,7 +215,7 @@ def scrape(hanzi_list, args):
         results = asyncio.run(main_dict(hanzi_list, args))
 
         df = pd.DataFrame(results)
-        df.to_csv(args.output + ".csv", index=False)
+        df.to_csv(args.output + ".csv", index=False, sep="\t")
     else:
         results = asyncio.run(main_anki(hanzi_list, args))
 
