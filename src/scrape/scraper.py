@@ -7,7 +7,6 @@ from playwright.async_api import async_playwright
 
 import pandas as pd
 import re as regex
-import argparse
 from tqdm import tqdm
 
 import genanki
@@ -19,13 +18,10 @@ def clean_string(string):
     return regex.sub(" +", " ", string.strip().replace("\n", ""))
 
 
-def scrape_word(r, num_defs, num_examples, hanzi):
-    soup = BeautifulSoup(r, "html5lib")
-
-    # Get basic info
+def scrape_basic_info(soup, args):
     char_def = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
 
-    # Get all information on page
+    # Get information in first box
     details = dict()
     for detail in char_def:
         parts = detail.split(":")
@@ -34,24 +30,25 @@ def scrape_word(r, num_defs, num_examples, hanzi):
 
     pinyin_list = details.get("Pinyin", "").split(", ")
     info = {
-        "hanzi": hanzi,
         "definition": clean_string(
-            ", ".join(details.get("Definition", "").split(", ")[:num_defs])
+            ", ".join(details.get("Definition", "").split(", ")[: args.examples])
         ),
         "pinyin": clean_string(pinyin_list[0]),
         "pinyin2": clean_string(", ".join(pinyin_list[1:])),
         "hsk": details.get("HSK Level", "None"),
         "formation": details.get("Formation", ""),
     }
+    return info
 
-    # Get examples
+
+def scrape_example_words(soup, args):
     word_table = soup.select_one("#wordPaneContent #wordTable")
 
     ex_words = word_table.select(".word-container .char-effect:first-child")
     ex_info = word_table.select(".col-md-7")
 
     examples = []
-    for i in range(min(num_examples, len(ex_words))):
+    for i in range(min(args.examples, len(ex_words))):
         word = ex_words[i].text
         ruby_list = []  # Pinyin to appear above word
         for part in ex_info[i + 1].select("p>a>span"):
@@ -60,14 +57,15 @@ def scrape_word(r, num_defs, num_examples, hanzi):
         defn = ", ".join(
             regex.sub(
                 "[\[].*?[\]]", "", ex_info[i + 1].select_one("p").get_text()
-            ).split(", ")[:num_defs]
+            ).split(", ")[: args.defs]
         )
 
         examples.append(word + "[" + ruby_text + "]: " + defn)
 
-    info["examples"] = clean_string("<br>".join(examples))
+    return clean_string("<br>".join(examples))
 
-    # Get audio
+
+def scrape_audio(soup, args):
     pinyin_tone = (
         regex.search(
             '(?<=fn_playSinglePinyin\(")(.*)(?="\))',
@@ -86,12 +84,22 @@ def scrape_word(r, num_defs, num_examples, hanzi):
         with open(file_path, "wb") as f:
             f.write(r.content)
 
-    info["audio"] = f"[sound:{pinyin_tone}.mp3]"
+    return f"[sound:{pinyin_tone}.mp3]"
+
+
+def scrape_word(r, args, hanzi):
+    soup = BeautifulSoup(r, "html5lib")
+
+    info = dict()
+    info["hanzi"] = hanzi
+    info.update(scrape_basic_info(soup, args))
+    info["examples"] = scrape_example_words(soup, args)
+    info["audio"] = scrape_audio(soup, args)
 
     return info
 
 
-async def fetch(context, num_defs, num_examples, hanzi):
+async def fetch(context, args, hanzi):
     page = await context.new_page()
     await page.goto(
         f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
@@ -100,13 +108,13 @@ async def fetch(context, num_defs, num_examples, hanzi):
     content = await page.content()
     await page.close()
     try:
-        return scrape_word(content, num_defs, num_examples, hanzi)
+        return scrape_word(content, args, hanzi)
     except Exception as e:
-        print(f"Error scraping {hanzi}: {e}")
+        # print(f"Error scraping {hanzi}: {e}")
         return None
 
 
-async def main_csv(chars, num_defs, num_examples):
+async def main_dict(chars, args):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
@@ -114,159 +122,108 @@ async def main_csv(chars, num_defs, num_examples):
         pbar = tqdm(total=len(chars))
         result_list = []
         async with aiometer.amap(
-            functools.partial(fetch, context, num_defs, num_examples),
+            functools.partial(fetch, context, args),
             chars,
             max_at_once=10,
             max_per_second=5,
         ) as results:
             async for data in results:
-                if data is None:
-                    continue
-                result_list.append(data)
+                if data is not None:
+                    result_list.append(data)
                 pbar.update(1)
         await browser.close()
         pbar.close()
         return result_list
 
 
-async def main_anki(chars, num_defs, num_examples):
+def gen_model():
+    front_html = open("card_template/front.html", "r")
+    front = front_html.read()
+    front_html.close()
+    back_html = open("card_template/back.html", "r")
+    back = back_html.read()
+    back_html.close()
+    styles_css = open("card_template/styles.css", "r")
+    styles = styles_css.read()
+    styles_css.close()
+
+    return genanki.Model(
+        1607392319,
+        "Chinese Model",
+        fields=[
+            {"name": "Hanzi"},
+            {"name": "Definition"},
+            {"name": "Pinyin"},
+            {"name": "Pinyin 2"},
+            {"name": "Words"},
+            {"name": "Formation"},
+            {"name": "HSK"},
+            {"name": "Audio"},
+        ],
+        templates=[
+            {
+                "name": "Card 1",
+                "qfmt": front,
+                "afmt": back,
+            }
+        ],
+        css=styles,
+        sort_field_index=0,
+    )
+
+
+async def main_anki(chars, args):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
-        front_html = open("card_template/front.html", "r")
-        front = front_html.read()
-        front_html.close()
-        back_html = open("card_template/back.html", "r")
-        back = back_html.read()
-        back_html.close()
-        styles_css = open("card_template/styles.css", "r")
-        styles = styles_css.read()
-        styles_css.close()
-
-        chinese_model = genanki.Model(
-            1607392319,
-            "Chinese Model",
-            fields=[
-                {"name": "Hanzi"},
-                {"name": "Definition"},
-                {"name": "Pinyin"},
-                {"name": "Pinyin 2"},
-                {"name": "Words"},
-                {"name": "Formation"},
-                {"name": "HSK"},
-                {"name": "Audio"},
-            ],
-            templates=[
-                {
-                    "name": "Card 1",
-                    "qfmt": front,
-                    "afmt": back,
-                }
-            ],
-            css=styles,
-            sort_field_index=0,
-        )
-
+        note_model = gen_model()
         deck = genanki.Deck(2059400110, "AnkiChinese Deck")
 
         pbar = tqdm(total=len(chars))
         async with aiometer.amap(
-            functools.partial(fetch, context, num_defs, num_examples),
+            functools.partial(fetch, context, args),
             chars,
             max_at_once=10,
             max_per_second=5,
         ) as results:
             async for data in results:
-                if data is None:
-                    continue
-                note = genanki.Note(
-                    model=chinese_model,
-                    fields=[
-                        data["hanzi"],
-                        data["definition"],
-                        data["pinyin"],
-                        data["pinyin2"],
-                        data["examples"],
-                        data["formation"],
-                        data["hsk"],
-                        data["audio"],
-                    ],
-                    guid=genanki.guid_for(data["hanzi"]),
-                )
-                deck.add_note(note)
+                if data is not None:
+                    note = genanki.Note(
+                        model=note_model,
+                        fields=[
+                            data["hanzi"],
+                            data["definition"],
+                            data["pinyin"],
+                            data["pinyin2"],
+                            data["examples"],
+                            data["formation"],
+                            data["hsk"],
+                            data["audio"],
+                        ],
+                        guid=genanki.guid_for(data["hanzi"]),
+                    )
+                    deck.add_note(note)
                 pbar.update(1)
         await browser.close()
         pbar.close()
         return deck
 
 
-def cli():
-    parser = argparse.ArgumentParser(
-        description="Scrape ArchChinese for definitions and example words"
-    )
-    parser.add_argument(
-        "-csv",
-        default=False,
-        action="store_true",
-        help="Output to CSV instead of Anki deck",
-    )
-    parser.add_argument(
-        "--input",
-        "-i",
-        type=str,
-        default="input.txt",
-        help="Input file with characters to scrape (default: input.txt)",
-    )
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=str,
-        default="ankchinese_output",
-        help="Name of output file (do not include extension) (default: ankichinese_output)",
-    )
-    parser.add_argument(
-        "--defs",
-        "-d",
-        type=int,
-        default=5,
-        help="Number of definitions to scrape per character (default: 5)",
-    )
-    parser.add_argument(
-        "--examples",
-        "-e",
-        type=int,
-        default=3,
-        help="Number of example words to scrape per character (default: 3)",
-    )
-    args = parser.parse_args()
-
-    hanzi_list = []  # unfinished list of characters to scrape
-    with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
-        for line in f:
-            for hanzi in line:
-                if not hanzi.isspace():
-                    hanzi_list.append(hanzi)
-    hanzi_list = set(hanzi_list)  # remove duplicates
-
+def scrape(hanzi_list, args):
     if args.csv:
-        results = asyncio.run(main_csv(hanzi_list, args.defs, args.examples))
+        results = asyncio.run(main_dict(hanzi_list, args))
 
         df = pd.DataFrame(results)
         df.to_csv(args.output + ".csv", index=False)
     else:
-        results = asyncio.run(main_anki(hanzi_list, args.defs, args.examples))
+        results = asyncio.run(main_anki(hanzi_list, args))
 
         package = genanki.Package(results)
         audio_files = os.listdir("ankichinese_audio")
-        print(f"Adding {len(audio_files)} audio files.")
-        for file in tqdm(audio_files):
+        for file in audio_files:
             package.media_files.append("ankichinese_audio/" + file)
         package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
         package.write_to_file(args.output + ".apkg")
 
     print(f"Finished scraping {len(hanzi_list)} characters!")
-
-
-if __name__ == "__main__":
-    cli()
