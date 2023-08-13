@@ -31,6 +31,13 @@
     display: none;
 }
 
+#diagram {
+    outline-color: rgb(0, 0, 0);
+    outline-style: solid;
+    outline-width: 1px;
+    outline-offset: -1px;
+}
+
 .meta {
     color: grey;
 }
