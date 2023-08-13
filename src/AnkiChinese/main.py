@@ -1,6 +1,7 @@
-import argparse
 import scraper
+import export
 
+import argparse
 
 def cli():
     parser = argparse.ArgumentParser(
@@ -55,7 +56,6 @@ def cli():
         help="Maximum number of requests per second (default: 5)",
     )
     args = parser.parse_args()
-    print(args)
 
     hanzi_list = []  # unfinished list of characters to scrape
     with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
@@ -65,8 +65,13 @@ def cli():
                     hanzi_list.append(hanzi)
     hanzi_list = set(hanzi_list)  # remove duplicates
 
-    scraper.scrape(hanzi_list, args)
+    results = scraper.scrape(hanzi_list, args)
+    print(f"Finished scraping {len(hanzi_list)} characters!")
 
+    if args.csv:
+        export.gen_csv(results, args)
+    else:
+        export.gen_anki(results, args)
 
 if __name__ == "__main__":
     cli()

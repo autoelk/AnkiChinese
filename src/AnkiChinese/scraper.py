@@ -5,11 +5,9 @@ import functools
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-import pandas as pd
 import re as regex
 from tqdm import tqdm
 
-import genanki
 import requests
 import os
 
@@ -114,7 +112,7 @@ async def fetch(context, args, hanzi):
         return None
 
 
-async def main_dict(chars, args):
+async def main(chars, args):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
@@ -135,95 +133,5 @@ async def main_dict(chars, args):
         pbar.close()
         return result_list
 
-
-def gen_model():
-    front_html = open("card_template/front.html", "r")
-    front = front_html.read()
-    front_html.close()
-    back_html = open("card_template/back.html", "r")
-    back = back_html.read()
-    back_html.close()
-    styles_css = open("card_template/styles.css", "r")
-    styles = styles_css.read()
-    styles_css.close()
-
-    return genanki.Model(
-        1607392319,
-        "Chinese Model",
-        fields=[
-            {"name": "Hanzi"},
-            {"name": "Definition"},
-            {"name": "Pinyin"},
-            {"name": "Pinyin 2"},
-            {"name": "Words"},
-            {"name": "Formation"},
-            {"name": "HSK"},
-            {"name": "Audio"},
-        ],
-        templates=[
-            {
-                "name": "Card 1",
-                "qfmt": front,
-                "afmt": back,
-            }
-        ],
-        css=styles,
-        sort_field_index=0,
-    )
-
-
-async def main_anki(chars, args):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        context = await browser.new_context()
-
-        note_model = gen_model()
-        deck = genanki.Deck(2059400110, "AnkiChinese Deck")
-
-        pbar = tqdm(total=len(chars))
-        async with aiometer.amap(
-            functools.partial(fetch, context, args),
-            chars,
-            max_at_once=args.requests_at_once,
-            max_per_second=args.requests_per_second,
-        ) as results:
-            async for data in results:
-                if data is not None:
-                    note = genanki.Note(
-                        model=note_model,
-                        fields=[
-                            data["hanzi"],
-                            data["definition"],
-                            data["pinyin"],
-                            data["pinyin2"],
-                            data["examples"],
-                            data["formation"],
-                            data["hsk"],
-                            data["audio"],
-                        ],
-                        guid=genanki.guid_for(data["hanzi"]),
-                    )
-                    deck.add_note(note)
-                pbar.update(1)
-        await browser.close()
-        pbar.close()
-        return deck
-
-
 def scrape(hanzi_list, args):
-    if args.csv:
-        results = asyncio.run(main_dict(hanzi_list, args))
-
-        df = pd.DataFrame(results)
-        df.to_csv(args.output + ".csv", index=False, sep="\t")
-    else:
-        results = asyncio.run(main_anki(hanzi_list, args))
-
-        package = genanki.Package(results)
-        audio_files = os.listdir("ankichinese_audio")
-        for file in audio_files:
-            package.media_files.append("ankichinese_audio/" + file)
-        package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
-        package.write_to_file(args.output + ".apkg")
-
-    print(f"Finished scraping {len(hanzi_list)} characters!")
+    return asyncio.run(main(hanzi_list, args))
