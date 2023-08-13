@@ -30,17 +30,35 @@
         }
         else {
             document.querySelector("#strokeOrder").style.display = "block"
+            document.querySelector("#diagramContainer").style.display = "none"
         }
-
     })();
 </script>
 
-{{FrontSide}}
+<!-- front side -->
+<div>{{Audio}}</div>
+<h1 class="pinyin">{{Pinyin}}</h1>
+<p class="pinyin2">{{Pinyin 2}}</p>
+<p class="definition">{{Definition}}</p>
 
 <hr id=answer>
+
+<!-- back side -->
 <div class="meta">HSK: {{HSK}}</div>
 <a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
-<a id="diagram" href="plecoapi://x-callback-url/df?hw={{Hanzi}}"></a>
+
+<a id="diagramContainer" href="plecoapi://x-callback-url/df?hw={{Hanzi}}" style="display: block;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" id="diagram" style="pointer-events: none;">
+        <line x1="0" y1="0" x2="300" y2="300" stroke="#DDD" />
+        <line x1="300" y1="0" x2="0" y2="300" stroke="#DDD" />
+        <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
+        <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
+        <line x1="300" y1="0" x2="300" y2="300" stroke="#DDD" />
+        <line x1="0" y1="300" x2="300" y2="300" stroke="#DDD" />
+        <line x1="0" y1="0" x2="300" y2="0" stroke="#DDD" />
+        <line x1="0" y1="0" x2="0" y2="300" stroke="#DDD" />
+    </svg>
+</a>
 
 <p class=notes>{{furigana:Words}}</p>
 <p>{{Formation}}</p>
