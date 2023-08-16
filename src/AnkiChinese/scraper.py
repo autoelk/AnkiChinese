@@ -28,13 +28,13 @@ def scrape_basic_info(soup, args):
 
     pinyin_list = details.get("Pinyin", "").split(", ")
     info = {
-        "definition": clean_string(
+        "Definition": clean_string(
             ", ".join(details.get("Definition", "").split(", ")[: args.examples])
         ),
-        "pinyin": clean_string(pinyin_list[0]),
-        "pinyin2": clean_string(", ".join(pinyin_list[1:])),
-        "hsk": details.get("HSK Level", "None"),
-        "formation": details.get("Formation", ""),
+        "Pinyin": clean_string(pinyin_list[0]),
+        "Pinyin 2": clean_string(", ".join(pinyin_list[1:])),
+        "HSK": details.get("HSK Level", "None"),
+        "Formation": details.get("Formation", ""),
     }
     return info
 
@@ -89,10 +89,10 @@ def scrape_word(r, args, hanzi):
     soup = BeautifulSoup(r, "html5lib")
 
     info = dict()
-    info["hanzi"] = hanzi
+    info["Hanzi"] = hanzi
     info.update(scrape_basic_info(soup, args))
-    info["examples"] = scrape_example_words(soup, args)
-    info["audio"] = scrape_audio(soup, args)
+    info["Examples"] = scrape_example_words(soup, args)
+    info["Audio"] = scrape_audio(soup, args)
 
     return info
 

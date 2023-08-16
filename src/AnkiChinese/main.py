@@ -68,10 +68,11 @@ def cli():
     results = scraper.scrape(hanzi_list, args)
     print(f"Finished scraping {len(hanzi_list)} characters!")
 
-    if args.csv:
-        export.gen_csv(results, args)
-    else:
-        export.gen_anki(results, args)
+    export.update_anki(results, args)
+    # if args.csv:
+    #     export.gen_csv(results, args)
+    # else:
+    #     export.gen_anki(results, args)
 
 if __name__ == "__main__":
     cli()
