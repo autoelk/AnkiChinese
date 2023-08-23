@@ -4,9 +4,11 @@ import pandas as pd
 
 from ankipandas import Collection
 
+
 def gen_csv(results, args):
     df = pd.DataFrame(results)
     df.to_csv(args.output + ".csv", index=False, sep="\t")
+
 
 def gen_model():
     front_html = open("card_template/front.html", "r")
@@ -43,6 +45,7 @@ def gen_model():
         sort_field_index=0,
     )
 
+
 def gen_note(model, data):
     return genanki.Note(
         model=model,
@@ -59,6 +62,7 @@ def gen_note(model, data):
         guid=genanki.guid_for(data["Hanzi"]),
     )
 
+
 def gen_anki(results, args):
     deck = genanki.Deck(2085137232, "AnkiChinese Deck")
     model = gen_model()
@@ -69,44 +73,56 @@ def gen_anki(results, args):
     audio_files = os.listdir("ankichinese_audio")
     for file in audio_files:
         package.media_files.append("ankichinese_audio/" + file)
-    package.media_files.append("card_template/CNstrokeorder-0.0.4.7.ttf")
+    package.media_files.append("card_template/_CNstrokeorder.ttf")
     package.write_to_file(args.output + ".apkg")
 
+
 def update_anki(results, args):
+    DECK_NAME = "Cornell CHIN"
+    MODEL_NAME = "Chinese"
+
     # get notes
     col = Collection()
-    selec = col.notes.query("nmodel == 'Chinese'").copy()
+    selec = col.notes.query(f"nmodel == '{MODEL_NAME}'").copy()
     selec.fields_as_columns(inplace=True)
 
     res = pd.DataFrame(results)
     res = res.add_prefix("nfld_")
 
     # merge existing notes and results
-    old = selec.filter(regex="^nfld_", axis='columns')
+    old = selec.copy()
     old.set_index("nfld_Hanzi", inplace=True)
     res.set_index("nfld_Hanzi", inplace=True)
-    print(old.columns)
-    print(old.head(10))
-    print(res.columns)
-    print(res.head(10))
     old.update(res)
-    print(old.head(10))
-
+    res.reset_index(inplace=True)
+    old.reset_index(inplace=True)
+    old = old.filter(regex="^nfld_", axis="columns")
+    # update exisiting notes
     selec.fields_as_list(inplace=True)
-    selec["nfld"] = old
-
-    # find new notes
-    # new_notes = res[~res.index.isin(selec.index)]
-    # common_columns = selec.columns.intersection(new_notes.columns)
-    # new_notes = new_notes[common_columns]
-    # new_notes.reset_index(inplace=True)
-    # new_notes.columns = new_notes.columns.str.replace("nfld_", "")
-    # col.notes.add_notes(nmodel="Chinese", nflds=new_notes.to_dict('records'), inplace=True)
-
-    # selec.reset_index(inplace=True)
-
+    selec["nflds"] = old.values.tolist()
     col.notes.update(selec)
 
+    # find and add new notes
+    selec.fields_as_columns(inplace=True)
+    new_notes = res[~res["nfld_Hanzi"].isin(selec["nfld_Hanzi"])]
+    # include only columns that also exist in existing notes
+    diff_columns = old.columns.difference(new_notes.columns)
+    new_notes.loc[:, diff_columns] = ""
+    new_notes = new_notes[old.columns]
+    new_notes.columns = new_notes.columns.str.replace("nfld_", "")
+    col.notes.add_notes(
+        nmodel=MODEL_NAME, nflds=new_notes.to_dict("records"), inplace=True
+    )
+
+    # print changes and ask for confirmation
     col.summarize_changes()
-    # col.write(modify=True, add=True, delete=False)
+    notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
+    print(col.notes.loc[notes_added_nids])
+
+    confirm = input("Confirm changes? [y/n] ").lower().strip()
+    if confirm == "y" or confirm == "yes":
+        col.write(modify=True, add=True, delete=False)
+        col.cards.add_cards(notes_added_nids, DECK_NAME, inplace=True)
+        col.write(add=True)
+
     col.db.close()

@@ -3,6 +3,7 @@ import export
 
 import argparse
 
+
 def cli():
     parser = argparse.ArgumentParser(
         description="Scrape ArchChinese for definitions and example words"
@@ -73,6 +74,7 @@ def cli():
     #     export.gen_csv(results, args)
     # else:
     #     export.gen_anki(results, args)
+
 
 if __name__ == "__main__":
     cli()

@@ -108,7 +108,7 @@ async def fetch(context, args, hanzi):
     try:
         return scrape_word(content, args, hanzi)
     except Exception as e:
-        # print(f"Error scraping {hanzi}: {e}")
+        print(f"Error scraping {hanzi}: {e}")
         return None
 
 
@@ -122,8 +122,8 @@ async def main(chars, args):
         async with aiometer.amap(
             functools.partial(fetch, context, args),
             chars,
-            max_at_once=10,
-            max_per_second=5,
+            max_at_once=args.requests_at_once,
+            max_per_second=args.requests_per_second,
         ) as results:
             async for data in results:
                 if data is not None:
@@ -132,6 +132,7 @@ async def main(chars, args):
         await browser.close()
         pbar.close()
         return result_list
+
 
 def scrape(hanzi_list, args):
     return asyncio.run(main(hanzi_list, args))
