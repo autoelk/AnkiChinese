@@ -1,6 +1,6 @@
 @font-face {
     font-family: "CNstrokeorder";
-    src: url("CNstrokeorder-0.0.4.7.ttf") format("truetype");
+    src: url("_CNstrokeorder.ttf") format("truetype");
 }
 
 .card {
@@ -31,15 +31,23 @@
     display: none;
 }
 
+.nightMode #strokeOrder {
+    color: #dbffff;
+}
+
 #diagram {
-    outline-color: rgb(0, 0, 0);
+    outline-color: black;
     outline-style: solid;
     outline-width: 1px;
     outline-offset: -1px;
 }
 
+.nightMode #diagram {
+    outline-color: white;
+}
+
 .meta {
-    color: grey;
+    margin: 10px 0;
 }
 
 .notes {
