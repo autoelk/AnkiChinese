@@ -9,10 +9,11 @@ def cli():
         description="Scrape ArchChinese for definitions and example words"
     )
     parser.add_argument(
-        "-csv",
-        default=False,
-        action="store_true",
-        help="Output to CSV instead of Anki deck",
+        "--export",
+        "-x",
+        choices=["anki", "csv", "update"],
+        default="anki",
+        help="Export format (default: anki)\nanki: new Anki deck using AnkiChinese template\nupdate: update existing Anki deck\ncsv: CSV file",
     )
     parser.add_argument(
         "--input",
@@ -69,11 +70,12 @@ def cli():
     results = scraper.scrape(hanzi_list, args)
     print(f"Finished scraping {len(hanzi_list)} characters!")
 
-    export.update_anki(results, args)
-    # if args.csv:
-    #     export.gen_csv(results, args)
-    # else:
-    #     export.gen_anki(results, args)
+    if args.export == "csv":
+        export.gen_csv(results, args.output)
+    elif args.export == "anki":
+        export.gen_anki(results, args.output)
+    elif args.export == "update":
+        export.update_anki(results)
 
 
 if __name__ == "__main__":

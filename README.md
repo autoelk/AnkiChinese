@@ -33,8 +33,8 @@ Asynchronously scrape the ArchChinese dictionary to generate Anki flashcards wit
 ## Generate New AnkiChinese Deck
 How to create an entirely new Anki deck with the name `ankichinese_output.apkg` in the current directory using custom AnkiChinese styling. 
 
-1. Create `input.txt` with the characters you want to scrape (avoid non-Chinese characters).
-2. Run `ankichinese`.
+1. Create `input.txt` with the characters you want to scrape.
+2. Run `ankichinese -x anki`.
 3. Open Anki and import `ankichinese_output.apkg`.
 
 **Updating is Easy!**  
@@ -42,23 +42,9 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
 
 ## Update Existing (Non-AnkiChinese) Deck Without Losing Progress
 
-1. Prepare current deck for export
-    1. Decide what information you would like to add from the AnkiChinese deck.
-    2. Create empty fields in your deck for the information you want to add.
-2. Export the deck you want to update from Anki using `Notes in Plain Text (.txt)` format. Check the `Include unique identifier` box.
-3. Open your deck in Excel or Google Sheets
-    1. Excel
-        1. Go to the `Data` -> `From Text/CSV` and import the exported deck file.
-        2. Set `File Origin` to `65001: Unicode (UTF-8)` and `Delimiter` to `Tab` and click `Load`.
-    2. Google Sheets
-        1. Go to `File` -> `Import` -> `Upload` and select the exported deck file. 
-        2. Set separator type to `Tab` and click `Import data`.
-    3. Copy the entire column of Chinese characters into `input.txt`.
-4. Run `ankichinese -csv`
-5. Open your exported deck and the `ankichinese_output.csv` file in Excel or Google Sheets. (Use the same method as before)
-6. Sort both tables by the column containing Chinese characters.
-7. Copy your desired information from the `ankichinese_output.csv` table into your exported deck table. **Do not add/delete columns or modify the GUID column of your deck.**
-8. Save the file as a .csv file and import into Anki.
+1. Create `input.txt` with the characters you want to scrape (can be the same as the existing deck).
+2. Run `ankichinese -x update`.
+3. Choose deck and model of cards to update. Make sure the model includes a field named `Hanzi` for the characters.
 
 # Tools Used
 - Asynchronous I/O: [Asyncio](https://docs.python.org/3/library/asyncio.html)

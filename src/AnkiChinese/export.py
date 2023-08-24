@@ -5,9 +5,9 @@ import pandas as pd
 from ankipandas import Collection
 
 
-def gen_csv(results, args):
+def gen_csv(results, output_name):
     df = pd.DataFrame(results)
-    df.to_csv(args.output + ".csv", index=False, sep="\t")
+    df.to_csv(output_name + ".csv", index=False, sep="\t")
 
 
 def gen_model():
@@ -63,7 +63,7 @@ def gen_note(model, data):
     )
 
 
-def gen_anki(results, args):
+def gen_anki(results, output_name):
     deck = genanki.Deck(2085137232, "AnkiChinese Deck")
     model = gen_model()
     for data in results:
@@ -74,23 +74,54 @@ def gen_anki(results, args):
     for file in audio_files:
         package.media_files.append("ankichinese_audio/" + file)
     package.media_files.append("card_template/_CNstrokeorder.ttf")
-    package.write_to_file(args.output + ".apkg")
+    package.write_to_file(output_name + ".apkg")
 
 
-def update_anki(results, args):
-    DECK_NAME = "Cornell CHIN"
-    MODEL_NAME = "Chinese"
-
-    # get notes
+def update_anki(results):
+    # get desired notes
     col = Collection()
-    selec = col.notes.query(f"nmodel == '{MODEL_NAME}'").copy()
-    selec.fields_as_columns(inplace=True)
 
+    deck_names = col.cards.list_decks()
+    deck_name = ""
+    if len(deck_names) == 0:
+        print("No decks found!")
+        return
+    elif len(deck_names) == 1:
+        deck_name = deck_names[0]
+        print("Deck: " + deck_name)
+    else:
+        print("Decks: " + ", ".join(deck_names))
+        while deck_name not in deck_names:
+            deck_name = input("Enter name of deck to update: ")
+
+    cards_in_deck = col.cards.merge_notes()
+    cards_in_deck = cards_in_deck[cards_in_deck["cdeck"].str.startswith(deck_name)]
+    notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
+
+    model_names = notes_in_deck.list_models()
+    model_name = ""
+    if len(model_names) == 0:
+        print("No models found!")
+        return
+    elif len(model_names) == 1:
+        model_name = model_names[0]
+        print("Model: " + model_name)
+    else:
+        print("Models: " + ", ".join(model_names))
+        while model_name not in model_names:
+            model_name = input("Enter name of model to update: ")
+
+    selec = notes_in_deck.query(f"nmodel == '{model_name}'").copy()
+
+    # convert results to dataframe
     res = pd.DataFrame(results)
     res = res.add_prefix("nfld_")
 
     # merge existing notes and results
-    old = selec.copy()
+    old = selec.fields_as_columns().copy()
+    if "nfld_Hanzi" not in old.columns:
+        print("Error: model must have 'Hanzi' column!")
+        return
     old.set_index("nfld_Hanzi", inplace=True)
     res.set_index("nfld_Hanzi", inplace=True)
     old.update(res)
@@ -98,7 +129,6 @@ def update_anki(results, args):
     old.reset_index(inplace=True)
     old = old.filter(regex="^nfld_", axis="columns")
     # update exisiting notes
-    selec.fields_as_list(inplace=True)
     selec["nflds"] = old.values.tolist()
     col.notes.update(selec)
 
@@ -111,18 +141,21 @@ def update_anki(results, args):
     new_notes = new_notes[old.columns]
     new_notes.columns = new_notes.columns.str.replace("nfld_", "")
     col.notes.add_notes(
-        nmodel=MODEL_NAME, nflds=new_notes.to_dict("records"), inplace=True
+        nmodel=model_name, nflds=new_notes.to_dict("records"), inplace=True
     )
 
     # print changes and ask for confirmation
-    col.summarize_changes()
+    # col.summarize_changes()
     notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
+    print("\nNotes updated:")
+    print(col.notes.loc[col.notes.was_modified()])
+    print("\nNotes added:")
     print(col.notes.loc[notes_added_nids])
 
     confirm = input("Confirm changes? [y/n] ").lower().strip()
     if confirm == "y" or confirm == "yes":
         col.write(modify=True, add=True, delete=False)
-        col.cards.add_cards(notes_added_nids, DECK_NAME, inplace=True)
+        col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
         col.write(add=True)
 
     col.db.close()
