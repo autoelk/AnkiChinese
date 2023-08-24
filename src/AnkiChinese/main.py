@@ -110,6 +110,39 @@ def cli():
             while model_name not in model_names:
                 model_name = input("Enter name of model to update: ")
 
+        fields = (
+            notes_in_deck.fields_as_columns()
+            .filter(regex="^nfld_", axis="columns")
+            .columns.str.replace("nfld_", "")
+        )
+
+        scraped_fields = [
+            "Hanzi",
+            "Definition",
+            "Pinyin",
+            "Pinyin 2",
+            "Examples",
+            "Formation",
+            "HSK",
+            "Audio",
+        ]
+
+        print("AnkiChinese will update the following fields in your model:")
+        for field in fields:
+            if field in scraped_fields:
+                print(">> " + field)
+            else:
+                print("-- " + field)
+
+        if "Hanzi" not in fields:
+            print("Error: model must have 'Hanzi' field!")
+            return
+
+        use_model = input("Use this model? [y/n] ").lower().strip()
+        if use_model != "y" or use_model != "yes":
+            print("Quitting ...")
+            return
+
         use_db = input("Also update characters in deck? [y/n] ").lower().strip()
         if use_db == "y" or use_db == "yes":
             hanzi_list.extend(notes_in_deck.fields_as_columns().nfld_Hanzi.to_list())
