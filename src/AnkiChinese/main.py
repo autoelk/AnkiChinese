@@ -127,19 +127,20 @@ def cli():
             "Audio",
         ]
 
-        print("AnkiChinese will update the following fields in your model:")
+        print("\nAnkiChinese will update the following fields in your model:")
         for field in fields:
             if field in scraped_fields:
                 print(">> " + field)
             else:
                 print("-- " + field)
+        print("")
 
         if "Hanzi" not in fields:
             print("Error: model must have 'Hanzi' field!")
             return
 
         use_model = input("Use this model? [y/n] ").lower().strip()
-        if use_model != "y" or use_model != "yes":
+        if use_model != "y" and use_model != "yes":
             print("Quitting ...")
             return
 
