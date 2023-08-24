@@ -47,7 +47,8 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
 
 1. Create `input.txt` with the characters you want to scrape (can be the same as the existing deck).
 2. Run `ankichinese -x update`.
-3. Choose deck and model of cards to update. Make sure the model includes a field named `Hanzi` for the characters.
+3. Choose deck and model of cards to update. The model must include a field named `Hanzi`.
+4. Import the new `ankichinese_audio.apkg` file into Anki. This will import the audio files (and create an empty deck that can be deleted)
 
 # Tools Used
 - Asynchronous I/O: [Asyncio](https://docs.python.org/3/library/asyncio.html)

@@ -63,16 +63,20 @@ def gen_note(model, data):
     )
 
 
+def add_audio(package, audio_path):
+    audio_files = os.listdir(audio_path)
+    for file in audio_files:
+        package.media_files.append(audio_path + "/" + file)
+
+
 def gen_anki(results, output_name):
-    deck = genanki.Deck(2085137232, "AnkiChinese Deck")
+    deck = genanki.Deck(2085137232, output_name)
     model = gen_model()
     for data in results:
         deck.add_note(gen_note(model, data))
 
     package = genanki.Package(deck)
-    audio_files = os.listdir("ankichinese_audio")
-    for file in audio_files:
-        package.media_files.append("ankichinese_audio/" + file)
+    add_audio(package, "ankichinese_audio")
     package.media_files.append("card_template/_CNstrokeorder.ttf")
     package.write_to_file(output_name + ".apkg")
 
@@ -125,5 +129,22 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
         if len(notes_added_nids) > 0:
             col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
             col.write(add=True)
+
+    # generate empty deck with audio files
+    audio_data = []
+    for audio_file in res.nfld_Audio.to_list():
+        audio_data.append(
+            {
+                "Hanzi": "",
+                "Definition": "",
+                "Pinyin": "",
+                "Pinyin 2": "",
+                "Examples": "",
+                "Formation": "",
+                "HSK": "",
+                "Audio": audio_file,
+            }
+        )
+    gen_anki(audio_data, "ankichinese_audio")
 
     col.db.close()
