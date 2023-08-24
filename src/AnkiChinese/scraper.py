@@ -55,7 +55,7 @@ def scrape_example_words(soup, args):
         defn = ", ".join(
             regex.sub(
                 "[\[].*?[\]]", "", ex_info[i + 1].select_one("p").get_text()
-            ).split(", ")[: args.defs]
+            ).split(", ")[: args.definitions]
         )
 
         examples.append(word + "[" + ruby_text + "]: " + defn)

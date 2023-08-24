@@ -77,40 +77,7 @@ def gen_anki(results, output_name):
     package.write_to_file(output_name + ".apkg")
 
 
-def update_anki(results):
-    # get desired notes
-    col = Collection()
-
-    deck_names = col.cards.list_decks()
-    deck_name = ""
-    if len(deck_names) == 0:
-        print("No decks found!")
-        return
-    elif len(deck_names) == 1:
-        deck_name = deck_names[0]
-        print("Deck: " + deck_name)
-    else:
-        print("Decks: " + ", ".join(deck_names))
-        while deck_name not in deck_names:
-            deck_name = input("Enter name of deck to update: ")
-
-    cards_in_deck = col.cards.merge_notes()
-    cards_in_deck = cards_in_deck[cards_in_deck["cdeck"].str.startswith(deck_name)]
-    notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
-
-    model_names = notes_in_deck.list_models()
-    model_name = ""
-    if len(model_names) == 0:
-        print("No models found!")
-        return
-    elif len(model_names) == 1:
-        model_name = model_names[0]
-        print("Model: " + model_name)
-    else:
-        print("Models: " + ", ".join(model_names))
-        while model_name not in model_names:
-            model_name = input("Enter name of model to update: ")
-
+def update_anki(results, col, deck_name, model_name, notes_in_deck):
     selec = notes_in_deck.query(f"nmodel == '{model_name}'").copy()
 
     # convert results to dataframe
@@ -152,10 +119,11 @@ def update_anki(results):
     print("\nNotes added:")
     print(col.notes.loc[notes_added_nids])
 
-    confirm = input("Confirm changes? [y/n] ").lower().strip()
-    if confirm == "y" or confirm == "yes":
+    confirm_changes = input("Confirm changes? [y/n] ").lower().strip()
+    if confirm_changes == "y" or confirm_changes == "yes":
         col.write(modify=True, add=True, delete=False)
-        col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
-        col.write(add=True)
+        if len(notes_added_nids) > 0:
+            col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
+            col.write(add=True)
 
     col.db.close()

@@ -18,13 +18,16 @@ Asynchronously scrape the ArchChinese dictionary to generate Anki flashcards wit
 
     -h, --help                          Show help message and exit 
 
-    -csv                                Output to CSV instead of Anki deck    
+    --export, -x {anki, csv, update}    Export mode (default: anki)
+                                        anki: Generate new AnkiChinese deck
+                                        csv: Generate CSV file
+                                        update: Update existing deck
     --input, -i INPUT                   Input file with characters to scrape (default: input.txt)
     --output, -o OUTPUT                 Name of output file (do not include extension) 
                                         (default: ankichinese_output)
 
-    --defs, -d NUM                      Number of definitions to scrape per character (default: 5)
-    --examples, -e NUM                  Number of example words to scrape per character (default: 3)
+    --definitions, -def NUM             Number of definitions to scrape per character (default: 5)
+    --examples, -ex NUM                 Number of example words to scrape per character (default: 3)
 
     --requests-at-once, -r NUM          Maximum number of requests at once (default: 10)
     --requests-per-second, -rs NUM      Maximum number of requests per second (default: 5)

@@ -3,6 +3,8 @@ import export
 
 import argparse
 
+from ankipandas import Collection
+
 
 def cli():
     parser = argparse.ArgumentParser(
@@ -13,7 +15,10 @@ def cli():
         "-x",
         choices=["anki", "csv", "update"],
         default="anki",
-        help="Export format (default: anki)\nanki: new Anki deck using AnkiChinese template\nupdate: update existing Anki deck\ncsv: CSV file",
+        help="""Export mode (default: anki) 
+        ANKI: Generate new AnkiChinese deck 
+        CSV: Generate CSV file 
+        UPDATE: Update existing deck""",
     )
     parser.add_argument(
         "--input",
@@ -30,15 +35,15 @@ def cli():
         help="Name of output file (do not include extension) (default: ankichinese_output)",
     )
     parser.add_argument(
-        "--defs",
-        "-d",
+        "--definitions",
+        "-def",
         type=int,
         default=5,
         help="Number of definitions to scrape per character (default: 5)",
     )
     parser.add_argument(
         "--examples",
-        "-e",
+        "-ex",
         type=int,
         default=3,
         help="Number of example words to scrape per character (default: 3)",
@@ -59,14 +64,60 @@ def cli():
     )
     args = parser.parse_args()
 
-    hanzi_list = []  # unfinished list of characters to scrape
-    with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
-        for line in f:
-            for hanzi in line:
-                if not hanzi.isspace():
-                    hanzi_list.append(hanzi)
-    hanzi_list = set(hanzi_list)  # remove duplicates
+    hanzi_list = []  # list of characters to scrape
+    try:
+        with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
+            for line in f:
+                for hanzi in line:
+                    if not hanzi.isspace():
+                        hanzi_list.append(hanzi)
+    except FileNotFoundError as e:
+        print(e)
 
+    col = None
+    deck_name = None
+    model_name = None
+    notes_in_deck = None
+    if args.export == "update":
+        col = Collection()
+
+        # get desired notes
+        deck_names = col.cards.list_decks()
+        if len(deck_names) == 0:
+            print("No decks found!")
+            return
+        elif len(deck_names) == 1:
+            deck_name = deck_names[0]
+            print("Deck: " + deck_name)
+        else:
+            print("Decks: " + ", ".join(deck_names))
+            while deck_name not in deck_names:
+                deck_name = input("Enter name of deck to update: ")
+
+        cards_in_deck = col.cards.merge_notes()
+        cards_in_deck = cards_in_deck[cards_in_deck["cdeck"].str.startswith(deck_name)]
+        notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
+
+        model_names = notes_in_deck.list_models()
+        if len(model_names) == 0:
+            print("No models found!")
+            return
+        elif len(model_names) == 1:
+            model_name = model_names[0]
+            print("Model: " + model_name)
+        else:
+            print("Models: " + ", ".join(model_names))
+            while model_name not in model_names:
+                model_name = input("Enter name of model to update: ")
+
+        use_db = input("Also update characters in deck? [y/n] ").lower().strip()
+        if use_db == "y" or use_db == "yes":
+            hanzi_list.extend(notes_in_deck.fields_as_columns().nfld_Hanzi.to_list())
+
+    hanzi_list = set(hanzi_list)  # remove duplicates
+    if len(hanzi_list) == 0:
+        print("No characters found!")
+        return
     results = scraper.scrape(hanzi_list, args)
     print(f"Finished scraping {len(hanzi_list)} characters!")
 
@@ -75,7 +126,7 @@ def cli():
     elif args.export == "anki":
         export.gen_anki(results, args.output)
     elif args.export == "update":
-        export.update_anki(results)
+        export.update_anki(results, col, deck_name, model_name, notes_in_deck)
 
 
 if __name__ == "__main__":
