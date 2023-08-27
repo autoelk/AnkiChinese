@@ -1,12 +1,30 @@
 # AnkiChinese
 
-Asynchronously scrape the ArchChinese dictionary to generate Anki flashcards with:
-- Pinyin & Audio
-- Definitions
-- Example words
-- Formation/Origin
-- Stroke order diagrams
-- HSK level
+Asynchronously scrape the ArchChinese dictionary to generate [Anki](https://apps.ankiweb.net/) flashcards
+
+<div style="display:flex;">
+  <table class="table">
+    <tr>
+      <td>
+        <img src="media/文.gif" alt="Online Flashcard Demo" style="width:400px;">
+      </td>
+    </tr>
+    <tr>
+      <td class="caption">Online Flashcard</td>
+    </tr>
+  </table>
+
+  <table class="table">
+    <tr>
+      <td>
+        <img src="media/文.png" alt="Offline Flashcard Demo" style="width:400px;">
+      </td>
+    </tr>
+    <tr>
+      <td class="caption">Offline Flashcard</td>
+    </tr>
+  </table>
+</div>
 
 # Installation
 
@@ -47,7 +65,19 @@ Just run `ankichinese -x anki` again with new characters in `input.txt` and impo
 
 1. Create `input.txt` with the characters you want to scrape (can be the same as the existing deck).
 2. Run `ankichinese -x update`.
-3. Choose deck and model of cards to update. The model must include a field named `Hanzi`.
+3. Choose deck and model of cards to update. AnkiChinese will search for and overwrite any fields with the same names as the following. 
+
+| Field Name | Description |
+| --- | --- |
+| Hanzi | Character (**REQUIRED**) |
+| Definition | Meaning of character |
+| Pinyin | Most common pinyin |
+| Pinyin 2 | Other possible pinyin |
+| Words | Example words |
+| Formation | Origin / mnemonic for character |
+| HSK | Hanyu Shuiping Kaoshi level |
+| Audio | Audio file name (**required for audio**) |
+
 4. Import the new `ankichinese_audio.apkg` file into Anki. This will import the audio files (and create an empty deck that can be deleted)
 
 # Tools Used
