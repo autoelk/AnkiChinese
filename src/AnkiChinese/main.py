@@ -45,8 +45,8 @@ def cli():
         "--examples",
         "-ex",
         type=int,
-        default=3,
-        help="Number of example words to scrape per character (default: 3)",
+        default=5,
+        help="Number of example words to scrape per character (default: 5)",
     )
     parser.add_argument(
         "--requests-at-once",

@@ -27,7 +27,7 @@ Asynchronously scrape the ArchChinese dictionary to generate Anki flashcards wit
                                         (default: ankichinese_output)
 
     --definitions, -def NUM             Number of definitions to scrape per character (default: 5)
-    --examples, -ex NUM                 Number of example words to scrape per character (default: 3)
+    --examples, -ex NUM                 Number of example words to scrape per character (default: 5)
 
     --requests-at-once, -r NUM          Maximum number of requests at once (default: 10)
     --requests-per-second, -rs NUM      Maximum number of requests per second (default: 5)
@@ -41,7 +41,7 @@ How to create an entirely new Anki deck with the name `ankichinese_output.apkg` 
 3. Open Anki and import `ankichinese_output.apkg`.
 
 **Updating is Easy!**  
-Just run `ankichinese` again with new characters in `input.txt` and import the new `ankichinese_output.apkg` file into Anki. Anki will automatically update the existing deck without losing progress.
+Just run `ankichinese -x anki` again with new characters in `input.txt` and import the new `ankichinese_output.apkg` file into Anki. Anki will automatically update the existing deck without losing progress.
 
 ## Update Existing (Non-AnkiChinese) Deck Without Losing Progress
 
@@ -53,17 +53,20 @@ Just run `ankichinese` again with new characters in `input.txt` and import the n
 # Tools Used
 - Asynchronous I/O: [Asyncio](https://docs.python.org/3/library/asyncio.html)
 - Limit concurrency: [Aiometer](https://github.com/florimondmanca/aiometer)
-- Web Automation and HTML Interaction: [Playwright](https://playwright.dev/python/)
+- Web automation and HTML interaction: [Playwright](https://playwright.dev/python/)
 - Anki deck generation: [Genanki](https://github.com/kerrickstaley/genanki)
+- Anki database access: [AnkiPandas](https://github.com/klieret/AnkiPandas)
 - Progress bars: [tqdm](https://github.com/tqdm/tqdm)
 - HTML parsing and scraping: [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
 - Data manipulation: [Pandas](https://pandas.pydata.org/)
 
 # Credits
+Character information: [ArchChinese](https://www.archchinese.com/)
+
 Stroke order diagrams:
 - Online stroke order diagrams: [Hanzi Writer](https://hanziwriter.org/)
 - Offline stroke order font: [Reinaert Albrecht](https://rtega.be/chmn/index.php?subpage=68)
 
 Chinese audio:
-- [Yoyo Chinese](https://yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table)
+- Standard tones: [Yoyo Chinese](https://yoyochinese.com/chinese-learning-tools/Mandarin-Chinese-pronunciation-lesson/pinyin-chart-table)
 - Neutral tones: [Purple Culture](https://www.purpleculture.net/chinese_pinyin_chart/)
