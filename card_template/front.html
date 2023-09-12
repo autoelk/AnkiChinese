@@ -8,7 +8,7 @@
             script.onerror = reject;
             document.head.appendChild(script);
         });
-    };
+    }
 
     (async () => {
         if (window.navigator.onLine) {
@@ -33,12 +33,34 @@
             document.querySelector("#diagram").style.display = "none"
         }
     })();
+
+    hintNum = 0
+    hints = '{{Examples}}'.split('<br>')
+    for (let i = 0; i < hints.length; i++) {
+        hints[i] = hints[i].split('[')[1].replace(']', '');
+    }
+
+    function revealNextHint() {
+        element = document.querySelector('#hint');
+        button = document.querySelector('#hint-button');
+
+        if (hintNum < hints.length) {
+            element.innerText += hints[hintNum] + '\n';
+            button.innerText = 'Next hint';
+            hintNum++;
+        }
+        if (hintNum >= hints.length) {
+            button.innerText = 'Out of hints!';
+        }
+    }
 </script>
 
 <div>{{Audio}}</div>
 <h1 class="pinyin">{{Pinyin}}</h1>
 <p class="pinyin2">{{Pinyin 2}}</p>
 <p class="definition">{{Definition}}</p>
+<button id="hint-button" onclick="revealNextHint()">Hint</button>
+<p id="hint"></p>
 
 <hr>
 
