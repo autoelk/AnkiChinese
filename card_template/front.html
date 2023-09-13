@@ -13,7 +13,7 @@
     (async () => {
         if (window.navigator.onLine) {
             if (typeof HanziWriter === "undefined") {
-                await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
+                await injectScript('https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js');
             }
 
             var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
@@ -30,7 +30,7 @@
             writer.quiz();
         }
         else {
-            document.querySelector("#diagram").style.display = "none"
+            document.querySelector('#diagram').style.display = 'none'
         }
     })();
 
@@ -38,8 +38,8 @@
     let hints = []
 
     function parseHint() {
-        let examples = '{{Examples}}'
-        hints = examples.split('<br>')
+        let examples = document.querySelector('#hint-container').innerHTML
+        hints = examples.split('<')
         for (let i = 0; i < hints.length; i++) {
             parts = hints[i].split('[')[1].split(']')
             hints[i] = '<span style="font-weight:bold">' + parts[0] + '</span>' + parts[1].replace(']', '');
@@ -80,6 +80,7 @@
 <button id="hint-button" onclick="revealHint()">Show hint</button>
 <div class="example-container">
     <p id="hint"></p>
+    <p id="hint-container" style="display: none;">{{Examples}}</p>
 </div>
 
 <hr>
