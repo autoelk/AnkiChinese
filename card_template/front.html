@@ -77,11 +77,6 @@
     <p class="pinyin2">{{Pinyin 2}}</p>
     <p class="definition">{{Definition}}</p>
 </div>
-<button id="hint-button" onclick="revealHint()">Show hint</button>
-<div class="example-container">
-    <p id="hint"></p>
-    <p id="hint-container" style="display: none;">{{Examples}}</p>
-</div>
 
 <hr>
 
@@ -91,3 +86,9 @@
     <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
     <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
 </svg>
+
+<div>
+    <button id="hint-button" onclick="revealHint()">Show hint</button>
+    <p id="hint" class="notes"></p>
+    <p id="hint-container" style="display: none;">{{Examples}}</p>
+</div>

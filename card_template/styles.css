@@ -47,23 +47,19 @@
 }
 
 .meta {
-    margin: 10px 0;
+    margin: 8px 0;
+}
+
+.ruby-text {
+    line-height: 1.7;
 }
 
 .notes {
-    line-height: 1.7;
     text-align: left;
+    max-width: 500px;
+    margin: 8px auto;
 }
 
 #hint-button {
-    margin: 0;
-}
-
-#hint {
-    text-align: left;
-}
-
-.example-container {
-    display: flex;
-    justify-content: center;
+    margin: 0 0 16px 0;
 }
