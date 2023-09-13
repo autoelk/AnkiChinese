@@ -52,4 +52,18 @@
 
 .notes {
     line-height: 1.7;
+    text-align: left;
+}
+
+#hint-button {
+    margin: 0;
+}
+
+#hint {
+    text-align: left;
+}
+
+.example-container {
+    display: flex;
+    justify-content: center;
 }

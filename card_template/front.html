@@ -34,33 +34,53 @@
         }
     })();
 
-    hintNum = 0
-    hints = '{{Examples}}'.split('<br>')
-    for (let i = 0; i < hints.length; i++) {
-        hints[i] = hints[i].split('[')[1].replace(']', '');
+    let hintNum = 0
+    let hints = []
+
+    function parseHint() {
+        let examples = '{{Examples}}'
+        hints = examples.split('<br>')
+        for (let i = 0; i < hints.length; i++) {
+            parts = hints[i].split('[')[1].split(']')
+            hints[i] = '<span style="font-weight:bold">' + parts[0] + '</span>' + parts[1].replace(']', '');
+        }
     }
 
-    function revealNextHint() {
+    function hintNumIndicator() {
+        return '(' + (hintNum + 1) + '/' + hints.length + ')'
+    }
+
+    function revealHint() {
         element = document.querySelector('#hint');
         button = document.querySelector('#hint-button');
 
+        if (button.innerText == 'Show hint') {
+            hintNum = 0;
+            parseHint();
+        }
+
         if (hintNum < hints.length) {
-            element.innerText += hints[hintNum] + '\n';
-            button.innerText = 'Next hint';
+            element.innerHTML += hints[hintNum] + '<br>';
+            button.innerText = 'Next hint (' + (hintNum + 1) + '/' + hints.length + ')';
             hintNum++;
         }
+
         if (hintNum >= hints.length) {
             button.innerText = 'Out of hints!';
         }
     }
 </script>
 
-<div>{{Audio}}</div>
-<h1 class="pinyin">{{Pinyin}}</h1>
-<p class="pinyin2">{{Pinyin 2}}</p>
-<p class="definition">{{Definition}}</p>
-<button id="hint-button" onclick="revealNextHint()">Hint</button>
-<p id="hint"></p>
+<div>
+    <div>{{Audio}}</div>
+    <h1 class="pinyin">{{Pinyin}}</h1>
+    <p class="pinyin2">{{Pinyin 2}}</p>
+    <p class="definition">{{Definition}}</p>
+</div>
+<button id="hint-button" onclick="revealHint()">Show hint</button>
+<div class="example-container">
+    <p id="hint"></p>
+</div>
 
 <hr>
 
