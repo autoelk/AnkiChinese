@@ -69,7 +69,8 @@ Just run `ankichinese -x anki` again with new characters in `input.txt` and impo
 
 | Field Name | Description |
 | --- | --- |
-| Hanzi | Character (**REQUIRED**) |
+| Hanzi | Simplified character (**REQUIRED**) |
+| Traditional | Traditional form |
 | Definition | Meaning of character |
 | Pinyin | Most common pinyin |
 | Pinyin 2 | Other possible pinyin |

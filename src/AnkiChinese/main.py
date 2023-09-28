@@ -118,6 +118,7 @@ def cli():
 
         scraped_fields = [
             "Hanzi",
+            "Traditional",
             "Definition",
             "Pinyin",
             "Pinyin 2",

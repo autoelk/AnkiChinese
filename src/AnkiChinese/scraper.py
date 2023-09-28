@@ -28,6 +28,7 @@ def scrape_basic_info(soup, args):
 
     pinyin_list = details.get("Pinyin", "").split(", ")
     info = {
+        "Traditional": clean_string(details.get("Traditional Form", "")),
         "Definition": clean_string(
             ", ".join(details.get("Definition", "").split(", ")[: args.examples])
         ),

@@ -26,6 +26,7 @@ def gen_model():
         "AnkiChinese",
         fields=[
             {"name": "Hanzi"},
+            {"name": "Traditional"},
             {"name": "Definition"},
             {"name": "Pinyin"},
             {"name": "Pinyin 2"},
@@ -51,6 +52,7 @@ def gen_note(model, data):
         model=model,
         fields=[
             data["Hanzi"],
+            data["Traditional"],
             data["Definition"],
             data["Pinyin"],
             data["Pinyin 2"],
@@ -136,6 +138,7 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
         audio_data.append(
             {
                 "Hanzi": "",
+                "Traditional": "",
                 "Definition": "",
                 "Pinyin": "",
                 "Pinyin 2": "",
