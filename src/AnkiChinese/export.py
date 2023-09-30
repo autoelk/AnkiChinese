@@ -10,14 +10,18 @@ def gen_csv(results, output_name):
     df.to_csv(output_name + ".csv", index=False, sep="\t")
 
 
+def get_full_path(relative_path):
+    return os.path.join(os.path.dirname(__file__), relative_path)
+
+
 def gen_model():
-    front_html = open("card_template/front.html", "r")
+    front_html = open(get_full_path("card_template/front.html"), "r")
     front = front_html.read()
     front_html.close()
-    back_html = open("card_template/back.html", "r")
+    back_html = open(get_full_path("card_template/back.html"), "r")
     back = back_html.read()
     back_html.close()
-    styles_css = open("card_template/styles.css", "r")
+    styles_css = open(get_full_path("card_template/styles.css"), "r")
     styles = styles_css.read()
     styles_css.close()
 
@@ -30,7 +34,7 @@ def gen_model():
             {"name": "Definition"},
             {"name": "Pinyin"},
             {"name": "Pinyin 2"},
-            {"name": "Words"},
+            {"name": "Examples"},
             {"name": "Formation"},
             {"name": "HSK"},
             {"name": "Audio"},
@@ -79,7 +83,7 @@ def gen_anki(results, output_name):
 
     package = genanki.Package(deck)
     add_audio(package, "ankichinese_audio")
-    package.media_files.append("card_template/_CNstrokeorder.ttf")
+    package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_name + ".apkg")
 
 

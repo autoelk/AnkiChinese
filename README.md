@@ -29,6 +29,7 @@ Asynchronously scrape the ArchChinese dictionary to generate [Anki](https://apps
 # Installation
 
     pip install ankichinese
+    playwright install
 
 # Usage
 
