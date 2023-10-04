@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 import re as regex
-from tqdm import tqdm
 
 import requests
 import os
@@ -113,13 +112,17 @@ async def fetch(context, args, hanzi):
         return None
 
 
+async def print_progress(total, current):
+    print(f"{current} / {total}")
+
+
 async def main(chars, args):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
-        pbar = tqdm(total=len(chars))
         result_list = []
+
         async with aiometer.amap(
             functools.partial(fetch, context, args),
             chars,
@@ -129,9 +132,9 @@ async def main(chars, args):
             async for data in results:
                 if data is not None:
                     result_list.append(data)
-                pbar.update(1)
+                    await print_progress(len(chars), len(result_list))
+
         await browser.close()
-        pbar.close()
         return result_list
 
 
