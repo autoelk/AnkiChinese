@@ -1,7 +1,6 @@
 import sys
 import os.path
 
-sys.path.insert(1, os.path.dirname(__file__))
 import scraper
 import export
 
@@ -67,22 +66,45 @@ def cli():
         help="Maximum number of requests per second (default: 5)",
     )
     args = parser.parse_args()
+    print(args)
 
-    hanzi_list = []  # list of characters to scrape
+    sys.path.insert(1, os.path.dirname(__file__))
+
+    chars = []  # list of characters to scrape
     try:
         with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
             for line in f:
-                for hanzi in line:
-                    if not hanzi.isspace():
-                        hanzi_list.append(hanzi)
+                for char in line:
+                    if not char.isspace():
+                        chars.append(char)
     except FileNotFoundError as e:
         print(e)
 
-    col = None
-    deck_name = None
-    model_name = None
-    notes_in_deck = None
-    if args.export == "update":
+    chars = set(chars)  # remove duplicates
+    if len(chars) == 0:
+        print("No characters found!")
+        return
+
+    export_mode = args.export
+    if export_mode == "csv":
+        results = scraper.scrape(
+            chars,
+            args.requests_at_once,
+            args.requests_per_second,
+            args.examples,
+            args.definitions,
+        )
+        export.gen_csv(results, args.output)
+    elif export_mode == "anki":
+        results = scraper.scrape(
+            chars,
+            args.requests_at_once,
+            args.requests_per_second,
+            args.examples,
+            args.definitions,
+        )
+        export.gen_anki(results, args.output)
+    elif export_mode == "update":
         col = Collection()
 
         # get desired notes
@@ -141,30 +163,26 @@ def cli():
         print("")
 
         if "Hanzi" not in fields:
-            print("Error: model must have 'Hanzi' field!")
-            return
+            raise Exception("Error: model must have 'Hanzi' field!")
 
         use_model = input("Use this model? [y/n] ").lower().strip()
         if use_model != "y" and use_model != "yes":
             print("Quitting ...")
             return
 
+        existing_chars = []
         use_db = input("Also update characters in deck? [y/n] ").lower().strip()
         if use_db == "y" or use_db == "yes":
-            hanzi_list.extend(notes_in_deck.fields_as_columns().nfld_Hanzi.to_list())
+            existing_chars = notes_in_deck.fields_as_columns().nfld_Hanzi.to_list()
 
-    hanzi_list = set(hanzi_list)  # remove duplicates
-    if len(hanzi_list) == 0:
-        print("No characters found!")
-        return
-    results = scraper.scrape(hanzi_list, args)
-    print(f"Finished scraping {len(hanzi_list)} characters!")
-
-    if args.export == "csv":
-        export.gen_csv(results, args.output)
-    elif args.export == "anki":
-        export.gen_anki(results, args.output)
-    elif args.export == "update":
+        chars.update(existing_chars)
+        results = scraper.scrape(
+            chars,
+            args.requests_at_once,
+            args.requests_per_second,
+            args.examples,
+            args.definitions,
+        )
         export.update_anki(results, col, deck_name, model_name, notes_in_deck)
 
 

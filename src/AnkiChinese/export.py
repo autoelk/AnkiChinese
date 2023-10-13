@@ -126,8 +126,8 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
     notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
     print("\nNotes updated:")
     print(col.notes.loc[col.notes.was_modified(), "nflds"])
-    print("\nNotes added:")
-    print(col.notes.loc[notes_added_nids, "nflds"])
+    # print("\nNotes added:")
+    # print(col.notes.loc[notes_added_nids, "nflds"])
 
     confirm_changes = input("Confirm changes? [y/n] ").lower().strip()
     if confirm_changes == "y" or confirm_changes == "yes":
