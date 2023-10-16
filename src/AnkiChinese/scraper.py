@@ -113,12 +113,21 @@ async def fetch(context, num_examples, num_defs, hanzi):
         return None
 
 
-async def main(chars, requests_at_once, requests_per_second, num_examples, num_defs):
+async def step_gui_pbar(pbar):
+    pbar.event_generate("<<StepProgressBar>>")
+
+
+async def main(
+    chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar
+):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
-        pbar = tqdm(total=len(chars))
+        using_gui = True  # function called from gui
+        if pbar == None:
+            pbar = tqdm(total=len(chars))
+            using_gui = False
         result_list = []
         async with aiometer.amap(
             functools.partial(fetch, context, num_examples, num_defs),
@@ -129,13 +138,19 @@ async def main(chars, requests_at_once, requests_per_second, num_examples, num_d
             async for data in results:
                 if data is not None:
                     result_list.append(data)
-                pbar.update(1)
+                if using_gui:
+                    await step_gui_pbar(pbar)
+                else:
+                    pbar.update(1)
         await browser.close()
-        pbar.close()
+        if not using_gui:
+            pbar.close()
         return result_list
 
 
-def scrape(chars, requests_at_once, requests_per_second, num_examples, num_defs):
+def scrape(
+    chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar=None
+):
     return asyncio.run(
-        main(chars, requests_at_once, requests_per_second, num_examples, num_defs)
+        main(chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar)
     )

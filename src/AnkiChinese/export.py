@@ -1,11 +1,11 @@
 import genanki
 import os
 import pandas as pd
+import re as regex
 
-from ankipandas import Collection
 
-
-def gen_csv(results, output_name):
+def gen_csv(results, output):
+    output_name = regex.search(r"[^\/]+(?=\.csv$)", output).group(0)
     df = pd.DataFrame(results)
     df.to_csv(output_name + ".csv", index=False, sep="\t")
 
@@ -75,7 +75,8 @@ def add_audio(package, audio_path):
         package.media_files.append(audio_path + "/" + file)
 
 
-def gen_anki(results, output_name):
+def gen_anki(results, output):
+    output_name = regex.search(r"[^\/]+(?=\.apkg$)", output).group(0)
     deck = genanki.Deck(2085137232, output_name)
     model = gen_model()
     for data in results:
@@ -85,6 +86,7 @@ def gen_anki(results, output_name):
     add_audio(package, "ankichinese_audio")
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_name + ".apkg")
+    print("Finished")
 
 
 def update_anki(results, col, deck_name, model_name, notes_in_deck):
@@ -152,6 +154,6 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
                 "Audio": audio_file,
             }
         )
-    gen_anki(audio_data, "ankichinese_audio")
+    gen_anki(audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg"))
 
     col.db.close()

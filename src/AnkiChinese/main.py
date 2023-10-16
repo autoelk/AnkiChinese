@@ -1,6 +1,8 @@
 import sys
 import os.path
 
+sys.path.insert(1, os.path.dirname(__file__))  # allows python to find other modules
+
 import scraper
 import export
 
@@ -68,8 +70,6 @@ def cli():
     args = parser.parse_args()
     print(args)
 
-    sys.path.insert(1, os.path.dirname(__file__))
-
     chars = []  # list of characters to scrape
     try:
         with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
@@ -94,7 +94,7 @@ def cli():
             args.examples,
             args.definitions,
         )
-        export.gen_csv(results, args.output)
+        export.gen_csv(results, os.path.join(os.getcwd(), args.output + ".csv"))
     elif export_mode == "anki":
         results = scraper.scrape(
             chars,
@@ -103,7 +103,7 @@ def cli():
             args.examples,
             args.definitions,
         )
-        export.gen_anki(results, args.output)
+        export.gen_anki(results, os.path.join(os.getcwd(), args.output + ".apkg"))
     elif export_mode == "update":
         col = Collection()
 
