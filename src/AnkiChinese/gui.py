@@ -23,7 +23,7 @@ class Page(ttk.Frame):
     def show(self):
         self.lift()
 
-    def update(self):
+    def set_default_vals(self):
         pass
 
 
@@ -69,6 +69,60 @@ class MainMenuPage(Page):
         self.grid_columnconfigure(0, weight=1)
 
 
+class SpinboxField(ttk.Frame):
+    def __init__(
+        self,
+        page,
+        parent_frame,
+        label,
+        default_val=None,
+        min_val=1,
+        max_val=10,
+        incr=1,
+    ):
+        ttk.Frame.__init__(self, parent_frame)
+        self.grid()
+        ttk.Label(self, text=label).grid(row=0, column=0, padx=5, sticky=W)
+        self.page = page
+        self.label = label
+        self.value = StringVar(page)
+
+        if default_val != None:
+            self.value.set(str(default_val))
+            self.valid = True
+        else:
+            self.valid = False
+
+        self.spinbox = ttk.Spinbox(
+            self,
+            from_=min_val,
+            to=max_val,
+            increment=incr,
+            textvariable=self.value,
+            width=15,
+            validate="focusout",
+            validatecommand=(
+                page.register(self.val_field),
+                "%P",
+            ),
+        )
+        self.spinbox.grid(row=1, column=0, padx=5)
+        self.error_msg = StringVar(page)
+        ttk.Label(
+            self,
+            font="TkSmallCaptionFont",
+            foreground="red",
+            textvariable=self.error_msg,
+        ).grid(row=2, column=0, sticky=W)
+
+    def val_field(self, new_val):
+        valid = new_val.isdigit() and 1 <= int(new_val) and int(new_val) <= 10
+        self.error_msg.set("" if valid else "Invalid " + self.label)
+        self.valid = valid
+        self.page.update_next_btn_state()
+        return valid
+
+
 class AnkiDeckPage(Page):
     def __init__(self, root, controller):
         Page.__init__(self, root)
@@ -84,100 +138,63 @@ class AnkiDeckPage(Page):
             text="Generate a new Anki deck with custom AnkiChinese features",
         ).grid(row=1, column=0)
 
-        basic_options_frame = ttk.Frame(self)
-        basic_options_frame.grid(row=1, column=0)
+        basic_opt_frame = ttk.Frame(self)
+        basic_opt_frame.grid(row=1, column=0)
 
         # Characters to scrape
-        ttk.Label(basic_options_frame, text="Characters").grid(row=0, column=0, stick=W)
-        self.char_text_box = Text(basic_options_frame, width=40, height=10)
+        ttk.Label(basic_opt_frame, text="Characters").grid(row=0, column=0, stick=W)
+        self.char_text_box = Text(basic_opt_frame, width=40, height=10)
         self.char_text_box.grid(row=1, column=0, sticky=W)
-        ttk.Button(basic_options_frame, text="Import", command=self.import_chars).grid(
+        ttk.Button(basic_opt_frame, text="Import", command=self.import_chars).grid(
             row=1, column=1, sticky=SW
         )
 
         # Output file location
-        ttk.Label(basic_options_frame, text="Output file location").grid(
+        ttk.Label(basic_opt_frame, text="Output file location").grid(
             row=2, column=0, sticky=W
         )
         self.output = StringVar(self)
+        self.output.set(os.path.join(os.getcwd(), "ankichinese_output.apkg"))
         self.output_entry = ttk.Entry(
-            basic_options_frame,
+            basic_opt_frame,
             textvariable=self.output,
             width=30,
             validate="focusout",
             validatecommand=(
-                self.register(self.validate_output),
+                self.register(self.val_output),
                 "%P",
-                "%V",
             ),
         )
+        self.output_valid = True
         self.output_entry.grid(row=3, column=0, sticky=W)
-        ttk.Button(basic_options_frame, text="Browse", command=self.get_output).grid(
+        ttk.Button(basic_opt_frame, text="Browse", command=self.get_output).grid(
             row=3, column=1, sticky=W
         )
         self.output_error_msg = StringVar(self)
         ttk.Label(
-            basic_options_frame,
+            basic_opt_frame,
             font="TkSmallCaptionFont",
             foreground="red",
             textvariable=self.output_error_msg,
         ).grid(row=4, column=0, sticky=W)
 
         # ADVANCED OPTIONS SECTION
-        advanced_options_frame = ttk.Labelframe(self, text="Advanced Options")
-        advanced_options_frame.grid(row=2, column=0)
+        adv_opt_frame = ttk.Labelframe(self, text="Advanced Options")
+        adv_opt_frame.grid(row=2, column=0)
 
-        ttk.Label(advanced_options_frame, text="# of definitions").grid(
-            row=0, column=0, padx=5, sticky=W
+        # Number of Definitions
+        self.num_defs = SpinboxField(self, adv_opt_frame, "# of definitions", 5)
+        self.num_defs.grid(row=0, column=0)
+        self.num_ex = SpinboxField(self, adv_opt_frame, "# of examples", 5)
+        self.num_ex.grid(row=1, column=0)
+        self.max_req_ps = SpinboxField(
+            self, adv_opt_frame, "Max requests per second", 5
         )
-        self.num_defs = StringVar(self)
-        ttk.Spinbox(
-            advanced_options_frame,
-            from_=1,
-            to=10,
-            increment=1,
-            textvariable=self.num_defs,
-            width=15,
-        ).grid(row=1, column=0, padx=5)
-
-        ttk.Label(advanced_options_frame, text="# of examples").grid(
-            row=2, column=0, padx=5, sticky=W
+        self.max_req_ps.grid(row=0, column=1)
+        self.max_req_simul = SpinboxField(
+            self, adv_opt_frame, "Max requests at once", 5
         )
-        self.num_examples = StringVar(self)
-        ttk.Spinbox(
-            advanced_options_frame,
-            from_=1,
-            to=10,
-            increment=1,
-            textvariable=self.num_examples,
-            width=15,
-        ).grid(row=3, column=0, padx=5)
-
-        ttk.Label(advanced_options_frame, text="Max requests at once").grid(
-            row=0, column=1, padx=5, sticky=W
-        )
-        self.max_requests_at_once = StringVar(self)
-        ttk.Spinbox(
-            advanced_options_frame,
-            from_=1,
-            to=10,
-            increment=1,
-            textvariable=self.max_requests_at_once,
-            width=15,
-        ).grid(row=1, column=1, padx=5)
-
-        ttk.Label(advanced_options_frame, text="Max requests per second").grid(
-            row=2, column=1, padx=5, sticky=W
-        )
-        self.max_requests_per_second = StringVar(self)
-        ttk.Spinbox(
-            advanced_options_frame,
-            from_=1,
-            to=10,
-            increment=1,
-            textvariable=self.max_requests_per_second,
-            width=15,
-        ).grid(row=3, column=1, padx=5)
+        self.max_req_simul.grid(row=1, column=1)
 
         # Navigation buttons
         nav_buttons_frame = ttk.Frame(self)
@@ -201,14 +218,6 @@ class AnkiDeckPage(Page):
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-    def update(self):
-        # Set default values
-        self.num_defs.set("5")
-        self.num_examples.set("5")
-        self.max_requests_at_once.set("5")
-        self.max_requests_per_second.set("5")
-        self.output.set(os.path.join(os.getcwd(), "ankichinese_output.apkg"))
-
     def import_chars(self):
         input_file = filedialog.askopenfilename()
         content = ""
@@ -230,13 +239,26 @@ class AnkiDeckPage(Page):
         )
         self.output_entry.validate()
 
-    def validate_output(self, new_val, operation):
+    # validation helpers
+    def val_output(self, new_val):
         valid = regex.search(r"[^\/]+(?=\.apkg$)", new_val) is not None
-        if valid:
-            self.output_error_msg.set("")
-        else:
-            self.output_error_msg.set("Invalid file location")
+        self.output_error_msg.set("" if valid else "Invalid file location")
+        self.output_valid = valid
+        self.update_next_btn_state()
         return valid
+
+    # enable next button if and only if all input fields are valid
+    def update_next_btn_state(self):
+        if (
+            self.output_valid
+            and self.num_ex.valid
+            and self.num_defs.valid
+            and self.max_req_ps.valid
+            and self.max_req_simul.valid
+        ):
+            self.next_button.state(["!disabled"])
+        else:
+            self.next_button.state(["disabled"])
 
     def update_controller(self):
         controller.export_mode = "AnkiDeck"
@@ -247,10 +269,10 @@ class AnkiDeckPage(Page):
                 if not char.isspace()
             ]
         )
-        controller.requests_at_once = int(self.max_requests_at_once.get())
-        controller.requests_per_second = int(self.max_requests_per_second.get())
-        controller.num_examples = int(self.num_examples.get())
-        controller.num_definitions = int(self.num_defs.get())
+        controller.req_simul = int(self.max_req_simul.value.get())
+        controller.req_ps = int(self.max_req_ps.value.get())
+        controller.num_ex = int(self.num_ex.value.get())
+        controller.num_defs = int(self.num_defs.value.get())
         controller.output = self.output.get()
         controller.show_page("Generator")
 
@@ -316,13 +338,16 @@ class Controller:
         self.add_page(MainMenuPage(root, self))
         self.add_page(AnkiDeckPage(root, self))
         self.add_page(GeneratorPage(root, self))
+        for page in self.pages.values():
+            page.set_default_vals()
 
+        # default values
         self.export_mode = "AnkiDeck"
         self.chars = []
-        self.requests_at_once = 5
-        self.requests_per_second = 5
-        self.num_examples = 5
-        self.num_definitions = 5
+        self.req_simul = None
+        self.req_ps = None
+        self.num_ex = None
+        self.num_defs = None
         self.output = None
 
         self.scrape_loop = asyncio.new_event_loop()
@@ -341,25 +366,38 @@ class Controller:
         if page:
             self.cur_page = name
             page.show()
-            page.update()
 
     def scrape_and_export_wrapper(self):
         asyncio.set_event_loop(self.scrape_loop)
         self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
+        self.chars = list(filter(lambda char: "\u4e00" <= char <= "\u9fff", self.chars))
+
         if self.export_mode == "CSV":
-            pass
+            pbar = self.get_page("Generator").progress_bar
+            pbar.configure(maximum=len(self.chars))
+
+            results = await scraper.main(
+                self.chars,
+                self.req_simul,
+                self.req_ps,
+                self.num_ex,
+                self.num_defs,
+                pbar,
+            )
+
+            export.gen_csv(results, self.output)
         elif self.export_mode == "AnkiDeck":
             pbar = self.get_page("Generator").progress_bar
             pbar.configure(maximum=len(self.chars))
 
             results = await scraper.main(
                 self.chars,
-                self.requests_at_once,
-                self.requests_per_second,
-                self.num_examples,
-                self.num_definitions,
+                self.req_simul,
+                self.req_ps,
+                self.num_ex,
+                self.num_defs,
                 pbar,
             )
 
