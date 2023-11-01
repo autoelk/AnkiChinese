@@ -128,6 +128,8 @@ async def main(
         if pbar == None:
             pbar = tqdm(total=len(chars))
             using_gui = False
+        else:
+            pbar.event_generate("<<StartProgressBar>>")
         result_list = []
         async with aiometer.amap(
             functools.partial(fetch, context, num_examples, num_defs),
@@ -145,6 +147,8 @@ async def main(
         await browser.close()
         if not using_gui:
             pbar.close()
+        else:
+            pbar.event_generate("<<FinishProgressBar>>")
         return result_list
 
 

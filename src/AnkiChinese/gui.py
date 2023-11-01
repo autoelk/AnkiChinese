@@ -23,9 +23,6 @@ class Page(ttk.Frame):
     def show(self):
         self.lift()
 
-    def set_default_vals(self):
-        pass
-
 
 class MainMenuPage(Page):
     def __init__(self, root, controller):
@@ -43,7 +40,7 @@ class MainMenuPage(Page):
         ).grid(row=1, column=0)
 
         buttons = ttk.Frame(self)
-        buttons.grid(row=1, column=0)
+        buttons.grid(row=1, column=0, sticky=N)
         ttk.Label(buttons, text="Select a mode:").grid(row=0, column=0, columnspan=2)
         ttk.Button(
             buttons, text="CSV", command=lambda: controller.show_page("CSV")
@@ -123,26 +120,52 @@ class SpinboxField(ttk.Frame):
         return valid
 
 
-class AnkiDeckPage(Page):
-    def __init__(self, root, controller):
+class ConfigPage(Page):
+    def __init__(self, root, controller, name, desc, ext):
         Page.__init__(self, root)
-        self.name = "AnkiDeck"
+        self.name = name
+        self.ext = ext
 
         title_frame = ttk.Frame(self)
         title_frame.grid(row=0, column=0)
-        ttk.Label(title_frame, text="Anki Deck", font=controller.h2_font).grid(
-            row=0, column=0
-        )
+        ttk.Label(title_frame, text=name, font=controller.h2_font).grid(row=0, column=0)
         ttk.Label(
             title_frame,
-            text="Generate a new Anki deck with custom AnkiChinese features",
+            text=desc,
         ).grid(row=1, column=0)
 
+        # BASIC OPTIONS SECTION
+        self.create_basic_opt()
+
+        # ADVANCED OPTIONS SECTION
+        self.create_adv_opt()
+
+        # Navigation buttons
+        nav_buttons_frame = ttk.Frame(self)
+        nav_buttons_frame.grid(row=3, column=0, sticky=SE)
+
+        ttk.Button(
+            nav_buttons_frame,
+            text="Back",
+            command=lambda: controller.show_page("MainMenu"),
+        ).grid(row=0, column=0, padx=5, pady=5)
+        self.next_button = ttk.Button(
+            nav_buttons_frame,
+            text="Next",
+            command=self.update_controller,
+        )
+        self.next_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+    def create_basic_opt(self):
         basic_opt_frame = ttk.Frame(self)
         basic_opt_frame.grid(row=1, column=0)
 
         # Characters to scrape
-        ttk.Label(basic_opt_frame, text="Characters").grid(row=0, column=0, stick=W)
+        ttk.Label(basic_opt_frame, text="Characters").grid(row=0, column=0, sticky=W)
         self.char_text_box = Text(basic_opt_frame, width=40, height=10)
         self.char_text_box.grid(row=1, column=0, sticky=W)
         ttk.Button(basic_opt_frame, text="Import", command=self.import_chars).grid(
@@ -154,7 +177,7 @@ class AnkiDeckPage(Page):
             row=2, column=0, sticky=W
         )
         self.output = StringVar(self)
-        self.output.set(os.path.join(os.getcwd(), "ankichinese_output.apkg"))
+        self.output.set(os.path.join(os.getcwd(), "ankichinese_output." + self.ext))
         self.output_entry = ttk.Entry(
             basic_opt_frame,
             textvariable=self.output,
@@ -178,9 +201,9 @@ class AnkiDeckPage(Page):
             textvariable=self.output_error_msg,
         ).grid(row=4, column=0, sticky=W)
 
-        # ADVANCED OPTIONS SECTION
+    def create_adv_opt(self):
         adv_opt_frame = ttk.Labelframe(self, text="Advanced Options")
-        adv_opt_frame.grid(row=2, column=0)
+        adv_opt_frame.grid(row=2, column=0, sticky=N)
 
         # Number of Definitions
         self.num_defs = SpinboxField(self, adv_opt_frame, "# of definitions", 5)
@@ -195,28 +218,6 @@ class AnkiDeckPage(Page):
             self, adv_opt_frame, "Max requests at once", 5
         )
         self.max_req_simul.grid(row=1, column=1)
-
-        # Navigation buttons
-        nav_buttons_frame = ttk.Frame(self)
-        nav_buttons_frame.grid(row=3, column=0, sticky=SE)
-
-        ttk.Button(
-            nav_buttons_frame,
-            text="Back",
-            command=lambda: controller.show_page("MainMenu"),
-        ).grid(row=0, column=0, padx=5, pady=5)
-        self.next_button = ttk.Button(
-            nav_buttons_frame,
-            text="Next",
-            command=self.update_controller,
-        )
-        self.next_button.grid(row=0, column=1, padx=5, pady=5)
-
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure(3, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
     def import_chars(self):
         input_file = filedialog.askopenfilename()
@@ -233,7 +234,7 @@ class AnkiDeckPage(Page):
     def get_output(self):
         self.output.set(
             filedialog.asksaveasfilename(
-                defaultextension="apkg",
+                defaultextension=self.ext,
                 initialfile="ankichinese_output",
             )
         )
@@ -241,7 +242,10 @@ class AnkiDeckPage(Page):
 
     # validation helpers
     def val_output(self, new_val):
-        valid = regex.search(r"[^\/]+(?=\.apkg$)", new_val) is not None
+        valid = (
+            regex.search(r"[^\/]+(?=\." + regex.escape(self.ext) + r"$)", new_val)
+            is not None
+        )
         self.output_error_msg.set("" if valid else "Invalid file location")
         self.output_valid = valid
         self.update_next_btn_state()
@@ -261,19 +265,130 @@ class AnkiDeckPage(Page):
             self.next_button.state(["disabled"])
 
     def update_controller(self):
-        controller.export_mode = "AnkiDeck"
-        controller.chars = set(
-            [
-                char
-                for char in self.char_text_box.get("1.0", "end")
-                if not char.isspace()
-            ]
-        )
+        controller.export_mode = self.name
+        controller.chars = self.char_text_box.get("1.0", "end")
         controller.req_simul = int(self.max_req_simul.value.get())
         controller.req_ps = int(self.max_req_ps.value.get())
         controller.num_ex = int(self.num_ex.value.get())
         controller.num_defs = int(self.num_defs.value.get())
         controller.output = self.output.get()
+        controller.show_page("Generator")
+
+
+class UpdateConfigPage(ConfigPage):
+    def __init__(self, root, controller):
+        self.controller = controller
+        ConfigPage.__init__(
+            self,
+            root,
+            controller,
+            "Update",
+            "Update existing Anki deck without losing progress",
+            None,
+        )
+
+    def create_basic_opt(self):
+        basic_opt_frame = ttk.Frame(self)
+        basic_opt_frame.grid(row=1, column=0)
+
+        # Characters to scrape
+        char_frame = ttk.Frame(basic_opt_frame)
+        char_frame.grid(row=0, column=1)
+
+        ttk.Label(char_frame, text="Characters").grid(row=0, column=0, padx=5, sticky=W)
+        self.char_text_box = Text(char_frame, width=30, height=12)
+        self.char_text_box.grid(row=1, column=0)
+        ttk.Button(char_frame, text="Import", command=self.import_chars).grid(
+            row=2, column=0, padx=5, sticky=EW
+        )
+        self.update_existing = IntVar()
+        ttk.Checkbutton(
+            basic_opt_frame,
+            text="Include characters in selected field",
+            variable=self.update_existing,
+            onvalue=1,
+            offvalue=0,
+        ).grid(row=1, column=0, columnspan=3)
+        self.update_existing.set(0)
+
+        # Deck and Model
+        deck_model_frame = ttk.Frame(basic_opt_frame)
+        deck_model_frame.grid(row=0, column=0)
+
+        ttk.Label(deck_model_frame, text="Select deck & model").grid(
+            row=0, column=0, padx=5, sticky=W
+        )
+        self.deck_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
+        self.deck_tree.grid(row=1, column=0, padx=5)
+
+        ttk.Label(deck_model_frame, text="Fields").grid(
+            row=0, column=1, padx=5, sticky=W
+        )
+        self.model_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
+        self.model_tree.grid(row=1, column=1, padx=5)
+
+        self.controller.col = Collection()
+        self.deck_names = self.controller.col.cards.list_decks()
+        self.model_names = {}
+        self.column_names = {}
+
+        cards_in_deck = {}
+        notes_in_deck = {}
+        for deck_name in self.deck_names:
+            cards = self.controller.col.cards.merge_notes()
+            cards_in_deck[deck_name] = cards[cards["cdeck"].str.startswith(deck_name)]
+            notes_in_deck[deck_name] = self.controller.col.notes[
+                self.controller.col.notes.nid.isin(cards_in_deck[deck_name].nid)
+            ]
+            self.model_names[deck_name] = notes_in_deck[deck_name].list_models()
+
+            self.deck_tree.insert("", "end", deck_name, text=deck_name)
+            for model_name in self.model_names[deck_name]:
+                model_id = deck_name + "::" + model_name
+
+                self.deck_tree.insert(deck_name, "end", model_id, text=model_name)
+                self.column_names[model_id] = list(
+                    map(
+                        lambda s: s[5:],
+                        notes_in_deck[deck_name]
+                        .copy()
+                        .query(f"nmodel == '{model_name}'")
+                        .fields_as_columns()
+                        .filter(regex="^nfld_", axis="columns"),
+                    )
+                )
+                for column_name in self.column_names[model_id]:
+                    self.model_tree.insert(
+                        "", "end", model_id + "::" + column_name, text=column_name
+                    )
+                    self.model_tree.detach(model_id + "::" + column_name)
+            self.deck_tree.item(deck_name, open=TRUE)
+
+        self.deck_tree.bind(
+            "<<TreeviewSelect>>",
+            lambda e: self.show_model_cols(self.deck_tree.selection()[0]),
+        )
+
+    def show_model_cols(self, model_id):
+        for deck_name in self.deck_names:
+            for model_name in self.model_names[deck_name]:
+                curr_model_id = deck_name + "::" + model_name
+                for column_name in self.column_names[curr_model_id]:
+                    if curr_model_id == model_id:
+                        self.model_tree.move(
+                            curr_model_id + "::" + column_name, "", "end"
+                        )
+                    else:
+                        self.model_tree.detach(curr_model_id + "::" + column_name)
+
+    def update_controller(self):
+        controller.export_mode = self.name
+        controller.chars = self.char_text_box.get("1.0", "end")
+        controller.req_simul = int(self.max_req_simul.value.get())
+        controller.req_ps = int(self.max_req_ps.value.get())
+        controller.num_ex = int(self.num_ex.value.get())
+        controller.num_defs = int(self.num_defs.value.get())
+        controller.output = self.deck_tree.selection()[0].split("::", 2)
         controller.show_page("Generator")
 
 
@@ -283,8 +398,9 @@ class GeneratorPage(Page):
         self.name = "Generator"
 
         main_frame = ttk.Frame(self)
-        main_frame.grid(row=0, column=0, stick=NSEW)
-        ttk.Label(main_frame, text="Summary", font=controller.h2_font).grid(
+        main_frame.grid(row=0, column=0, sticky=NSEW)
+
+        ttk.Label(main_frame, text="Generate", font=controller.h2_font).grid(
             row=0, column=0, pady=5
         )
         self.log_text_box = Text(main_frame)
@@ -294,28 +410,45 @@ class GeneratorPage(Page):
 
         # Navigation buttons
         nav_buttons_frame = ttk.Frame(self)
-        nav_buttons_frame.grid(row=1, column=0, sticky=S)
+        nav_buttons_frame.grid(row=2, column=0, sticky=EW)
 
         self.progress_bar = ttk.Progressbar(
-            nav_buttons_frame, orient=HORIZONTAL, length=200, mode="determinate"
+            nav_buttons_frame, orient=HORIZONTAL, mode="determinate"
         )
-        self.progress_bar.grid(row=0, column=0, sticky=W)
+        self.progress_bar.grid(row=0, column=0, padx=10, sticky=EW)
+
         ttk.Button(
             nav_buttons_frame,
             text="Back",
             command=lambda: controller.show_page(controller.export_mode),
-        ).grid(row=0, column=1, padx=5, pady=5, sticky=E)
-        ttk.Button(
+        ).grid(row=0, column=1, padx=5, pady=5)
+        self.start_button = ttk.Button(
             nav_buttons_frame,
             text="Start",
             command=self.do_scrape_and_export,
-        ).grid(row=0, column=2, padx=5, pady=5, sticky=E)
+        )
+        self.start_button.grid(row=0, column=2, padx=5, pady=5)
+        self.finish_button = ttk.Button(
+            nav_buttons_frame,
+            text="Finish",
+            command=root.destroy,
+        )
+        self.finish_button.grid(row=0, column=2, padx=5, pady=5)
+        self.start_button.lift()
+        self.start_button.state(["!disabled"])
+
+        self.progress_bar.bind(
+            "<<StartProgressBar>>", lambda e: self.start_button.state(["disabled"])
+        )
         self.progress_bar.bind(
             "<<StepProgressBar>>", lambda e: self.progress_bar.step(1)
         )
+        self.progress_bar.bind(
+            "<<FinishProgressBar>>", lambda e: self.finish_button.lift()
+        )
         self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
+        nav_buttons_frame.grid_columnconfigure(0, weight=1)
 
     def do_scrape_and_export(self):
         thread = threading.Thread(target=controller.scrape_and_export_wrapper)
@@ -336,10 +469,26 @@ class Controller:
 
         self.pages = {}
         self.add_page(MainMenuPage(root, self))
-        self.add_page(AnkiDeckPage(root, self))
+        self.add_page(
+            ConfigPage(
+                root,
+                self,
+                "CSV",
+                "Generate a CSV file containing information on characters",
+                "csv",
+            )
+        )
+        self.add_page(
+            ConfigPage(
+                root,
+                self,
+                "AnkiDeck",
+                "Generate a new Anki deck with special features",
+                "apkg",
+            )
+        )
+        self.add_page(UpdateConfigPage(root, self))
         self.add_page(GeneratorPage(root, self))
-        for page in self.pages.values():
-            page.set_default_vals()
 
         # default values
         self.export_mode = "AnkiDeck"
@@ -372,50 +521,43 @@ class Controller:
         self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
-        self.chars = list(filter(lambda char: "\u4e00" <= char <= "\u9fff", self.chars))
+        self.chars = list(
+            filter(lambda char: "\u4e00" <= char <= "\u9fff", set(self.chars))
+        )
 
+        pbar = self.get_page("Generator").progress_bar
+        pbar.configure(maximum=len(self.chars))
+        results = await scraper.main(
+            self.chars,
+            self.req_simul,
+            self.req_ps,
+            self.num_ex,
+            self.num_defs,
+            pbar,
+        )
         if self.export_mode == "CSV":
-            pbar = self.get_page("Generator").progress_bar
-            pbar.configure(maximum=len(self.chars))
-
-            results = await scraper.main(
-                self.chars,
-                self.req_simul,
-                self.req_ps,
-                self.num_ex,
-                self.num_defs,
-                pbar,
-            )
-
             export.gen_csv(results, self.output)
         elif self.export_mode == "AnkiDeck":
-            pbar = self.get_page("Generator").progress_bar
-            pbar.configure(maximum=len(self.chars))
-
-            results = await scraper.main(
-                self.chars,
-                self.req_simul,
-                self.req_ps,
-                self.num_ex,
-                self.num_defs,
-                pbar,
-            )
-
             export.gen_anki(results, self.output)
         elif self.export_mode == "Update":
-            pass
-        else:
-            raise Exception("Unknown export mode")
+            deck_name = self.output[0]
+            model_name = self.output[1]
+            res, notes_added_nids = export.update_anki(
+                results, self.col, deck_name, model_name
+            )
+            export.update_anki_apply_changes(self.col, res, notes_added_nids, deck_name)
 
 
 if __name__ == "__main__":
     root = Tk()
     root.geometry("720x600")
+    root.minsize(650, 500)
+    # root.state("zoomed")
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
     root.title("AnkiChinese")
 
     controller = Controller(root)
-    controller.show_page("AnkiDeck")
+    controller.show_page("Update")
 
     root.mainloop()

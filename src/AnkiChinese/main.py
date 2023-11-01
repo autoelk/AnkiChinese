@@ -183,7 +183,11 @@ def cli():
             args.examples,
             args.definitions,
         )
-        export.update_anki(results, col, deck_name, model_name, notes_in_deck)
+        res, notes_added_nids = export.update_anki(results, col, deck_name, model_name)
+
+        confirm_changes = input("Confirm changes? [y/n] ").lower().strip()
+        if confirm_changes == "y" or confirm_changes == "yes":
+            export.update_anki_apply_changes(col, res, notes_added_nids, deck_name)
 
 
 if __name__ == "__main__":

@@ -89,7 +89,10 @@ def gen_anki(results, output):
     print("Finished")
 
 
-def update_anki(results, col, deck_name, model_name, notes_in_deck):
+def update_anki(results, col, deck_name, model_name):
+    cards = col.cards.merge_notes()
+    cards_in_deck = cards[cards["cdeck"].str.startswith(deck_name)]
+    notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
     selec = notes_in_deck.query(f"nmodel == '{model_name}'").copy()
 
     # convert results to dataframe
@@ -123,7 +126,7 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
         nmodel=model_name, nflds=new_notes.to_dict("records"), inplace=True
     )
 
-    # print changes and ask for confirmation
+    # print changes
     # col.summarize_changes()
     notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
     print("\nNotes updated:")
@@ -131,16 +134,18 @@ def update_anki(results, col, deck_name, model_name, notes_in_deck):
     # print("\nNotes added:")
     # print(col.notes.loc[notes_added_nids, "nflds"])
 
-    confirm_changes = input("Confirm changes? [y/n] ").lower().strip()
-    if confirm_changes == "y" or confirm_changes == "yes":
-        col.write(modify=True, add=True, delete=False)
-        if len(notes_added_nids) > 0:
-            col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
-            col.write(add=True)
+    return res, notes_added_nids
+
+
+def update_anki_apply_changes(col, results, notes_added_nids, deck_name):
+    col.write(modify=True, add=True, delete=False)
+    if len(notes_added_nids) > 0:
+        col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
+        col.write(add=True)
 
     # generate empty deck with audio files
     audio_data = []
-    for audio_file in res.nfld_Audio.to_list():
+    for audio_file in results.nfld_Audio.to_list():
         audio_data.append(
             {
                 "Hanzi": "",
