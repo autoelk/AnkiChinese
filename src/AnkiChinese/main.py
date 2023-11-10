@@ -5,10 +5,33 @@ sys.path.insert(1, os.path.dirname(__file__))  # allows python to find other mod
 
 import scraper
 import export
+from interface import Interface
 
+from tqdm import tqdm
 import argparse
+import asyncio
 
 from ankipandas import Collection
+
+
+class CLI(Interface):
+    def __init__(self, pbar):
+        self.pbar = pbar
+
+    def print(self, str):
+        print(str)
+
+    def config_pbar(self):
+        pass
+
+    def start_pbar(self):
+        pass
+
+    async def step_pbar(self):
+        self.pbar.update(1)
+
+    def finish_pbar(self):
+        self.pbar.close()
 
 
 def cli():
@@ -36,7 +59,7 @@ def cli():
         "--output",
         "-o",
         type=str,
-        default="ankchinese_output",
+        default="ankichinese_output",
         help="Name of output file (do not include extension) (default: ankichinese_output)",
     )
     parser.add_argument(
@@ -68,7 +91,9 @@ def cli():
         help="Maximum number of requests per second (default: 5)",
     )
     args = parser.parse_args()
-    print(args)
+    print(
+        f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nmax requests per second: {args.requests_per_second}"
+    )
 
     chars = []  # list of characters to scrape
     try:
@@ -87,21 +112,27 @@ def cli():
 
     export_mode = args.export
     if export_mode == "csv":
-        results = scraper.scrape(
-            chars,
-            args.requests_at_once,
-            args.requests_per_second,
-            args.examples,
-            args.definitions,
+        results = asyncio.run(
+            scraper.main(
+                chars,
+                args.requests_at_once,
+                args.requests_per_second,
+                args.examples,
+                args.definitions,
+                CLI(tqdm(total=len(chars))),
+            )
         )
         export.gen_csv(results, os.path.join(os.getcwd(), args.output + ".csv"))
     elif export_mode == "anki":
-        results = scraper.scrape(
-            chars,
-            args.requests_at_once,
-            args.requests_per_second,
-            args.examples,
-            args.definitions,
+        results = asyncio.run(
+            scraper.main(
+                chars,
+                args.requests_at_once,
+                args.requests_per_second,
+                args.examples,
+                args.definitions,
+                CLI(tqdm(total=len(chars))),
+            )
         )
         export.gen_anki(results, os.path.join(os.getcwd(), args.output + ".apkg"))
     elif export_mode == "update":
@@ -109,6 +140,7 @@ def cli():
 
         # get desired notes
         deck_names = col.cards.list_decks()
+        deck_name = None
         if len(deck_names) == 0:
             print("No decks found!")
             return
@@ -125,6 +157,7 @@ def cli():
         notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
 
         model_names = notes_in_deck.list_models()
+        model_name = None
         if len(model_names) == 0:
             print("No models found!")
             return
@@ -176,12 +209,15 @@ def cli():
             existing_chars = notes_in_deck.fields_as_columns().nfld_Hanzi.to_list()
 
         chars.update(existing_chars)
-        results = scraper.scrape(
-            chars,
-            args.requests_at_once,
-            args.requests_per_second,
-            args.examples,
-            args.definitions,
+        results = asyncio.run(
+            scraper.main(
+                chars,
+                args.requests_at_once,
+                args.requests_per_second,
+                args.examples,
+                args.definitions,
+                CLI(tqdm(total=len(chars))),
+            )
         )
         res, notes_added_nids = export.update_anki(results, col, deck_name, model_name)
 

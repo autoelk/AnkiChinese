@@ -86,7 +86,6 @@ def gen_anki(results, output):
     add_audio(package, "ankichinese_audio")
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_name + ".apkg")
-    print("Finished")
 
 
 def update_anki(results, col, deck_name, model_name):
@@ -101,9 +100,6 @@ def update_anki(results, col, deck_name, model_name):
 
     # merge existing notes and results
     old = selec.fields_as_columns().copy()
-    if "nfld_Hanzi" not in old.columns:
-        print("Error: model must have 'Hanzi' column!")
-        return
     old.set_index("nfld_Hanzi", inplace=True)
     res.set_index("nfld_Hanzi", inplace=True)
     old.update(res)

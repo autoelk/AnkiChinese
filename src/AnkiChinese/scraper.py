@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 import re as regex
-from tqdm import tqdm
 
 import requests
 import os
@@ -98,7 +97,7 @@ def scrape_word(r, num_examples, num_defs, hanzi):
     return info
 
 
-async def fetch(context, num_examples, num_defs, hanzi):
+async def fetch(interface, context, num_examples, num_defs, hanzi):
     page = await context.new_page()
     await page.goto(
         f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
@@ -109,30 +108,26 @@ async def fetch(context, num_examples, num_defs, hanzi):
     try:
         return scrape_word(content, num_examples, num_defs, hanzi)
     except Exception as e:
-        print(f"Error scraping {hanzi}: {e}")
+        interface.print(f"Error scraping {hanzi}: {e}")
         return None
 
 
-async def step_gui_pbar(pbar):
-    pbar.event_generate("<<StepProgressBar>>")
-
-
 async def main(
-    chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar
+    chars,
+    requests_at_once,
+    requests_per_second,
+    num_examples,
+    num_defs,
+    interface,
 ):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
-        using_gui = True  # function called from gui
-        if pbar == None:
-            pbar = tqdm(total=len(chars))
-            using_gui = False
-        else:
-            pbar.event_generate("<<StartProgressBar>>")
+        interface.start_pbar()
         result_list = []
         async with aiometer.amap(
-            functools.partial(fetch, context, num_examples, num_defs),
+            functools.partial(fetch, interface, context, num_examples, num_defs),
             chars,
             max_at_once=requests_at_once,
             max_per_second=requests_per_second,
@@ -140,21 +135,7 @@ async def main(
             async for data in results:
                 if data is not None:
                     result_list.append(data)
-                if using_gui:
-                    await step_gui_pbar(pbar)
-                else:
-                    pbar.update(1)
+                await interface.step_pbar()
         await browser.close()
-        if not using_gui:
-            pbar.close()
-        else:
-            pbar.event_generate("<<FinishProgressBar>>")
+        interface.finish_pbar()
         return result_list
-
-
-def scrape(
-    chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar=None
-):
-    return asyncio.run(
-        main(chars, requests_at_once, requests_per_second, num_examples, num_defs, pbar)
-    )
