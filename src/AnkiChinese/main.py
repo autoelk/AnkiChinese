@@ -1,7 +1,7 @@
 import sys
 import os.path
 
-sys.path.insert(1, os.path.dirname(__file__))  # allows python to find other modules
+sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
 
 import scraper
 import export
@@ -15,17 +15,15 @@ from ankipandas import Collection
 
 
 class CLI(Interface):
-    def __init__(self, pbar):
-        self.pbar = pbar
-
     def print(self, str):
         print(str)
 
-    def config_pbar(self):
-        pass
+    def confirm(self, msg):
+        resp = input(msg + " [y/n] ").lower().strip()
+        return resp == "y" or resp == "yes"
 
-    def start_pbar(self):
-        pass
+    def start_pbar(self, num):
+        self.pbar = tqdm(total=num)
 
     async def step_pbar(self):
         self.pbar.update(1)
@@ -95,7 +93,7 @@ def cli():
         f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nmax requests per second: {args.requests_per_second}"
     )
 
-    chars = []  # list of characters to scrape
+    chars = []  # List of characters to scrape
     try:
         with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
             for line in f:
@@ -105,11 +103,12 @@ def cli():
     except FileNotFoundError as e:
         print(e)
 
-    chars = set(chars)  # remove duplicates
+    chars = set(chars)  # Remove duplicates
     if len(chars) == 0:
         print("No characters found!")
         return
 
+    interface = CLI()
     export_mode = args.export
     if export_mode == "csv":
         results = asyncio.run(
@@ -119,10 +118,12 @@ def cli():
                 args.requests_per_second,
                 args.examples,
                 args.definitions,
-                CLI(tqdm(total=len(chars))),
+                interface,
             )
         )
-        export.gen_csv(results, os.path.join(os.getcwd(), args.output + ".csv"))
+        export.gen_csv(
+            interface, results, os.path.join(os.getcwd(), args.output + ".csv")
+        )
     elif export_mode == "anki":
         results = asyncio.run(
             scraper.main(
@@ -131,14 +132,16 @@ def cli():
                 args.requests_per_second,
                 args.examples,
                 args.definitions,
-                CLI(tqdm(total=len(chars))),
+                interface,
             )
         )
-        export.gen_anki(results, os.path.join(os.getcwd(), args.output + ".apkg"))
+        export.gen_anki(
+            interface, results, os.path.join(os.getcwd(), args.output + ".apkg")
+        )
     elif export_mode == "update":
         col = Collection()
 
-        # get desired notes
+        # Get deck name
         deck_names = col.cards.list_decks()
         deck_name = None
         if len(deck_names) == 0:
@@ -156,6 +159,7 @@ def cli():
         cards_in_deck = cards_in_deck[cards_in_deck["cdeck"].str.startswith(deck_name)]
         notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
 
+        # Get model name
         model_names = notes_in_deck.list_models()
         model_name = None
         if len(model_names) == 0:
@@ -169,13 +173,15 @@ def cli():
             while model_name not in model_names:
                 model_name = input("Enter name of model to update: ")
 
+        # Get fields in deck
         fields = (
             notes_in_deck.fields_as_columns()
             .filter(regex="^nfld_", axis="columns")
             .columns.str.replace("nfld_", "")
         )
 
-        scraped_fields = [
+        # Fields that AnkiChinese would modify
+        target_fields = [
             "Hanzi",
             "Traditional",
             "Definition",
@@ -189,7 +195,7 @@ def cli():
 
         print("\nAnkiChinese will update the following fields in your model:")
         for field in fields:
-            if field in scraped_fields:
+            if field in target_fields:
                 print(">> " + field)
             else:
                 print("-- " + field)
@@ -198,14 +204,12 @@ def cli():
         if "Hanzi" not in fields:
             raise Exception("Error: model must have 'Hanzi' field!")
 
-        use_model = input("Use this model? [y/n] ").lower().strip()
-        if use_model != "y" and use_model != "yes":
+        if not interface.confirm("Use this model?"):
             print("Quitting ...")
             return
 
         existing_chars = []
-        use_db = input("Also update characters in deck? [y/n] ").lower().strip()
-        if use_db == "y" or use_db == "yes":
+        if interface.confirm("Also update characaters in deck?"):
             existing_chars = notes_in_deck.fields_as_columns().nfld_Hanzi.to_list()
 
         chars.update(existing_chars)
@@ -216,14 +220,11 @@ def cli():
                 args.requests_per_second,
                 args.examples,
                 args.definitions,
-                CLI(tqdm(total=len(chars))),
+                interface,
             )
         )
-        res, notes_added_nids = export.update_anki(results, col, deck_name, model_name)
-
-        confirm_changes = input("Confirm changes? [y/n] ").lower().strip()
-        if confirm_changes == "y" or confirm_changes == "yes":
-            export.update_anki_apply_changes(col, res, notes_added_nids, deck_name)
+        export.update_anki(interface, results, col, deck_name, model_name)
+        return 0
 
 
 if __name__ == "__main__":

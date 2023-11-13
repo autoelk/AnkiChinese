@@ -4,14 +4,16 @@ import pandas as pd
 import re as regex
 
 
-def gen_csv(results, output):
+def get_full_path(relative_path):
+    return os.path.join(os.path.dirname(__file__), relative_path)
+
+
+def gen_csv(interface, results, output):
+    interface.print("Started generating CSV")
     output_name = regex.search(r"[^\/]+(?=\.csv$)", output).group(0)
     df = pd.DataFrame(results)
     df.to_csv(output_name + ".csv", index=False, sep="\t")
-
-
-def get_full_path(relative_path):
-    return os.path.join(os.path.dirname(__file__), relative_path)
+    interface.print("Finished generating " + output_name + ".csv")
 
 
 def gen_model():
@@ -75,7 +77,8 @@ def add_audio(package, audio_path):
         package.media_files.append(audio_path + "/" + file)
 
 
-def gen_anki(results, output):
+def gen_anki(interface, results, output):
+    interface.print("Started generating AnkiChinese deck")
     output_name = regex.search(r"[^\/]+(?=\.apkg$)", output).group(0)
     deck = genanki.Deck(2085137232, output_name)
     model = gen_model()
@@ -86,19 +89,25 @@ def gen_anki(results, output):
     add_audio(package, "ankichinese_audio")
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_name + ".apkg")
+    interface.print("Finished generating " + output_name + ".apkg")
 
 
-def update_anki(results, col, deck_name, model_name):
+def update_anki(interface, results, col, deck_name: str, model_name: str):
+    interface.print(
+        "Started updating\n\tdeck:\t\t" + deck_name + "\n\tmodel:\t\t" + model_name
+    )
+
+    # Get notes from deck and model
     cards = col.cards.merge_notes()
     cards_in_deck = cards[cards["cdeck"].str.startswith(deck_name)]
     notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
     selec = notes_in_deck.query(f"nmodel == '{model_name}'").copy()
 
-    # convert results to dataframe
+    # Convert results to dataframe
     res = pd.DataFrame(results)
     res = res.add_prefix("nfld_")
 
-    # merge existing notes and results
+    # Merge existing notes and results
     old = selec.fields_as_columns().copy()
     old.set_index("nfld_Hanzi", inplace=True)
     res.set_index("nfld_Hanzi", inplace=True)
@@ -106,14 +115,14 @@ def update_anki(results, col, deck_name, model_name):
     res.reset_index(inplace=True)
     old.reset_index(inplace=True)
     old = old.filter(regex="^nfld_", axis="columns")
-    # update exisiting notes
+    # Update exisiting notes
     selec["nflds"] = old.values.tolist()
     col.notes.update(selec)
 
-    # find and add new notes
+    # Find and add new notes
     selec.fields_as_columns(inplace=True)
     new_notes = res[~res["nfld_Hanzi"].isin(selec["nfld_Hanzi"])]
-    # include only columns that also exist in existing notes
+    # Include only columns that also exist in existing notes
     diff_columns = old.columns.difference(new_notes.columns)
     new_notes.loc[:, diff_columns] = ""
     new_notes = new_notes[old.columns]
@@ -122,39 +131,52 @@ def update_anki(results, col, deck_name, model_name):
         nmodel=model_name, nflds=new_notes.to_dict("records"), inplace=True
     )
 
-    # print changes
-    # col.summarize_changes()
+    # Print changes
+    interface.print("Summary: ")
+    summary = col.summarize_changes(output="dict")
+    for key, value in summary.items():
+        interface.print(str(key))
+        for k, v in value.items():
+            interface.print("\t" + str(k) + "\t\t" + str(v))
+
     notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
-    print("\nNotes updated:")
-    print(col.notes.loc[col.notes.was_modified(), "nflds"])
-    # print("\nNotes added:")
-    # print(col.notes.loc[notes_added_nids, "nflds"])
+    interface.print("\nNotes updated:")
+    interface.print(col.notes.loc[col.notes.was_modified(), "nflds"].to_string())
+    # interface.print("\nNotes added:")
+    # interface.print(col.notes.loc[notes_added_nids, "nflds"].to_string())
 
-    return res, notes_added_nids
+    if interface.confirm("Apply changes?"):
+        col.write(modify=True, add=True, delete=False)
+        if len(notes_added_nids) > 0:
+            col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
+            col.write(add=True)
+        interface.print("Finished updating " + deck_name + " " + model_name)
 
-
-def update_anki_apply_changes(col, results, notes_added_nids, deck_name):
-    col.write(modify=True, add=True, delete=False)
-    if len(notes_added_nids) > 0:
-        col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
-        col.write(add=True)
-
-    # generate empty deck with audio files
-    audio_data = []
-    for audio_file in results.nfld_Audio.to_list():
-        audio_data.append(
-            {
-                "Hanzi": "",
-                "Traditional": "",
-                "Definition": "",
-                "Pinyin": "",
-                "Pinyin 2": "",
-                "Examples": "",
-                "Formation": "",
-                "HSK": "",
-                "Audio": audio_file,
-            }
+        # Generate empty deck with audio files
+        audio_data = []
+        for audio_file in res.nfld_Audio.to_list():
+            audio_data.append(
+                {
+                    "Hanzi": "",
+                    "Traditional": "",
+                    "Definition": "",
+                    "Pinyin": "",
+                    "Pinyin 2": "",
+                    "Examples": "",
+                    "Formation": "",
+                    "HSK": "",
+                    "Audio": audio_file,
+                }
+            )
+        gen_anki(
+            interface, audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg")
         )
-    gen_anki(audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg"))
+        interface.print(
+            "Generated ankichinese_audio.apkg, import to Anki for deck audio"
+        )
+    else:
+        interface.print("Update canceled")
+
+    interface.print("\n\n\n")
 
     col.db.close()

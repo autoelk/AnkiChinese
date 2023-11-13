@@ -1,8 +1,8 @@
 class Interface:
-    def print(self, str):
+    def print(self, str: str):
         pass
 
-    def config_pbar(self):
+    def confirm(self, msg: str):
         pass
 
     def start_pbar(self):

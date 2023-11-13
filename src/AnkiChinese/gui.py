@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import font
 from tkinter import filedialog
+from tkinter import messagebox
 
 import sys
 import os.path
@@ -9,7 +10,7 @@ import re as regex
 import asyncio
 import threading
 
-sys.path.insert(1, os.path.dirname(__file__))  # allows python to find other modules
+sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
 
 import scraper
 import export
@@ -135,10 +136,10 @@ class ConfigPage(Page):
             text=desc,
         ).grid(row=1, column=0)
 
-        # BASIC OPTIONS SECTION
+        # Basic options section
         self.create_basic_opt()
 
-        # ADVANCED OPTIONS SECTION
+        # Advanced options section
         self.create_adv_opt()
 
         # Navigation buttons
@@ -156,6 +157,8 @@ class ConfigPage(Page):
             command=self.update_controller,
         )
         self.next_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.val_chars()
 
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
@@ -251,16 +254,17 @@ class ConfigPage(Page):
         )
         self.output_entry.validate()
 
-    # validation helpers
+    # Validation helpers
     def val_chars(self):
         content = self.char_text_box.get(1.0, "end-1c")
-        valid = len(content) > 0
-        self.chars_error_msg.set("" if valid else "Include at least one character")
+        valid = len(set(filter(lambda char: "\u4e00" <= char <= "\u9fff", content))) > 0
+        self.chars_error_msg.set("" if valid else "Include at least one hanzi")
         self.chars_valid = valid
         self.update_next_btn_state()
         return valid
 
     def val_output(self, new_val):
+        # Make sure output ends with correct extension
         valid = (
             regex.search(r"[^\/]+(?=\." + regex.escape(self.ext) + r"$)", new_val)
             is not None
@@ -270,7 +274,7 @@ class ConfigPage(Page):
         self.update_next_btn_state()
         return valid
 
-    # enable next button if and only if all input fields are valid
+    # Enable next button if and only if all input fields are valid
     def update_next_btn_state(self):
         if (
             self.chars_valid
@@ -286,7 +290,7 @@ class ConfigPage(Page):
 
     def update_controller(self):
         controller.export_mode = self.name
-        controller.chars = self.char_text_box.get("1.0", "end")
+        controller.chars = self.char_text_box.get("1.0", END)
         controller.req_simul = int(self.max_req_simul.value.get())
         controller.req_ps = int(self.max_req_ps.value.get())
         controller.num_ex = int(self.num_ex.value.get())
@@ -306,6 +310,7 @@ class UpdateConfigPage(ConfigPage):
             "Update existing Anki deck without losing progress",
             None,
         )
+        self.do_select_model()
 
     def create_basic_opt(self):
         basic_opt_frame = ttk.Frame(self)
@@ -316,9 +321,6 @@ class UpdateConfigPage(ConfigPage):
         char_frame.grid(row=0, column=1)
 
         ttk.Label(char_frame, text="Characters").grid(row=0, column=0, padx=5, sticky=W)
-        self.char_text_box = Text(char_frame, width=30, height=12)
-        self.char_text_box.grid(row=1, column=0)
-        self.char_text_box.bind("<Leave>", lambda e: self.val_chars())
         self.chars_valid = False
         self.chars_error_msg = StringVar(self)
         ttk.Label(
@@ -326,58 +328,83 @@ class UpdateConfigPage(ConfigPage):
             font="TkSmallCaptionFont",
             foreground="red",
             textvariable=self.chars_error_msg,
-        ).grid(row=3, column=0, sticky=W)
+        ).grid(row=0, column=1, sticky=W)
+
+        self.char_text_box = Text(char_frame, width=30, height=12)
+        self.char_text_box.grid(row=1, column=0, columnspan=2)
+        self.char_text_box.bind("<Leave>", lambda e: self.val_chars())
         ttk.Button(char_frame, text="Import", command=self.import_chars).grid(
-            row=2, column=0, padx=5, sticky=EW
+            row=2, column=0, columnspan=2, padx=5, sticky=EW
         )
-        self.update_existing = IntVar()
+
+        self.include_existing = IntVar()
         ttk.Checkbutton(
             basic_opt_frame,
             text="Include existing characters",
-            variable=self.update_existing,
+            variable=self.include_existing,
             onvalue=1,
             offvalue=0,
         ).grid(row=1, column=0, columnspan=3)
-        self.update_existing.set(0)
+        self.include_existing.set(0)
 
         # Deck and Model
         deck_model_frame = ttk.Frame(basic_opt_frame)
         deck_model_frame.grid(row=0, column=0)
 
+        # Display decks along with models it contains
         ttk.Label(deck_model_frame, text="Select deck & model").grid(
             row=0, column=0, padx=5, sticky=W
         )
         self.deck_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
         self.deck_tree.grid(row=1, column=0, padx=5)
 
+        # Display fields of selected model
         ttk.Label(deck_model_frame, text="Fields").grid(
             row=0, column=1, padx=5, sticky=W
         )
-        self.model_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
-        self.model_tree.grid(row=1, column=1, padx=5)
+        self.field_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
+        self.field_tree.grid(row=1, column=1, padx=5)
 
+        # Fields that AnkiChinese would modify
+        target_fields = [
+            "Hanzi",
+            "Traditional",
+            "Definition",
+            "Pinyin",
+            "Pinyin 2",
+            "Examples",
+            "Formation",
+            "HSK",
+            "Audio",
+        ]
+
+        # Get info for display
         self.controller.col = Collection()
         self.deck_names = self.controller.col.cards.list_decks()
         self.model_names = {}
         self.column_names = {}
+        self.notes_in_deck = {}
 
-        cards_in_deck = {}
-        notes_in_deck = {}
+        # Decks
         for deck_name in self.deck_names:
+            self.deck_tree.insert("", END, deck_name, text=deck_name)
+            # Get model names
             cards = self.controller.col.cards.merge_notes()
-            cards_in_deck[deck_name] = cards[cards["cdeck"].str.startswith(deck_name)]
-            notes_in_deck[deck_name] = self.controller.col.notes[
-                self.controller.col.notes.nid.isin(cards_in_deck[deck_name].nid)
+            cards_in_deck = cards[cards["cdeck"].str.startswith(deck_name)]
+            self.notes_in_deck[deck_name] = self.controller.col.notes[
+                self.controller.col.notes.nid.isin(cards_in_deck.nid)
             ]
-            self.model_names[deck_name] = notes_in_deck[deck_name].list_models()
+            self.model_names[deck_name] = self.notes_in_deck[deck_name].list_models()
 
-            self.deck_tree.insert("", "end", deck_name, text=deck_name)
+            # Insert models
             for model_name in self.model_names[deck_name]:
+                # Create unique ID in case multiple decks have same model
                 model_id = deck_name + "::" + model_name
+                self.deck_tree.insert(deck_name, END, model_id, text=model_name)
 
-                self.deck_tree.insert(deck_name, "end", model_id, text=model_name)
+                # Get column/field names, intially prefixed with "nfld_"
                 self.column_names[model_id] = (
-                    notes_in_deck[deck_name]
+                    self.notes_in_deck[deck_name]
                     .copy()
                     .query(f"nmodel == '{model_name}'")
                     .fields_as_columns()
@@ -385,68 +412,78 @@ class UpdateConfigPage(ConfigPage):
                     .columns.str.replace("nfld_", "")
                 )
 
+                # Insert fields
                 for column_name in self.column_names[model_id]:
-                    self.model_tree.insert(
+                    # Create unique ID in case multiple model_ids have same column_name
+                    column_id = model_id + "::" + column_name
+                    self.field_tree.insert(
                         "",
-                        "end",
-                        model_id + "::" + column_name,
+                        END,
+                        column_id,
                         text=column_name,
-                        tags=("hanzi" if column_name == "Hanzi" else ""),
+                        tags=(
+                            "hanzi" if column_name == "Hanzi" else "",
+                            "modify" if column_name in target_fields else "",
+                        ),
                     )
-                    self.model_tree.detach(model_id + "::" + column_name)
+                    self.field_tree.detach(column_id)
             self.deck_tree.item(deck_name, open=TRUE)
 
         # Error messages
-        self.model_tree.insert(
+        self.field_tree.insert(
             "",
-            "end",
+            END,
             "deck_not_model",
             text="Please select a model",
             tags="error",
         )
-        self.model_tree.detach("deck_not_model")
-        self.model_tree.insert(
+        self.field_tree.detach("deck_not_model")
+        self.field_tree.insert(
             "",
-            "end",
+            END,
             "no_hanzi",
             text='Model must contain "Hanzi"',
             tags="error",
         )
-        self.model_tree.detach("no_hanzi")
+        self.field_tree.detach("no_hanzi")
 
-        self.model_tree.tag_configure("hanzi", foreground="green")
-        self.model_tree.tag_configure("error", foreground="red")
+        self.field_tree.tag_configure("hanzi", foreground="green")
+        self.field_tree.tag_configure("error", foreground="red")
+        self.field_tree.tag_configure("modify", foreground="blue")
         self.output_valid = False
+
         self.deck_tree.bind(
             "<<TreeviewSelect>>",
             lambda e: self.do_select_model(),
         )
+        # Select first deck so that error message is visible on load
+        self.deck_tree.focus(item=self.deck_names[0])
 
     def show_model_cols(self, model_id):
-        # error messages
+        # Error messages
+        self.field_tree.detach("deck_not_model")
+        self.field_tree.detach("no_hanzi")
         if model_id not in self.column_names:
-            self.model_tree.move("deck_not_model", "", "end")
+            self.field_tree.move("deck_not_model", "", END)
         else:
-            self.model_tree.detach("deck_not_model")
             if "Hanzi" not in self.column_names[model_id]:
-                self.model_tree.move("no_hanzi", "", "end")
-            else:
-                self.model_tree.detach("no_hanzi")
+                self.field_tree.move("no_hanzi", "", END)
 
+        # Attach fields with model_id detach others
         for deck_name in self.deck_names:
             for model_name in self.model_names[deck_name]:
                 curr_model_id = deck_name + "::" + model_name
                 for column_name in self.column_names[curr_model_id]:
                     if curr_model_id == model_id:
-                        self.model_tree.move(
-                            curr_model_id + "::" + column_name, "", "end"
+                        self.field_tree.move(
+                            curr_model_id + "::" + column_name, "", END
                         )
                     else:
-                        self.model_tree.detach(curr_model_id + "::" + column_name)
+                        self.field_tree.detach(curr_model_id + "::" + column_name)
 
     def do_select_model(self):
-        self.show_model_cols(self.deck_tree.selection()[0])
-        self.val_output(self.deck_tree.selection()[0])
+        self.show_model_cols(self.deck_tree.focus())
+        self.val_output(self.deck_tree.focus())
 
     def val_output(self, model_id):
         if model_id in self.column_names:
@@ -459,12 +496,21 @@ class UpdateConfigPage(ConfigPage):
 
     def update_controller(self):
         controller.export_mode = self.name
-        controller.chars = self.char_text_box.get("1.0", "end")
         controller.req_simul = int(self.max_req_simul.value.get())
         controller.req_ps = int(self.max_req_ps.value.get())
         controller.num_ex = int(self.num_ex.value.get())
         controller.num_defs = int(self.num_defs.value.get())
-        controller.output = self.deck_tree.selection()[0].split("::", 2)
+        controller.output = self.deck_tree.focus().split("::", 2)
+
+        controller.chars = self.char_text_box.get("1.0", END)
+        if self.include_existing == 1:
+            existing_chars = (
+                self.notes_in_deck[controller.output[0]]
+                .fields_as_columns()
+                .nfld_Hanzi.to_list()
+            )
+            controller.chars += str(existing_chars)
+
         controller.show_page("Generator")
 
 
@@ -479,8 +525,11 @@ class GeneratorPage(Page):
         ttk.Label(main_frame, text="Generate", font=controller.h2_font).grid(
             row=0, column=0, pady=5
         )
-        self.log_text_box = Text(main_frame)
+        self.log_text_box = Text(main_frame, state=DISABLED)
         self.log_text_box.grid(row=1, column=0, padx=5, sticky=NSEW)
+        self.log_text_box.bind(
+            "<1>", lambda e: self.log_text_box.focus_set()
+        )  # Allow clicking into box on MacOS
         main_frame.grid_rowconfigure(1, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
 
@@ -538,13 +587,12 @@ class GeneratorPage(Page):
 
 
 class GUI(Interface):
-    def __init__(self, pbar):
+    def __init__(self, pbar, text_box):
         self.pbar = pbar
+        self.text_box = text_box
 
-    def config_pbar(self, num):
+    def start_pbar(self, num):
         self.pbar.configure(maximum=num)
-
-    def start_pbar(self):
         self.pbar.event_generate("<<StartProgressBar>>")
 
     async def step_pbar(self):
@@ -553,12 +601,18 @@ class GUI(Interface):
     def finish_pbar(self):
         self.pbar.event_generate("<<FinishProgressBar>>")
 
-    def print(self, str):
-        print(str)
+    def print(self, msg):
+        self.text_box.configure(state="normal")
+        self.text_box.insert(END, str(msg) + "\n")
+        self.text_box.configure(state="disabled")
+
+    def confirm(self, msg):
+        return messagebox.askokcancel(message=msg, title="Confirm")
 
 
 class Controller:
     def __init__(self, root):
+        # Store fonts here so they can be accessed from anywhere, essentially working as global variables
         self.h1_font = font.Font(
             family="Helvetica", name="h1_font", size=72, weight="bold"
         )
@@ -569,6 +623,7 @@ class Controller:
             family="Helvetica", name="h3_font", size=24, weight="normal"
         )
 
+        # Create and store pages in pages dictionary
         self.pages = {}
         self.add_page(MainMenuPage(root, self))
         self.add_page(
@@ -592,9 +647,12 @@ class Controller:
         self.add_page(UpdateConfigPage(root, self))
         self.add_page(GeneratorPage(root, self))
 
-        self.interface = GUI(self.get_page("Generator").progress_bar)
+        self.interface = GUI(
+            self.get_page("Generator").progress_bar,
+            self.get_page("Generator").log_text_box,
+        )
 
-        # default values
+        # Default values
         self.export_mode = "AnkiDeck"
         self.chars = []
         self.req_simul = None
@@ -603,33 +661,35 @@ class Controller:
         self.num_defs = None
         self.output = None
 
+        # Create event loop for threading later
         self.scrape_loop = asyncio.new_event_loop()
 
     def add_page(self, page):
         self.pages[page.name] = page
-        page.grid(row=0, column=0, sticky=NSEW)
+        page.grid(row=0, column=0, sticky=NSEW)  # Make page frame fill window
 
     def get_page(self, name):
-        page = self.pages.get(name)
+        page = self.pages.get(name)  # Check that page exists
         if page:
             return page
 
     def show_page(self, name):
-        page = self.pages.get(name)
+        page = self.pages.get(name)  # Check that page exists
         if page:
             self.cur_page = name
             page.show()
 
     def scrape_and_export_wrapper(self):
+        # Run scrape and export asynchronsouly so that GUI does not freeze
         asyncio.set_event_loop(self.scrape_loop)
         self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
+        # Filter for only unique chinese characters
         self.chars = list(
             filter(lambda char: "\u4e00" <= char <= "\u9fff", set(self.chars))
         )
 
-        self.interface.config_pbar(len(self.chars))
         results = await scraper.main(
             self.chars,
             self.req_simul,
@@ -638,17 +698,16 @@ class Controller:
             self.num_defs,
             self.interface,
         )
+
         if self.export_mode == "CSV":
-            export.gen_csv(results, self.output)
+            export.gen_csv(self.interface, results, self.output)
         elif self.export_mode == "AnkiDeck":
-            export.gen_anki(results, self.output)
+            export.gen_anki(self.interface, results, self.output)
         elif self.export_mode == "Update":
             deck_name = self.output[0]
             model_name = self.output[1]
-            res, notes_added_nids = export.update_anki(
-                results, self.col, deck_name, model_name
-            )
-            export.update_anki_apply_changes(self.col, res, notes_added_nids, deck_name)
+            export.update_anki(self.interface, results, self.col, deck_name, model_name)
+        return 0
 
 
 if __name__ == "__main__":

@@ -124,7 +124,8 @@ async def main(
         browser = await p.chromium.launch()
         context = await browser.new_context()
 
-        interface.start_pbar()
+        interface.print("Started scraping")
+        interface.start_pbar(len(chars))
         result_list = []
         async with aiometer.amap(
             functools.partial(fetch, interface, context, num_examples, num_defs),
@@ -138,4 +139,5 @@ async def main(
                 await interface.step_pbar()
         await browser.close()
         interface.finish_pbar()
+        interface.print(f"Finished scraping {len(chars)} character(s)")
         return result_list
