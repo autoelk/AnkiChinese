@@ -33,35 +33,6 @@
             document.querySelector("#diagramContainer").style.display = "none"
         }
     })();
-
-    function parseHints() {
-        const container = document.querySelector('#hint-container');
-        if (!container) return [];
-        const examples = container.innerHTML || '';
-        if (!examples) return [];
-
-        const rawParts = examples.split('>');
-        const hints = [];
-        for (let i = 0; i < rawParts.length; i++) {
-            try {
-                const chars = rawParts[i].split('[')[0];
-                hints.push(chars);
-            } catch (e) {
-            }
-        }
-        return hints;
-    }
-
-    (function revealAllHintsOnLoad() {
-        try {
-            const hints = parseHints();
-            if (hints.length > 0) {
-                const hintEl = document.querySelector('#hint');
-                if (hintEl) hintEl.innerHTML = hints.join('<br>');
-            }
-        } catch (e) {
-        }
-    })();
 </script>
 
 <a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
@@ -74,10 +45,3 @@
         <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
     </svg>
 </a>
-
-<hr>
-
-<div style="text-align: center;">
-    <p id="hint" class="notes" style="text-align: center;"></p>
-    <p id="hint-container" style="display: none;">{{Examples}}</p>
-</div>
