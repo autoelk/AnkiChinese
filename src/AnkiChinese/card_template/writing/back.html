@@ -36,12 +36,14 @@
 </script>
 
 <!-- front side -->
-<div>{{Audio}}</div>
-<h1 class="pinyin">{{Pinyin}}</h1>
-<p class="pinyin2">{{Pinyin 2}}</p>
-<p class="definition">{{Definition}}</p>
+<div class="character">
+    <div>{{Audio}}</div>
+    <h1 class="pinyin">{{Pinyin}}</h1>
+    <p class="pinyin2">{{Pinyin 2}}</p>
+    <p class="definition">{{Definition}}</p>
+</div>
 
-<hr id=answer>
+<hr>
 
 <!-- back side -->
 <a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
@@ -55,6 +57,8 @@
     </svg>
 </a>
 
-<p class="notes ruby-text">{{furigana:Examples}}</p>
-<p class="notes">{{Formation}}</p>
-<div class="meta">{{Hanzi}} {{Traditional}} HSK: {{HSK}}</div>
+<div class="notes">
+    <p class="ruby-text">{{furigana:Examples}}</p>
+    <p>{{Formation}}</p>
+    <p>{{Hanzi}} {{Traditional}} HSK: {{HSK}}</p>
+</div>
