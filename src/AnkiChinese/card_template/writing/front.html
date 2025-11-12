@@ -1,0 +1,57 @@
+<script>
+    var injectScript = (src) => {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function parseHints() {
+        const container = document.querySelector('#hint-container');
+        if (!container) return [];
+        const examples = container.innerHTML || '';
+        if (!examples) return [];
+
+        const rawParts = examples.split('<');
+        const hints = [];
+        for (let i = 0; i < rawParts.length; i++) {
+            try {
+                const parts = rawParts[i].split('[')[1].split(']');
+                const label = parts[0];
+                const rest = parts[1].replace(']', '');
+                hints.push('<span style="font-weight:bold">' + label + '</span>' + rest);
+            } catch (e) {
+            }
+        }
+        return hints;
+    }
+
+    (function revealAllHintsOnLoad() {
+        try {
+            const hints = parseHints();
+            if (hints.length > 0) {
+                const hintEl = document.querySelector('#hint');
+                if (hintEl) hintEl.innerHTML = hints.join('<br>');
+            }
+        } catch (e) {
+        }
+    })();
+</script>
+
+<div>
+    <div>{{Audio}}</div>
+    <h1 class="pinyin">{{Pinyin}}</h1>
+    <p class="pinyin2">{{Pinyin 2}}</p>
+    <p class="definition">{{Definition}}</p>
+</div>
+
+<hr>
+
+<div>
+    <p id="hint" class="notes"></p>
+    <p id="hint-container" style="display: none;">{{Examples}}</p>
+</div>

@@ -163,3 +163,4 @@ cython_debug/
 ankichinese_audio/
 ankichinese_output.*
 ankichinese_audio.*
+input.txt

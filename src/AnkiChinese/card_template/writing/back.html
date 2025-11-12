@@ -1,0 +1,60 @@
+<script>
+    var injectScript = (src) => {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    };
+
+    (async () => {
+        if (window.navigator.onLine) {
+            if (typeof HanziWriter === "undefined") {
+                await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
+            }
+
+            var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
+                width: 300,
+                height: 300,
+                radicalColor: '#337ab7',
+                showCharacter: false,
+                showOutline: true,
+                delayBetweenStrokes: 100,
+                padding: 5
+            });
+
+            writer.loopCharacterAnimation();
+        }
+        else {
+            document.querySelector("#strokeOrder").style.display = "block"
+            document.querySelector("#diagramContainer").style.display = "none"
+        }
+    })();
+</script>
+
+<!-- front side -->
+<div>{{Audio}}</div>
+<h1 class="pinyin">{{Pinyin}}</h1>
+<p class="pinyin2">{{Pinyin 2}}</p>
+<p class="definition">{{Definition}}</p>
+
+<hr id=answer>
+
+<!-- back side -->
+<a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
+
+<a id="diagramContainer" href="plecoapi://x-callback-url/df?hw={{Hanzi}}" style="display: block;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" id="diagram" style="pointer-events: none;">
+        <line x1="0" y1="0" x2="300" y2="300" stroke="#DDD" />
+        <line x1="300" y1="0" x2="0" y2="300" stroke="#DDD" />
+        <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
+        <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
+    </svg>
+</a>
+
+<p class="notes ruby-text">{{furigana:Examples}}</p>
+<p class="notes">{{Formation}}</p>
+<div class="meta">{{Hanzi}} {{Traditional}} HSK: {{HSK}}</div>

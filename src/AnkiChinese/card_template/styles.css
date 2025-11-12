@@ -46,11 +46,6 @@
     outline-color: white;
 }
 
-.meta {
-    margin: 8px 0;
-    font-size: 1.3rem;
-}
-
 .ruby-text {
     line-height: 1.7;
 }
@@ -61,6 +56,6 @@
     margin: 8px auto;
 }
 
-#hint-button {
-    margin: 0;
+.meta {
+    text-align: left;
 }
