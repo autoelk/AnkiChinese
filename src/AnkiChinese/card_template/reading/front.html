@@ -15,8 +15,29 @@
             if (typeof HanziWriter === "undefined") {
                 await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
             }
+        } else {
+            // Toggle offline mode
+            document.querySelector(".strokeOrder.simp").style.display = "block";
+            document.querySelector(".diagramContainer.simp").style.display = "none";
+            document.querySelector(".strokeOrder.trad").style.display = "block";
+            document.querySelector(".diagramContainer.trad").style.display = "none";
+            return;
+        }
 
-            var writer = HanziWriter.create('diagram', '{{Hanzi}}', {
+        var writer = HanziWriter.create('diagramSimp', '{{Hanzi}}', {
+            width: 300,
+            height: 300,
+            radicalColor: '#337ab7',
+            showCharacter: false,
+            showOutline: true,
+            delayBetweenStrokes: 100,
+            padding: 5
+        });
+
+        writer.loopCharacterAnimation();
+
+        if ('{{Traditional}}' != '') {
+            var writer = HanziWriter.create('diagramTrad', '{{Traditional}}', {
                 width: 300,
                 height: 300,
                 radicalColor: '#337ab7',
@@ -29,19 +50,32 @@
             writer.loopCharacterAnimation();
         }
         else {
-            document.querySelector("#strokeOrder").style.display = "block"
-            document.querySelector("#diagramContainer").style.display = "none"
+            document.querySelector(".strokeOrder.trad").style.display = "none";
+            document.querySelector(".diagramContainer.trad").style.display = "none";
         }
     })();
 </script>
 
-<a id="strokeOrder" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
+<div class="diagram-flex">
+    <a class="strokeOrder simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
+    <a class="diagramContainer simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" id="diagramSimp" class="diagram"
+            style="pointer-events: none;">
+            <line x1="0" y1="0" x2="300" y2="300" stroke="#DDD" />
+            <line x1="300" y1="0" x2="0" y2="300" stroke="#DDD" />
+            <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
+            <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
+        </svg>
+    </a>
 
-<a id="diagramContainer" href="plecoapi://x-callback-url/df?hw={{Hanzi}}" style="display: block;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" id="diagram" style="pointer-events: none;">
-        <line x1="0" y1="0" x2="300" y2="300" stroke="#DDD" />
-        <line x1="300" y1="0" x2="0" y2="300" stroke="#DDD" />
-        <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
-        <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
-    </svg>
-</a>
+    <a class="strokeOrder trad" href="plecoapi://x-callback-url/df?hw={{Traditional}}">{{Traditional}}</a>
+    <a class="diagramContainer trad" href="plecoapi://x-callback-url/df?hw={{Traditional}}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" id="diagramTrad" class="diagram"
+            style="pointer-events: none;">
+            <line x1="0" y1="0" x2="300" y2="300" stroke="#DDD" />
+            <line x1="300" y1="0" x2="0" y2="300" stroke="#DDD" />
+            <line x1="150" y1="0" x2="150" y2="300" stroke="#DDD" />
+            <line x1="0" y1="150" x2="300" y2="150" stroke="#DDD" />
+        </svg>
+    </a>
+</div>

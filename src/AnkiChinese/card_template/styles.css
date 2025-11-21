@@ -23,7 +23,7 @@
     margin: 0px;
 }
 
-#strokeOrder {
+.strokeOrder {
     text-align: center;
     font-family: CNstrokeorder;
     color: #002626;
@@ -31,19 +31,28 @@
     display: none;
 }
 
-.nightMode #strokeOrder {
+.nightMode .strokeOrder {
     color: #dbffff;
 }
 
-#diagram {
+.diagram {
     outline-color: black;
     outline-style: solid;
     outline-width: 1px;
     outline-offset: -1px;
 }
 
-.nightMode #diagram {
+.nightMode .diagram {
     outline-color: white;
+}
+
+.diagram-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0;
 }
 
 .ruby-text {
