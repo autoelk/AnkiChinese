@@ -17,12 +17,20 @@ def gen_csv(interface, results, output):
 
 
 def gen_model():
-    front_html = open(get_full_path("card_template/front.html"), "r")
-    front = front_html.read()
-    front_html.close()
-    back_html = open(get_full_path("card_template/back.html"), "r")
-    back = back_html.read()
-    back_html.close()
+    writing_front_html = open(get_full_path("card_template/writing/front.html"), "r")
+    writing_front = writing_front_html.read()
+    writing_front_html.close()
+    writing_back_html = open(get_full_path("card_template/writing/back.html"), "r")
+    writing_back = writing_back_html.read()
+    writing_back_html.close()
+
+    reading_front_html = open(get_full_path("card_template/reading/front.html"), "r")
+    reading_front = reading_front_html.read()
+    reading_front_html.close()
+    reading_back_html = open(get_full_path("card_template/reading/back.html"), "r")
+    reading_back = reading_back_html.read()
+    reading_back_html.close()
+
     styles_css = open(get_full_path("card_template/styles.css"), "r")
     styles = styles_css.read()
     styles_css.close()
@@ -43,9 +51,14 @@ def gen_model():
         ],
         templates=[
             {
-                "name": "Card 1",
-                "qfmt": front,
-                "afmt": back,
+                "name": "AnkiChinese Writing",
+                "qfmt": writing_front,
+                "afmt": writing_back,
+            },
+            {
+                "name": "AnkiChinese Reading",
+                "qfmt": reading_front,
+                "afmt": reading_back,
             }
         ],
         css=styles,
