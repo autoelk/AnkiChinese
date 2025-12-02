@@ -1,21 +1,57 @@
 import asyncio
 import aiometer
 import functools
-
+import re as regex
+import requests
+import os
+import csv
+from typing import Optional
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-import re as regex
-
-import requests
-import os
+# Cached mapping from character -> (rank, count)
+_CHAR_FREQ_MAP = None
 
 
-def clean_string(string):
+def load_char_freq_map() -> dict:
+    """Load the character frequency file into a dict.
+
+    Returns a mapping of single-character string -> (int(rank), int(count)).
+    """
+    global _CHAR_FREQ_MAP
+    if _CHAR_FREQ_MAP is not None:
+        return _CHAR_FREQ_MAP
+
+    base_dir = os.path.dirname(__file__)
+    data_dir = os.path.join(base_dir, "data")
+    file_path = os.path.join(data_dir, "char_freq.tsv")
+
+    if not os.path.exists(file_path):
+        _CHAR_FREQ_MAP = {}
+        return {}
+
+    freq_map = {}
+    with open(file_path, newline="", encoding="gb2312", errors="replace") as f:
+        reader = csv.reader(f, delimiter="\t")
+        for row in reader:
+            # Skip header/comment lines
+            if not row[0].strip().isdigit():
+                continue
+
+            rank = int(row[0].strip())
+            char = row[1].strip()
+            count = int(row[2].strip())
+            freq_map[char] = (rank, count)
+
+    _CHAR_FREQ_MAP = freq_map
+    return _CHAR_FREQ_MAP
+
+
+def clean_string(string) -> str:
     return regex.sub(" +", " ", string.strip().replace("\n", ""))
 
 
-def scrape_basic_info(soup, num_examples):
+def scrape_basic_info(soup, num_examples) -> dict:
     char_def = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
 
     # Get information in first box
@@ -39,7 +75,7 @@ def scrape_basic_info(soup, num_examples):
     return info
 
 
-def scrape_example_words(soup, num_examples, num_defs):
+def scrape_example_words(soup, num_examples, num_defs) -> str:
     word_table = soup.select_one("#wordPaneContent #wordTable")
 
     ex_words = word_table.select(".word-container .char-effect:first-child")
@@ -54,7 +90,7 @@ def scrape_example_words(soup, num_examples, num_defs):
         ruby_text = " ".join(ruby_list)
         defn = ", ".join(
             regex.sub(
-                "[\[].*?[\]]", "", ex_info[i + 1].select_one("p").get_text()
+                r'[\[].*?[\]]', "", ex_info[i + 1].select_one("p").get_text()
             ).split(", ")[:num_defs]
         )
 
@@ -63,10 +99,10 @@ def scrape_example_words(soup, num_examples, num_defs):
     return clean_string("<br>".join(examples))
 
 
-def scrape_audio(soup):
+def scrape_audio(soup) -> str:
     pinyin_tone = (
         regex.search(
-            '(?<=fn_playSinglePinyin\(")(.*)(?="\))',
+            r'(?<=fn_playSinglePinyin\(")(.*)(?="\))',
             soup.select_one("#primaryPinyin a.arch-pinyin-font").get("onclick"),
         )
         .group(0)
@@ -85,19 +121,36 @@ def scrape_audio(soup):
     return f"[sound:{pinyin_tone}.mp3]"
 
 
-def scrape_word(r, num_examples, num_defs, hanzi):
+def get_frequency(hanzi) -> tuple:
+    """Load character frequency data and return the frequency of the given hanzi
+    Args:
+        hanzi (str): The Chinese character to look up.
+    Returns:
+        int: The frequency rank of the character
+        int: The frequency count of the character
+    """
+    freq_map = load_char_freq_map()
+    if not hanzi or hanzi not in freq_map:
+        return None, None
+    return freq_map[hanzi]
+
+
+def scrape_word(r, num_examples, num_defs, hanzi) -> dict:
     soup = BeautifulSoup(r, "html5lib")
 
     info = dict()
     info["Hanzi"] = hanzi
     info.update(scrape_basic_info(soup, num_examples))
     info["Examples"] = scrape_example_words(soup, num_examples, num_defs)
+    freq_rank, freq_count = get_frequency(hanzi)
+    info["Frequency Rank"] = str(freq_rank) if freq_rank is not None else ""
+    info["Frequency Count"] = str(freq_count) if freq_count is not None else ""
     info["Audio"] = scrape_audio(soup)
 
     return info
 
 
-async def fetch(interface, context, num_examples, num_defs, hanzi):
+async def fetch(interface, context, num_examples, num_defs, hanzi) -> Optional[dict]:
     page = await context.new_page()
     await page.goto(
         f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
@@ -119,7 +172,7 @@ async def main(
     num_examples,
     num_defs,
     interface,
-):
+) -> list:
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()

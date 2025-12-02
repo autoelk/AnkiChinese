@@ -170,7 +170,7 @@ class ConfigPage(Page):
 
         # Characters to scrape
         ttk.Label(basic_opt_frame, text="Characters").grid(row=0, column=0, sticky=W)
-        self.char_text_box = Text(basic_opt_frame, width=40, height=10)
+        self.char_text_box = ttk.Entry(basic_opt_frame, width=50)
         self.char_text_box.grid(row=1, column=0, sticky=W)
         ttk.Button(basic_opt_frame, text="Import", command=self.import_chars).grid(
             row=1, column=1, sticky=SW
@@ -242,7 +242,8 @@ class ConfigPage(Page):
         except FileNotFoundError as e:
             print(e)
 
-        self.char_text_box.insert("1.0", content)
+        cursor_index = self.char_text_box.index(INSERT)
+        self.char_text_box.insert(cursor_index, content)
         self.val_chars()
 
     def get_output(self):
@@ -256,9 +257,9 @@ class ConfigPage(Page):
 
     # Validation helpers
     def val_chars(self):
-        content = self.char_text_box.get(1.0, "end-1c")
+        content = self.char_text_box.get()
         valid = len(set(filter(lambda char: "\u4e00" <= char <= "\u9fff", content))) > 0
-        self.chars_error_msg.set("" if valid else "Include at least one hanzi")
+        self.chars_error_msg.set("" if valid else "No hanzi found")
         self.chars_valid = valid
         self.update_next_btn_state()
         return valid
@@ -290,7 +291,7 @@ class ConfigPage(Page):
 
     def update_controller(self):
         controller.export_mode = self.name
-        controller.chars = self.char_text_box.get("1.0", END)
+        controller.chars = self.char_text_box.get()
         controller.req_simul = int(self.max_req_simul.value.get())
         controller.req_ps = int(self.max_req_ps.value.get())
         controller.num_ex = int(self.num_ex.value.get())
@@ -330,22 +331,15 @@ class UpdateConfigPage(ConfigPage):
             textvariable=self.chars_error_msg,
         ).grid(row=0, column=1, sticky=W)
 
-        self.char_text_box = Text(char_frame, width=30, height=12)
+        self.char_text_box = ttk.Entry(char_frame, width=30)
         self.char_text_box.grid(row=1, column=0, columnspan=2)
         self.char_text_box.bind("<Leave>", lambda e: self.val_chars())
-        ttk.Button(char_frame, text="Import", command=self.import_chars).grid(
+        ttk.Button(char_frame, text="Import from file", command=self.import_chars).grid(
             row=2, column=0, columnspan=2, padx=5, sticky=EW
         )
-
-        self.include_existing = IntVar()
-        ttk.Checkbutton(
-            basic_opt_frame,
-            text="Include existing characters",
-            variable=self.include_existing,
-            onvalue=1,
-            offvalue=0,
-        ).grid(row=1, column=0, columnspan=3)
-        self.include_existing.set(0)
+        ttk.Button(char_frame, text="Add existing chars", command=self.add_existing_chars).grid(
+            row=3, column=0, columnspan=2, padx=5, sticky=EW
+        )
 
         # Deck and Model
         deck_model_frame = ttk.Frame(basic_opt_frame)
@@ -375,6 +369,8 @@ class UpdateConfigPage(ConfigPage):
             "Examples",
             "Formation",
             "HSK",
+            "Frequency Rank",
+            "Frequency Count",
             "Audio",
         ]
 
@@ -442,7 +438,7 @@ class UpdateConfigPage(ConfigPage):
             "",
             END,
             "no_hanzi",
-            text='Model must contain "Hanzi"',
+            text='Model must contain "Hanzi" field',
             tags="error",
         )
         self.field_tree.detach("no_hanzi")
@@ -458,6 +454,18 @@ class UpdateConfigPage(ConfigPage):
         )
         # Select first deck so that error message is visible on load
         self.deck_tree.focus(item=self.deck_names[0])
+
+    def add_existing_chars(self):
+        """ Add existing characters from selected deck to character text box.
+        """
+        existing_chars = (
+            self.notes_in_deck[self.deck_tree.focus().split("::", 2)[0]]
+            .fields_as_columns()
+            .nfld_Hanzi.to_list()
+        )
+        cursor_index = self.char_text_box.index(INSERT)
+        self.char_text_box.insert(cursor_index, "".join(existing_chars))
+        self.val_chars()
 
     def show_model_cols(self, model_id):
         # Error messages
@@ -502,15 +510,7 @@ class UpdateConfigPage(ConfigPage):
         controller.num_defs = int(self.num_defs.value.get())
         controller.output = self.deck_tree.focus().split("::", 2)
 
-        controller.chars = self.char_text_box.get("1.0", END)
-        if self.include_existing == 1:
-            existing_chars = (
-                self.notes_in_deck[controller.output[0]]
-                .fields_as_columns()
-                .nfld_Hanzi.to_list()
-            )
-            controller.chars += str(existing_chars)
-
+        controller.chars = self.char_text_box.get()
         controller.show_page("Generator")
 
 

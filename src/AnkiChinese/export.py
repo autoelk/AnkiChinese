@@ -46,6 +46,8 @@ def gen_model():
             {"name": "Pinyin 2"},
             {"name": "Examples"},
             {"name": "Formation"},
+            {"name": "Frequency Rank"},
+            {"name": "Frequency Count"},
             {"name": "HSK"},
             {"name": "Audio"},
         ],
@@ -78,6 +80,8 @@ def gen_note(model, data):
             data["Examples"],
             data["Formation"],
             data["HSK"],
+            data["Frequency Rank"],
+            data["Frequency Count"],
             data["Audio"],
         ],
         guid=genanki.guid_for(data["Hanzi"]),
@@ -91,7 +95,8 @@ def add_audio(package, audio_path):
 
 
 def gen_anki(interface, results, output):
-    interface.print("Started generating AnkiChinese deck")
+    if interface:
+        interface.print("Started generating AnkiChinese deck")
     output_name = regex.search(r"[^\/]+(?=\.apkg$)", output).group(0)
     deck = genanki.Deck(2085137232, output_name)
     model = gen_model()
@@ -102,7 +107,8 @@ def gen_anki(interface, results, output):
     add_audio(package, "ankichinese_audio")
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_name + ".apkg")
-    interface.print("Finished generating " + output_name + ".apkg")
+    if interface:
+        interface.print("Finished generating " + output_name + ".apkg")
 
 
 def update_anki(interface, results, col, deck_name: str, model_name: str):
@@ -178,11 +184,13 @@ def update_anki(interface, results, col, deck_name: str, model_name: str):
                     "Examples": "",
                     "Formation": "",
                     "HSK": "",
+                    "Frequency Rank": "",
+                    "Frequency Count": "",
                     "Audio": audio_file,
                 }
             )
         gen_anki(
-            interface, audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg")
+            None, audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg")
         )
         interface.print(
             "Generated ankichinese_audio.apkg, import to Anki for deck audio"
