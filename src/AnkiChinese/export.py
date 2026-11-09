@@ -34,9 +34,19 @@ def gen_model():
     reading_front_html = open(get_full_path("card_template/reading/front.html"), "r")
     reading_front = reading_front_html.read()
     reading_front_html.close()
+    reading_traditional_front_html = open(
+        get_full_path("card_template/reading/traditional_front.html"), "r"
+    )
+    reading_traditional_front = reading_traditional_front_html.read()
+    reading_traditional_front_html.close()
     reading_back_html = open(get_full_path("card_template/reading/back.html"), "r")
     reading_back = reading_back_html.read()
     reading_back_html.close()
+    reading_traditional_back_html = open(
+        get_full_path("card_template/reading/traditional_back.html"), "r"
+    )
+    reading_traditional_back = reading_traditional_back_html.read()
+    reading_traditional_back_html.close()
 
     styles_css = open(get_full_path("card_template/styles.css"), "r")
     styles = styles_css.read()
@@ -65,9 +75,14 @@ def gen_model():
                 "afmt": writing_back,
             },
             {
-                "name": "AnkiChinese Reading",
+                "name": "AnkiChinese Simplified Reading",
                 "qfmt": reading_front,
                 "afmt": reading_back,
+            },
+            {
+                "name": "AnkiChinese Traditional Reading",
+                "qfmt": reading_traditional_front,
+                "afmt": reading_traditional_back,
             }
         ],
         css=styles,
