@@ -2,6 +2,13 @@ import genanki
 import os
 import pandas as pd
 import re as regex
+import base64
+import tempfile
+
+try:
+    from .anki_connect import AnkiConnectError
+except ImportError:
+    from anki_connect import AnkiConnectError
 
 
 def get_full_path(relative_path):
@@ -79,9 +86,9 @@ def gen_note(model, data):
             data["Pinyin 2"],
             data["Examples"],
             data["Formation"],
-            data["HSK"],
             data["Frequency Rank"],
             data["Frequency Count"],
+            data["HSK"],
             data["Audio"],
         ],
         guid=genanki.guid_for(data["Hanzi"]),
@@ -97,7 +104,8 @@ def add_audio(package, audio_path):
 def gen_anki(interface, results, output):
     if interface:
         interface.print("Started generating AnkiChinese deck")
-    output_name = regex.search(r"[^\/]+(?=\.apkg$)", output).group(0)
+    output_path = os.path.abspath(output)
+    output_name = os.path.splitext(os.path.basename(output_path))[0]
     deck = genanki.Deck(2085137232, output_name)
     model = gen_model()
     for data in results:
@@ -106,98 +114,193 @@ def gen_anki(interface, results, output):
     package = genanki.Package(deck)
     add_audio(package, "ankichinese_audio")
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
-    package.write_to_file(output_name + ".apkg")
+    package.write_to_file(output_path)
     if interface:
         interface.print("Finished generating " + output_name + ".apkg")
 
 
-def update_anki(interface, results, col, deck_name: str, model_name: str):
+def update_anki(interface, results, anki, deck_name: str, model_name: str):
     interface.print(
         "Started updating\n\tdeck:\t\t" + deck_name + "\n\tmodel:\t\t" + model_name
     )
 
-    # Get notes from deck and model
-    cards = col.cards.merge_notes()
-    cards_in_deck = cards[cards["cdeck"].str.startswith(deck_name)]
-    notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
-    selec = notes_in_deck.query(f"nmodel == '{model_name}'").copy()
-
-    # Convert results to dataframe
-    res = pd.DataFrame(results)
-    res = res.add_prefix("nfld_")
-
-    # Merge existing notes and results
-    old = selec.fields_as_columns().copy()
-    old.set_index("nfld_Hanzi", inplace=True)
-    res.set_index("nfld_Hanzi", inplace=True)
-    old.update(res)
-    res.reset_index(inplace=True)
-    old.reset_index(inplace=True)
-    old = old.filter(regex="^nfld_", axis="columns")
-    # Update exisiting notes
-    selec["nflds"] = old.values.tolist()
-    col.notes.update(selec)
-
-    # Find and add new notes
-    selec.fields_as_columns(inplace=True)
-    new_notes = res[~res["nfld_Hanzi"].isin(selec["nfld_Hanzi"])]
-    # Include only columns that also exist in existing notes
-    diff_columns = old.columns.difference(new_notes.columns)
-    new_notes.loc[:, diff_columns] = ""
-    new_notes = new_notes[old.columns]
-    new_notes.columns = new_notes.columns.str.replace("nfld_", "")
-    col.notes.add_notes(
-        nmodel=model_name, nflds=new_notes.to_dict("records"), inplace=True
+    notes = anki.notes(deck_name, model_name)
+    model_fields = anki.model_fields(model_name)
+    target_fields = (
+        "Hanzi",
+        "Traditional",
+        "Definition",
+        "Pinyin",
+        "Pinyin 2",
+        "Examples",
+        "Formation",
+        "HSK",
+        "Frequency Rank",
+        "Frequency Count",
+        "Audio",
     )
+    supported_fields = [field for field in model_fields if field in target_fields]
+    if "Hanzi" not in model_fields:
+        raise ValueError("Selected note type must contain a 'Hanzi' field.")
 
-    # Print changes
-    interface.print("Summary: ")
-    summary = col.summarize_changes(output="dict")
-    for key, value in summary.items():
-        interface.print(str(key))
-        for k, v in value.items():
-            interface.print("\t" + str(k) + "\t\t" + str(v))
+    notes_by_hanzi = {}
+    for note in notes:
+        value = note.get("fields", {}).get("Hanzi", {}).get("value", "")
+        notes_by_hanzi.setdefault(value, []).append(note)
 
-    notes_added_nids = col.notes.loc[col.notes.was_added()].nid.tolist()
-    interface.print("\nNotes updated:")
-    interface.print(col.notes.loc[col.notes.was_modified(), "nflds"].to_string())
-    # interface.print("\nNotes added:")
-    # interface.print(col.notes.loc[notes_added_nids, "nflds"].to_string())
-
-    if interface.confirm("Apply changes?"):
-        col.write(modify=True, add=True, delete=False)
-        if len(notes_added_nids) > 0:
-            col.cards.add_cards(notes_added_nids, deck_name, inplace=True)
-            col.write(add=True)
-        interface.print("Finished updating " + deck_name + " " + model_name)
-
-        # Generate empty deck with audio files
-        audio_data = []
-        for audio_file in res.nfld_Audio.to_list():
-            audio_data.append(
-                {
-                    "Hanzi": "",
-                    "Traditional": "",
-                    "Definition": "",
-                    "Pinyin": "",
-                    "Pinyin 2": "",
-                    "Examples": "",
-                    "Formation": "",
-                    "HSK": "",
-                    "Frequency Rank": "",
-                    "Frequency Count": "",
-                    "Audio": audio_file,
+    updates = []
+    additions = []
+    for result in results:
+        hanzi = result.get("Hanzi", "")
+        fields = {name: str(result.get(name) or "") for name in supported_fields}
+        if hanzi in notes_by_hanzi:
+            for note in notes_by_hanzi[hanzi]:
+                updated = {
+                    name: value
+                    for name, value in fields.items()
+                    if note.get("fields", {}).get(name, {}).get("value", "") != value
                 }
-            )
-        gen_anki(
-            None, audio_data, os.path.join(os.getcwd(), "ankichinese_audio.apkg")
-        )
+                if updated:
+                    updates.append((note["noteId"], updated))
+        else:
+            additions.append({name: str(result.get(name) or "") for name in model_fields})
+
+    media_names = set()
+    for result in results:
+        match = regex.search(r"\[sound:([^\]]+)\]", result.get("Audio", ""))
+        if match:
+            media_names.add(match.group(1))
+    invalid_media_names = [
+        name for name in media_names if os.path.basename(name) != name
+    ]
+    if invalid_media_names:
         interface.print(
-            "Generated ankichinese_audio.apkg, import to Anki for deck audio"
+            "Cannot update: invalid audio filename(s): {}".format(
+                ", ".join(sorted(invalid_media_names))
+            )
         )
-    else:
+        return
+    missing_media = [
+        name
+        for name in sorted(media_names)
+        if not os.path.isfile(os.path.join("ankichinese_audio", name))
+    ]
+    if missing_media:
+        interface.print(
+            "Cannot update: local audio file(s) are missing: {}. "
+            "Run the scrape again to recreate them.".format(", ".join(missing_media))
+        )
+        return
+
+    interface.print("\nUpdate summary for {} / {}:".format(deck_name, model_name))
+    interface.print("Notes to update: {}".format(len(updates)))
+    interface.print("Notes to add: {}".format(len(additions)))
+    interface.print("Audio files to upload: {}".format(len(media_names)))
+    if not interface.confirm("Apply these changes to Anki?"):
         interface.print("Update canceled")
+        return
 
-    interface.print("\n\n\n")
+    package_path = None
+    if additions:
+        model_id = anki.model_ids().get(model_name)
+        deck_id = anki.deck_ids().get(deck_name)
+        templates = anki.model_templates(model_name)
+        styling = anki.model_styling(model_name)
+        if model_id is None or deck_id is None or not templates:
+            raise AnkiConnectError(
+                "Could not read the selected Anki deck and note type to "
+                "prepare a safe package import."
+            )
 
-    col.db.close()
+        package_templates = [
+            {
+                "name": name,
+                "qfmt": template.get("Front", ""),
+                "afmt": template.get("Back", ""),
+            }
+            for name, template in templates.items()
+        ]
+        is_cloze = any(
+            "{{cloze:" in (template["qfmt"] + template["afmt"]).lower()
+            for template in package_templates
+        )
+        model = genanki.Model(
+            model_id,
+            model_name,
+            fields=[{"name": field} for field in model_fields],
+            templates=package_templates,
+            css=styling.get("css", ""),
+            model_type=1 if is_cloze else 0,
+        )
+
+        deck = genanki.Deck(deck_id, deck_name)
+        for fields in additions:
+            deck.add_note(
+                genanki.Note(
+                    model=model,
+                    fields=[str(fields.get(field) or "") for field in model_fields],
+                    guid=genanki.guid_for(fields.get("Hanzi", "")),
+                )
+            )
+        package = genanki.Package(deck)
+        package_file = tempfile.NamedTemporaryFile(
+            prefix="ankichinese_update_", suffix=".apkg", delete=False
+        )
+        package_path = package_file.name
+        package_file.close()
+        package.write_to_file(package_path)
+
+    # Upload referenced sound files before changing note fields.
+    applied = 0
+    try:
+        if media_names:
+            interface.print("Uploading audio...")
+        for media_name in sorted(media_names):
+            media_path = os.path.join("ankichinese_audio", media_name)
+            with open(media_path, "rb") as media_file:
+                anki.invoke(
+                    "storeMediaFile",
+                    filename=media_name,
+                    data=base64.b64encode(media_file.read()).decode("ascii"),
+                )
+            applied += 1
+
+        interface.print("Applying note updates...")
+        for note_id, fields in updates:
+            anki.invoke("updateNoteFields", note={"id": note_id, "fields": fields})
+            applied += 1
+        if additions:
+            imported = anki.invoke("importPackage", path=package_path)
+            if imported is False:
+                raise ValueError("AnkiConnect could not import the generated package.")
+            imported_notes = anki.notes(deck_name, model_name)
+            imported_by_hanzi = {
+                note.get("fields", {}).get("Hanzi", {}).get("value", ""): note
+                for note in imported_notes
+            }
+            missing_hanzi = [
+                fields.get("Hanzi", "")
+                for fields in additions
+                if fields.get("Hanzi", "") not in imported_by_hanzi
+                or not imported_by_hanzi[fields.get("Hanzi", "")].get("cards")
+            ]
+            if missing_hanzi:
+                raise ValueError(
+                    "Could not verify imported notes for: {}. Run Check "
+                    "Database before retrying.".format(", ".join(missing_hanzi))
+                )
+            applied += len(additions)
+    except (AnkiConnectError, OSError, ValueError) as exc:
+        raise AnkiConnectError(
+            "The update stopped after {} confirmed operation(s). Partial changes "
+            "may be present; check Anki before retrying. {}".format(applied, exc)
+        ) from exc
+    finally:
+        if package_path and os.path.exists(package_path):
+            os.remove(package_path)
+
+    interface.print(
+        "Finished updating {} {} ({} updated, {} added).".format(
+            deck_name, model_name, len(updates), len(additions)
+        )
+    )

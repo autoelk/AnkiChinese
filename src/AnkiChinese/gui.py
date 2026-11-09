@@ -15,7 +15,7 @@ sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other mod
 import scraper
 import export
 from interface import Interface
-from ankipandas import Collection
+from anki_connect import AnkiConnect, AnkiConnectError
 
 
 class Page(ttk.Frame):
@@ -337,7 +337,10 @@ class UpdateConfigPage(ConfigPage):
         ttk.Button(char_frame, text="Import from file", command=self.import_chars).grid(
             row=2, column=0, columnspan=2, padx=5, sticky=EW
         )
-        ttk.Button(char_frame, text="Add existing chars", command=self.add_existing_chars).grid(
+        self.add_existing_button = ttk.Button(
+            char_frame, text="Add existing chars", command=self.add_existing_chars
+        )
+        self.add_existing_button.grid(
             row=3, column=0, columnspan=2, padx=5, sticky=EW
         )
 
@@ -349,15 +352,28 @@ class UpdateConfigPage(ConfigPage):
         ttk.Label(deck_model_frame, text="Select deck & model").grid(
             row=0, column=0, padx=5, sticky=W
         )
+        self.connection_status = StringVar(self)
+        self.connection_label = ttk.Label(
+            deck_model_frame,
+            textvariable=self.connection_status,
+            foreground="red",
+            wraplength=360,
+        )
+        self.connection_label.grid(
+            row=2, column=0, columnspan=3, padx=5, sticky=W
+        )
+        ttk.Button(deck_model_frame, text="Refresh", command=self.load_anki_collection).grid(
+            row=0, column=2, padx=5
+        )
         self.deck_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
         self.deck_tree.grid(row=1, column=0, padx=5)
 
         # Display fields of selected model
         ttk.Label(deck_model_frame, text="Fields").grid(
-            row=0, column=1, padx=5, sticky=W
+            row=0, column=3, padx=5, sticky=W
         )
         self.field_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
-        self.field_tree.grid(row=1, column=1, padx=5)
+        self.field_tree.grid(row=1, column=3, padx=5)
 
         # Fields that AnkiChinese would modify
         target_fields = [
@@ -374,57 +390,11 @@ class UpdateConfigPage(ConfigPage):
             "Audio",
         ]
 
-        # Get info for display
-        self.controller.col = Collection()
-        self.deck_names = self.controller.col.cards.list_decks()
+        self.target_fields = target_fields
+        self.deck_names = []
         self.model_names = {}
         self.column_names = {}
         self.notes_in_deck = {}
-
-        # Decks
-        for deck_name in self.deck_names:
-            self.deck_tree.insert("", END, deck_name, text=deck_name)
-            # Get model names
-            cards = self.controller.col.cards.merge_notes()
-            cards_in_deck = cards[cards["cdeck"].str.startswith(deck_name)]
-            self.notes_in_deck[deck_name] = self.controller.col.notes[
-                self.controller.col.notes.nid.isin(cards_in_deck.nid)
-            ]
-            self.model_names[deck_name] = self.notes_in_deck[deck_name].list_models()
-
-            # Insert models
-            for model_name in self.model_names[deck_name]:
-                # Create unique ID in case multiple decks have same model
-                model_id = deck_name + "::" + model_name
-                self.deck_tree.insert(deck_name, END, model_id, text=model_name)
-
-                # Get column/field names, intially prefixed with "nfld_"
-                self.column_names[model_id] = (
-                    self.notes_in_deck[deck_name]
-                    .copy()
-                    .query(f"nmodel == '{model_name}'")
-                    .fields_as_columns()
-                    .filter(regex="^nfld_", axis="columns")
-                    .columns.str.replace("nfld_", "")
-                )
-
-                # Insert fields
-                for column_name in self.column_names[model_id]:
-                    # Create unique ID in case multiple model_ids have same column_name
-                    column_id = model_id + "::" + column_name
-                    self.field_tree.insert(
-                        "",
-                        END,
-                        column_id,
-                        text=column_name,
-                        tags=(
-                            "hanzi" if column_name == "Hanzi" else "",
-                            "modify" if column_name in target_fields else "",
-                        ),
-                    )
-                    self.field_tree.detach(column_id)
-            self.deck_tree.item(deck_name, open=TRUE)
-
         # Error messages
         self.field_tree.insert(
             "",
@@ -447,22 +417,82 @@ class UpdateConfigPage(ConfigPage):
         self.field_tree.tag_configure("error", foreground="red")
         self.field_tree.tag_configure("modify", foreground="blue")
         self.output_valid = False
+        self.load_anki_collection()
 
         self.deck_tree.bind(
             "<<TreeviewSelect>>",
             lambda e: self.do_select_model(),
         )
-        # Select first deck so that error message is visible on load
-        self.deck_tree.focus(item=self.deck_names[0])
+        if self.deck_names:
+            self.deck_tree.focus(item=self.deck_names[0])
+            self.show_model_cols(self.deck_names[0])
+
+    def load_anki_collection(self):
+        for item in self.deck_tree.get_children(""):
+            self.deck_tree.delete(item)
+        for item in self.field_tree.get_children(""):
+            if item not in ("deck_not_model", "no_hanzi"):
+                self.field_tree.delete(item)
+        self.deck_names = []
+        self.model_names = {}
+        self.column_names = {}
+        self.notes_in_deck = {}
+        try:
+            self.controller.anki = AnkiConnect()
+            self.deck_names = self.controller.anki.decks()
+            for deck_name in self.deck_names:
+                notes = self.controller.anki.notes(deck_name)
+                models = sorted({n.get("modelName") for n in notes if n.get("modelName")})
+                self.notes_in_deck[deck_name] = notes
+                self.model_names[deck_name] = models
+                self.deck_tree.insert("", END, deck_name, text=deck_name)
+                for model_name in models:
+                    model_id = deck_name + "::" + model_name
+                    fields = self.controller.anki.model_fields(model_name)
+                    self.column_names[model_id] = fields
+                    self.deck_tree.insert(deck_name, END, model_id, text=model_name)
+                    for field_name in fields:
+                        field_id = model_id + "::" + field_name
+                        self.field_tree.insert(
+                            "", END, field_id, text=field_name,
+                            tags=("hanzi" if field_name == "Hanzi" else "",
+                                  "modify" if field_name in self.target_fields else ""),
+                        )
+                        self.field_tree.detach(field_id)
+                self.deck_tree.item(deck_name, open=TRUE)
+            self.connection_status.set(
+                "AnkiConnect connected"
+                if self.deck_names
+                else "Connected, but no decks were found."
+            )
+            self.connection_label.configure(foreground="green")
+        except AnkiConnectError as exc:
+            self.connection_status.set(str(exc))
+            self.connection_label.configure(foreground="red")
+            self.deck_names = []
+            for item in self.deck_tree.get_children(""):
+                self.deck_tree.delete(item)
+            for item in self.field_tree.get_children(""):
+                if item not in ("deck_not_model", "no_hanzi"):
+                    self.field_tree.delete(item)
+        model_id = self.deck_tree.focus()
+        self.show_model_cols(model_id)
+        if hasattr(self, "next_button"):
+            self.val_output(model_id)
 
     def add_existing_chars(self):
         """ Add existing characters from selected deck to character text box.
         """
-        existing_chars = (
-            self.notes_in_deck[self.deck_tree.focus().split("::", 2)[0]]
-            .fields_as_columns()
-            .nfld_Hanzi.to_list()
-        )
+        model_id = self.deck_tree.focus()
+        if model_id not in self.column_names:
+            return
+        deck_name = self.deck_tree.parent(model_id)
+        model_name = self.deck_tree.item(model_id, "text")
+        existing_chars = [
+            note.get("fields", {}).get("Hanzi", {}).get("value", "")
+            for note in self.notes_in_deck[deck_name]
+            if note.get("modelName") == model_name
+        ]
         cursor_index = self.char_text_box.index(INSERT)
         self.char_text_box.insert(cursor_index, "".join(existing_chars))
         self.val_chars()
@@ -499,6 +529,10 @@ class UpdateConfigPage(ConfigPage):
         else:
             valid = False
         self.output_valid = valid
+        if hasattr(self, "add_existing_button"):
+            self.add_existing_button.state(
+                ["!disabled"] if valid else ["disabled"]
+            )
         self.update_next_btn_state()
         return valid
 
@@ -508,7 +542,10 @@ class UpdateConfigPage(ConfigPage):
         controller.req_ps = int(self.max_req_ps.value.get())
         controller.num_ex = int(self.num_ex.value.get())
         controller.num_defs = int(self.num_defs.value.get())
-        controller.output = self.deck_tree.focus().split("::", 2)
+        model_id = self.deck_tree.focus()
+        controller.output = [
+            self.deck_tree.parent(model_id), self.deck_tree.item(model_id, "text")
+        ]
 
         controller.chars = self.char_text_box.get()
         controller.show_page("Generator")
@@ -706,7 +743,12 @@ class Controller:
         elif self.export_mode == "Update":
             deck_name = self.output[0]
             model_name = self.output[1]
-            export.update_anki(self.interface, results, self.col, deck_name, model_name)
+            try:
+                export.update_anki(
+                    self.interface, results, self.anki, deck_name, model_name
+                )
+            except (AnkiConnectError, ValueError) as exc:
+                self.interface.print("AnkiConnect error: {}".format(exc))
         return 0
 
 

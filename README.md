@@ -62,11 +62,14 @@ How to create an entirely new Anki deck with the name `ankichinese_output.apkg` 
 **Updating is Easy!**  
 Just run `ankichinese -x anki` again with new characters in `input.txt` and import the new `ankichinese_output.apkg` file into Anki. Anki will automatically update the existing deck without losing progress.
 
+You can also update the imported deck directly: keep Anki open with AnkiConnect installed, choose **Update** in the GUI or run `ankichinese -x update`, then select the deck and its `AnkiChinese` note type. Matching notes are updated in place, and new Hanzi are added to the deck.
+
 ## Update Existing (Non-AnkiChinese) Deck Without Losing Progress
 
-1. Create `input.txt` with the characters you want to scrape (can be the same as the existing deck).
-2. Run `ankichinese -x update`.
-3. Choose deck and model of cards to update. AnkiChinese will search for and overwrite any fields with the same names as the following.
+1. Create `input.txt` with the characters you want to scrape.
+2. Install the [AnkiConnect add-on](https://ankiweb.net/shared/info/2055492159) and leave Anki open.
+3. Choose **Update** in the GUI, or run `ankichinese -x update` in the CLI.
+4. Choose the deck and note type. AnkiChinese updates matching fields below; the note type must include `Hanzi`.
 
 | Field Name  | Description                              |
 | ----------- | ---------------------------------------- |
@@ -75,12 +78,14 @@ Just run `ankichinese -x anki` again with new characters in `input.txt` and impo
 | Definition  | Meaning of character                     |
 | Pinyin      | Most common pinyin                       |
 | Pinyin 2    | Other possible pinyin                    |
-| Words       | Example words                            |
+| Examples    | Example words                            |
 | Formation   | Origin / mnemonic for character          |
 | HSK         | Hanyu Shuiping Kaoshi level              |
+| Frequency Rank | Character frequency rank              |
+| Frequency Count | Character frequency count            |
 | Audio       | Audio file name (**required for audio**) |
 
-4. Import the new `ankichinese_audio.apkg` file into Anki. This will import the audio files (and create an empty deck that can be deleted)
+5. Choose whether to scrape the deck's existing Hanzi too, review the update summary, then confirm. Matching notes are updated in place, missing Hanzi are added, and audio is uploaded to Anki.
 
 # Tools Used
 
@@ -88,7 +93,7 @@ Just run `ankichinese -x anki` again with new characters in `input.txt` and impo
 - Limit concurrency: [Aiometer](https://github.com/florimondmanca/aiometer)
 - Web automation and HTML interaction: [Playwright](https://playwright.dev/python/)
 - Anki deck generation: [Genanki](https://github.com/kerrickstaley/genanki)
-- Anki database access: [AnkiPandas](https://github.com/klieret/AnkiPandas)
+- Existing Anki collection updates: [AnkiConnect](https://github.com/ankicommunity/anki-desktop-addon-connect)
 - Progress bars: [tqdm](https://github.com/tqdm/tqdm)
 - HTML parsing and scraping: [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
 - Data manipulation: [Pandas](https://pandas.pydata.org/)

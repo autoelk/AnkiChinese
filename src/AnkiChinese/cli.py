@@ -11,7 +11,7 @@ from tqdm import tqdm
 import argparse
 import asyncio
 
-from ankipandas import Collection
+from anki_connect import AnkiConnect, AnkiConnectError
 
 
 class CLI(Interface):
@@ -139,10 +139,12 @@ def cli():
             interface, results, os.path.join(os.getcwd(), args.output + ".apkg")
         )
     elif export_mode == "update":
-        col = Collection()
-
-        # Get deck name
-        deck_names = col.cards.list_decks()
+        anki = AnkiConnect()
+        try:
+            deck_names = anki.decks()
+        except AnkiConnectError as exc:
+            print(exc)
+            return 1
         deck_name = None
         if len(deck_names) == 0:
             print("No decks found!")
@@ -155,12 +157,14 @@ def cli():
             while deck_name not in deck_names:
                 deck_name = input("Enter name of deck to update: ")
 
-        cards_in_deck = col.cards.merge_notes()
-        cards_in_deck = cards_in_deck[cards_in_deck["cdeck"].str.startswith(deck_name)]
-        notes_in_deck = col.notes[col.notes.nid.isin(cards_in_deck.nid)]
+        try:
+            notes_in_deck = anki.notes(deck_name)
+        except (AnkiConnectError, ValueError) as exc:
+            print("AnkiConnect error: {}".format(exc))
+            return 1
 
         # Get model name
-        model_names = notes_in_deck.list_models()
+        model_names = sorted({note.get("modelName") for note in notes_in_deck if note.get("modelName")})
         model_name = None
         if len(model_names) == 0:
             print("No models found!")
@@ -174,11 +178,11 @@ def cli():
                 model_name = input("Enter name of model to update: ")
 
         # Get fields in deck
-        fields = (
-            notes_in_deck.fields_as_columns()
-            .filter(regex="^nfld_", axis="columns")
-            .columns.str.replace("nfld_", "")
-        )
+        try:
+            fields = anki.model_fields(model_name)
+        except (AnkiConnectError, ValueError) as exc:
+            print("AnkiConnect error: {}".format(exc))
+            return 1
 
         # Fields that AnkiChinese would modify
         target_fields = [
@@ -190,6 +194,8 @@ def cli():
             "Examples",
             "Formation",
             "HSK",
+            "Frequency Rank",
+            "Frequency Count",
             "Audio",
         ]
 
@@ -210,9 +216,13 @@ def cli():
 
         existing_chars = []
         if interface.confirm("Also update characaters in deck?"):
-            existing_chars = notes_in_deck.fields_as_columns().nfld_Hanzi.to_list()
+            existing_chars = [
+                note.get("fields", {}).get("Hanzi", {}).get("value", "")
+                for note in notes_in_deck
+                if note.get("modelName") == model_name
+            ]
 
-        chars.update(existing_chars)
+        chars.update(char for char in existing_chars if char)
         results = asyncio.run(
             scraper.main(
                 chars,
@@ -223,7 +233,11 @@ def cli():
                 interface,
             )
         )
-        export.update_anki(interface, results, col, deck_name, model_name)
+        try:
+            export.update_anki(interface, results, anki, deck_name, model_name)
+        except (AnkiConnectError, ValueError) as exc:
+            print("AnkiConnect error: {}".format(exc))
+            return 1
         return 0
 
 
