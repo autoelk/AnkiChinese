@@ -90,7 +90,7 @@ def cli():
     )
     args = parser.parse_args()
     print(
-        f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nmax requests per second: {args.requests_per_second}"
+        f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nMax requests per second: {args.requests_per_second}"
     )
 
     chars = []  # List of characters to scrape
@@ -215,7 +215,7 @@ def cli():
             return
 
         existing_chars = []
-        if interface.confirm("Also update characaters in deck?"):
+        if interface.confirm("Also update characters in deck?"):
             existing_chars = [
                 note.get("fields", {}).get("Hanzi", {}).get("value", "")
                 for note in notes_in_deck

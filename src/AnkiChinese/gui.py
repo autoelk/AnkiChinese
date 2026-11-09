@@ -717,12 +717,12 @@ class Controller:
             page.show()
 
     def scrape_and_export_wrapper(self):
-        # Run scrape and export asynchronsouly so that GUI does not freeze
+        # Run scrape and export asynchronously so that GUI does not freeze
         asyncio.set_event_loop(self.scrape_loop)
         self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
-        # Filter for only unique chinese characters
+        # Filter for only unique Chinese characters
         self.chars = list(
             filter(lambda char: "\u4e00" <= char <= "\u9fff", set(self.chars))
         )
