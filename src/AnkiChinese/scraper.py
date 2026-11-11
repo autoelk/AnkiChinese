@@ -9,14 +9,15 @@ from typing import Optional
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-# Cached mapping from character -> (rank, count)
+# Cached mapping from character -> (frequency rank, occurrence count)
 _CHAR_FREQ_MAP = None
 
 
 def load_char_freq_map() -> dict:
-    """Load the character frequency file into a dict.
+    """Load character frequencies into a dict.
 
     Returns a mapping of single-character string -> (int(rank), int(count)).
+    The source is ordered by descending count, so row order gives the rank.
     """
     global _CHAR_FREQ_MAP
     if _CHAR_FREQ_MAP is not None:
@@ -24,24 +25,25 @@ def load_char_freq_map() -> dict:
 
     base_dir = os.path.dirname(__file__)
     data_dir = os.path.join(base_dir, "data")
-    file_path = os.path.join(data_dir, "char_freq.tsv")
+    file_path = os.path.join(data_dir, "SUBTLEX-CH-CHR")
 
     if not os.path.exists(file_path):
         _CHAR_FREQ_MAP = {}
         return {}
 
     freq_map = {}
-    with open(file_path, newline="", encoding="gb2312", errors="replace") as f:
-        reader = csv.reader(f, delimiter="\t")
+    with open(file_path, newline="", encoding="gb18030") as f:
+        next(f, None)
+        next(f, None)
+        reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
-            # Skip header/comment lines
-            if not row[0].strip().isdigit():
+            char = (row.get("Character") or "").strip()
+            count_text = (row.get("CHRCount") or "").strip()
+            if len(char) != 1 or not count_text.isdigit():
                 continue
 
-            rank = int(row[0].strip())
-            char = row[1].strip()
-            count = int(row[2].strip())
-            freq_map[char] = (rank, count)
+            rank = len(freq_map) + 1
+            freq_map[char] = (rank, int(count_text))
 
     _CHAR_FREQ_MAP = freq_map
     return _CHAR_FREQ_MAP

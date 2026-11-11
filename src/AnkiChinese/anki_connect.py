@@ -63,7 +63,7 @@ class AnkiConnect:
         return '"{}"'.format(value.replace("\\", "\\\\").replace('"', '\\"'))
 
     def notes(self, deck_name, model_name=None):
-        # Anki's deck search includes subdecks, matching the old prefix behavior.
+        # Anki's deck search includes subdecks.
         query = "deck:{}".format(self._quote_search(deck_name))
         if model_name:
             query += " note:{}".format(self._quote_search(model_name))

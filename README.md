@@ -82,7 +82,7 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 | Formation   | Origin / mnemonic for character          |
 | HSK         | Hanyu Shuiping Kaoshi level              |
 | Frequency Rank | Character frequency rank              |
-| Frequency Count | Character frequency count            |
+| Frequency Count | Character occurence count            |
 | Audio       | Audio file name (**required for audio**) |
 
 5. Choose whether to scrape the deck's existing Hanzi too, review the update summary, then confirm. Matching notes are updated in place, missing Hanzi are added, and audio is uploaded to Anki.
