@@ -80,7 +80,7 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 | Pinyin 2    | Other possible pinyin                    |
 | Examples    | Example words                            |
 | Formation   | Origin / mnemonic for character          |
-| HSK         | Hanyu Shuiping Kaoshi level              |
+| HSK         | HSK 3.0 character recognition level       |
 | Frequency Rank | Character frequency rank              |
 | Frequency Count | Character occurence count            |
 | Audio       | Audio file name (**required for audio**) |
@@ -101,7 +101,9 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 
 # Credits
 
-Character information: [ArchChinese](https://www.archchinese.com/)
+Character information other than HSK: [ArchChinese](https://www.archchinese.com/)
+
+HSK character recognition levels: [Official HSK syllabus](https://www.chinesetest.cn/HSK).
 
 Stroke order diagrams:
 

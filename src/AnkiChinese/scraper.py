@@ -11,6 +11,7 @@ from playwright.async_api import async_playwright
 
 # Cached mapping from character -> (frequency rank, occurrence count)
 _CHAR_FREQ_MAP = None
+_HSK_LEVEL_MAP = None
 
 
 def load_char_freq_map() -> dict:
@@ -49,6 +50,39 @@ def load_char_freq_map() -> dict:
     return _CHAR_FREQ_MAP
 
 
+def load_hsk_level_map() -> dict:
+    """Load the official HSK 3.0 character recognition levels.
+
+    Returns a mapping from a single Chinese character to its syllabus level.
+    """
+    global _HSK_LEVEL_MAP
+    if _HSK_LEVEL_MAP is not None:
+        return _HSK_LEVEL_MAP
+
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "data", "HSK-3.0-characters.csv")
+    if not os.path.exists(file_path):
+        _HSK_LEVEL_MAP = {}
+        return _HSK_LEVEL_MAP
+
+    hsk_map = {}
+    with open(file_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            char = (row.get("Character") or "").strip()
+            level = (row.get("Level") or "").strip()
+            if len(char) == 1 and level in {"1", "2", "3", "4", "5", "6", "7-9"}:
+                hsk_map[char] = level
+
+    _HSK_LEVEL_MAP = hsk_map
+    return _HSK_LEVEL_MAP
+
+
+def get_hsk_level(hanzi) -> str:
+    """Return the HSK 3.0 recognition-list level for a character, if listed."""
+    return load_hsk_level_map().get(hanzi, "")
+
+
 def clean_string(string) -> str:
     return regex.sub(" +", " ", string.strip().replace("\n", ""))
 
@@ -71,7 +105,6 @@ def scrape_basic_info(soup, num_examples) -> dict:
         ),
         "Pinyin": clean_string(pinyin_list[0]),
         "Pinyin 2": clean_string(", ".join(pinyin_list[1:])),
-        "HSK": details.get("HSK Level", "None"),
         "Formation": details.get("Formation", ""),
     }
     return info
@@ -143,6 +176,7 @@ def scrape_word(r, num_examples, num_defs, hanzi) -> dict:
     info = dict()
     info["Hanzi"] = hanzi
     info.update(scrape_basic_info(soup, num_examples))
+    info["HSK"] = get_hsk_level(hanzi)
     info["Examples"] = scrape_example_words(soup, num_examples, num_defs)
     freq_rank, freq_count = get_frequency(hanzi)
     info["Frequency Rank"] = str(freq_rank) if freq_rank is not None else ""
