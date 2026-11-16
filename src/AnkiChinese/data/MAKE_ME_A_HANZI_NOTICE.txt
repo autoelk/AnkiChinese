@@ -1,0 +1,10 @@
+Make Me a Hanzi
+---------------
+Formation/etymology data is from the dictionary.txt dataset in Make Me a Hanzi,
+by Shaunak Kishore and contributors. The dictionary data is derived from Unihan
+and CJKlib and is licensed under the GNU Lesser General Public License version
+3 or (at your option) any later version. The corresponding license text is
+included as MAKE_ME_A_HANZI_LGPL.txt.
+Source: https://github.com/skishore/makemeahanzi
+Dataset documentation: https://github.com/skishore/makemeahanzi/blob/master/COPYING
+The dictionary snapshot used here was retrieved 2026-11-12.

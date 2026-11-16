@@ -1,0 +1,6 @@
+HSK character recognition levels
+================================
+
+The bundled HSK character levels are based on the official HSK syllabus.
+Syllabus information: https://www.chinesetest.cn/HSK
+The adapter reads the bundled HSK-3.0-characters.csv snapshot.

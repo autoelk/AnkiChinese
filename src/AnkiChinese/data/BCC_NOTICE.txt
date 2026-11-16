@@ -1,0 +1,11 @@
+BCC
+---
+The word and character frequency data used to build cards comes from the BCC
+corpus download center. The project blends its spoken-dialogue and news data.
+BCC states that frequency data is freely downloadable and requests citation of
+the corpus paper:
+荀恩东, 饶高琦, 肖晓悦, 臧娇娇. (2016). 大数据背景下BCC语料库的研制.
+语料库语言学, 3(01), 93-109+118.
+https://bcc.blcu.edu.cn/help.html
+https://bcc.blcu.edu.cn/download
+Frequency data snapshot: 2026-05-21.

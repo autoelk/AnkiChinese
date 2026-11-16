@@ -1,0 +1,10 @@
+CC-CEDICT
+---------
+Definitions, pronunciations, and simplified/traditional word mappings are from
+CC-CEDICT, maintained by the CC-CEDICT contributors and distributed by MDBG.
+CC-CEDICT is licensed under Creative Commons Attribution-ShareAlike 4.0
+International (CC BY-SA 4.0):
+https://creativecommons.org/licenses/by-sa/4.0/
+Source and project information: https://cc-cedict.org/
+Dictionary release: MDBG release dated 2026-11-11.
+This project parses the source entries and selects/arranges them for cards.

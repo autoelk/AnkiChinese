@@ -1,0 +1,22 @@
+Leiden Weibo Corpus
+-------------------
+Source: Daan van Esch, Leiden Weibo Corpus
+https://leidenweibocorpus.nl/
+Download documentation: https://leidenweibocorpus.nl/openaccess
+Original word archive: https://leidenweibocorpus.nl/download?file=words
+
+The corpus contains 5,103,566 Sina Weibo messages posted in January 2012.
+The original downloadable tables were updated March 20, 2012.
+
+License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
+https://creativecommons.org/licenses/by-nc-sa/3.0/
+Source licensing statement: https://leidenweibocorpus.nl/legal
+
+The bundled LWC-word-frequencies.zip is a derived table under CC BY-NC-SA 3.0.
+It retains all word forms and occurrence counts, combines duplicate word forms,
+and omits the original word IDs and reversed spellings. Metadata records the
+source archive's SHA-256 and the total token count used for normalization.
+
+Word rankings and example selections in this export use frequency data from
+the Leiden Weibo Corpus. Reuse of that data and its adaptations is subject to
+attribution, noncommercial use, and share-alike terms under the linked license.

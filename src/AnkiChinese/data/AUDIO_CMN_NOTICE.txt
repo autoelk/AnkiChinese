@@ -1,0 +1,15 @@
+audio-cmn
+---------
+Mandarin syllable recordings are from audio-cmn. The repository identifies the
+syllable recordings as work by Chen Wang and marks the recordings CC BY-SA.
+Audio-cmn also credits Hugo Lopez for curation, compression, and file naming,
+and Nicolas Vion for recording software and technical support. The source
+repository does not identify a version number for this CC BY-SA notice; consult
+the source repository and recording credits for the applicable license terms.
+Source: https://github.com/hugolpz/audio-cmn
+This project downloads the 64k syllable recordings without modifying them.
+
+If a syllable is unavailable in audio-cmn, this project also checks Wikimedia
+Commons. Each fallback recording is accompanied by its own commons-*-NOTICE.txt
+file identifying the recording page, author, source URL, and applicable license.
+Fallback files are downloaded without audio modification.

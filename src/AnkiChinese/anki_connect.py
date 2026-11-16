@@ -8,24 +8,41 @@ class AnkiConnectError(RuntimeError):
 
 
 class AnkiConnect:
-    def __init__(self, url="http://127.0.0.1:8765", timeout=10):
+    def __init__(self, url="http://127.0.0.1:8765", timeout=10, session=None):
         self.url = url
         self.timeout = timeout
+        self.session = session or requests.Session()
+
+    def close(self):
+        self.session.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
     def invoke(self, action, **params):
         try:
-            response = requests.post(
+            response = self.session.post(
                 self.url,
                 json={"action": action, "version": 6, "params": params},
                 timeout=self.timeout,
             )
             response.raise_for_status()
             payload = response.json()
-        except requests.RequestException as exc:
+        except requests.Timeout as exc:
+            raise AnkiConnectError(
+                "AnkiConnect timed out during '{}'. The operation's outcome may be unknown; "
+                "check Anki before retrying.".format(action)
+            ) from exc
+        except requests.ConnectionError as exc:
             raise AnkiConnectError(
                 "Could not connect to AnkiConnect at {}. Open Anki, install the "
                 "AnkiConnect add-on (code 2055492159), and try again.".format(self.url)
             ) from exc
+        except requests.RequestException as exc:
+            raise AnkiConnectError("AnkiConnect request '{}' failed: {}".format(action, exc)) from exc
         except ValueError as exc:
             raise AnkiConnectError("AnkiConnect returned invalid JSON.") from exc
 
@@ -63,6 +80,7 @@ class AnkiConnect:
         return '"{}"'.format(value.replace("\\", "\\\\").replace('"', '\\"'))
 
     def notes(self, deck_name, model_name=None):
+        """Read notes with field names mapped directly to their text values."""
         # Anki's deck search includes subdecks.
         query = "deck:{}".format(self._quote_search(deck_name))
         if model_name:
@@ -72,4 +90,6 @@ class AnkiConnect:
         for start in range(0, len(note_ids), 500):
             batch = note_ids[start : start + 500]
             notes.extend(self.invoke("notesInfo", notes=batch) or [])
+        for note in notes:
+            note["fields"] = {name: field["value"] for name, field in note["fields"].items()}
         return notes

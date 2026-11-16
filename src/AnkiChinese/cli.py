@@ -1,245 +1,116 @@
-import sys
-import os.path
+"""Command-line frontend for the shared application workflow."""
+import argparse
+from pathlib import Path
 
-sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
+# Support running this file directly from a source checkout.
+if __name__ == "__main__" and not __package__:
+    import sys
 
-import scraper
-import export
-from interface import Interface
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    __package__ = "AnkiChinese"
 
 from tqdm import tqdm
-import argparse
-import asyncio
-
-from anki_connect import AnkiConnect, AnkiConnectError
-
-
-class CLI(Interface):
-    def print(self, str):
-        print(str)
-
-    def confirm(self, msg):
-        resp = input(msg + " [y/n] ").lower().strip()
-        return resp == "y" or resp == "yes"
-
-    def start_pbar(self, num):
-        self.pbar = tqdm(total=num)
-
-    async def step_pbar(self):
-        self.pbar.update(1)
-
-    def finish_pbar(self):
-        self.pbar.close()
+from .anki_connect import AnkiConnect, AnkiConnectError
+from .application import Application
+from .config import GenerationOptions, RunRequest
+from .rendering import NOTE_FIELDS
 
 
-def cli():
-    parser = argparse.ArgumentParser(
-        description="Scrape ArchChinese for definitions and example words"
-    )
-    parser.add_argument(
-        "--export",
-        "-x",
-        choices=["anki", "csv", "update"],
-        default="anki",
-        help="""Export mode (default: anki) 
-        ANKI: Generate new AnkiChinese deck 
-        CSV: Generate CSV file 
-        UPDATE: Update existing deck""",
-    )
-    parser.add_argument(
-        "--input",
-        "-i",
-        type=str,
-        default="input.txt",
-        help="Input file with characters to scrape (default: input.txt)",
-    )
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=str,
-        default="ankichinese_output",
-        help="Name of output file (do not include extension) (default: ankichinese_output)",
-    )
-    parser.add_argument(
-        "--definitions",
-        "-def",
-        type=int,
-        default=5,
-        help="Number of definitions to scrape per character (default: 5)",
-    )
-    parser.add_argument(
-        "--examples",
-        "-ex",
-        type=int,
-        default=5,
-        help="Number of example words to scrape per character (default: 5)",
-    )
-    parser.add_argument(
-        "--requests-at-once",
-        "-r",
-        type=int,
-        default=10,
-        help="Maximum number of requests at once (default: 10)",
-    )
-    parser.add_argument(
-        "--requests-per-second",
-        "-rs",
-        type=int,
-        default=5,
-        help="Maximum number of requests per second (default: 5)",
-    )
-    args = parser.parse_args()
-    print(
-        f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nMax requests per second: {args.requests_per_second}"
-    )
+class ConsoleProgress:
+    def __init__(self):
+        self.bar = None
+        self.phase = None
 
-    chars = []  # List of characters to scrape
+    def close(self):
+        if self.bar:
+            self.bar.close()
+            self.bar = None
+
+    def __call__(self, event):
+        if event.phase != self.phase:
+            self.close()
+            self.phase = event.phase
+        if event.total and event.phase != "done":
+            if self.bar is None:
+                self.bar = tqdm(total=event.total, desc=event.message)
+            self.bar.update(event.completed - self.bar.n)
+        elif event.message:
+            print(event.message)
+
+
+def choose(label, choices, provided=None):
+    if provided:
+        if provided not in choices:
+            raise ValueError("Unknown {}: {}".format(label, provided))
+        return provided
+    if not choices:
+        raise ValueError("No available " + label)
+    if len(choices) == 1:
+        print(label + ": " + choices[0])
+        return choices[0]
+    print(label + ": " + ", ".join(choices))
+    while True:
+        selected = input("Choose " + label + ": ").strip()
+        if selected in choices:
+            return selected
+
+
+def confirm(message):
+    return input(message + " [y/n] ").strip().lower() in ("y", "yes")
+
+
+def cli(argv=None):
+    defaults = GenerationOptions()
+    parser = argparse.ArgumentParser(description="Generate Chinese character flashcards for Anki")
+    parser.add_argument("--export", "-x", choices=("anki", "csv", "update"), default="anki")
+    parser.add_argument("--input", "-i", default="input.txt")
+    parser.add_argument("--output", "-o", dest="output_path", default="ankichinese_output", help="Output name, with or without extension")
+    parser.add_argument("--definitions", "-def", dest="definition_limit", type=int, default=defaults.definition_limit)
+    parser.add_argument("--examples", "-ex", dest="example_limit", type=int, default=defaults.example_limit)
+    parser.add_argument("--audio-downloads-at-once", dest="audio_concurrency", type=int, default=defaults.audio_concurrency)
+    parser.add_argument("--audio-downloads-per-second", dest="audio_per_second", type=int, default=defaults.audio_per_second)
+    parser.add_argument("--audio-cache", dest="audio_cache_dir", type=Path, default=defaults.audio_cache_dir)
+    parser.add_argument("--deck", dest="deck_name", help="Deck to update")
+    parser.add_argument("--model", dest="model_name", help="Note type to update")
+    parser.add_argument("--include-existing", action="store_true", default=None, help="Also regenerate existing deck characters")
+    args = parser.parse_args(argv)
+    progress = ConsoleProgress()
+    anki = None
     try:
-        with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
-            for line in f:
-                for char in line:
-                    if not char.isspace():
-                        chars.append(char)
-    except FileNotFoundError as e:
-        print(e)
-
-    chars = set(chars)  # Remove duplicates
-    if len(chars) == 0:
-        print("No characters found!")
-        return
-
-    interface = CLI()
-    export_mode = args.export
-    if export_mode == "csv":
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
-        )
-        export.gen_csv(
-            interface, results, os.path.join(os.getcwd(), args.output + ".csv")
-        )
-    elif export_mode == "anki":
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
-        )
-        export.gen_anki(
-            interface, results, os.path.join(os.getcwd(), args.output + ".apkg")
-        )
-    elif export_mode == "update":
-        anki = AnkiConnect()
-        try:
-            deck_names = anki.decks()
-        except AnkiConnectError as exc:
-            print(exc)
-            return 1
-        deck_name = None
-        if len(deck_names) == 0:
-            print("No decks found!")
-            return
-        elif len(deck_names) == 1:
-            deck_name = deck_names[0]
-            print("Deck: " + deck_name)
-        else:
-            print("Decks: " + ", ".join(deck_names))
-            while deck_name not in deck_names:
-                deck_name = input("Enter name of deck to update: ")
-
-        try:
-            notes_in_deck = anki.notes(deck_name)
-        except (AnkiConnectError, ValueError) as exc:
-            print("AnkiConnect error: {}".format(exc))
-            return 1
-
-        # Get model name
-        model_names = sorted({note.get("modelName") for note in notes_in_deck if note.get("modelName")})
-        model_name = None
-        if len(model_names) == 0:
-            print("No models found!")
-            return
-        elif len(model_names) == 1:
-            model_name = model_names[0]
-            print("Model: " + model_name)
-        else:
-            print("Models: " + ", ".join(model_names))
-            while model_name not in model_names:
-                model_name = input("Enter name of model to update: ")
-
-        # Get fields in deck
-        try:
-            fields = anki.model_fields(model_name)
-        except (AnkiConnectError, ValueError) as exc:
-            print("AnkiConnect error: {}".format(exc))
-            return 1
-
-        # Fields that AnkiChinese would modify
-        target_fields = [
-            "Hanzi",
-            "Traditional",
-            "Definition",
-            "Pinyin",
-            "Pinyin 2",
-            "Examples",
-            "Formation",
-            "HSK",
-            "Frequency Rank",
-            "Frequency Count",
-            "Audio",
-        ]
-
-        print("\nAnkiChinese will update the following fields in your model:")
-        for field in fields:
-            if field in target_fields:
-                print(">> " + field)
-            else:
-                print("-- " + field)
-        print("")
-
-        if "Hanzi" not in fields:
-            raise Exception("Error: model must have 'Hanzi' field!")
-
-        if not interface.confirm("Use this model?"):
-            print("Quitting ...")
-            return
-
-        existing_chars = []
-        if interface.confirm("Also update characters in deck?"):
-            existing_chars = [
-                note.get("fields", {}).get("Hanzi", {}).get("value", "")
-                for note in notes_in_deck
-                if note.get("modelName") == model_name
-            ]
-
-        chars.update(char for char in existing_chars if char)
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
-        )
-        try:
-            export.update_anki(interface, results, anki, deck_name, model_name)
-        except (AnkiConnectError, ValueError) as exc:
-            print("AnkiConnect error: {}".format(exc))
-            return 1
+        options = GenerationOptions(args.definition_limit, args.example_limit, args.audio_concurrency,
+                                  args.audio_per_second, args.audio_cache_dir)
+        characters = Path(args.input).read_text(encoding="utf-8")
+        deck_name = model_name = ""
+        include_existing = False
+        if args.export == "update":
+            anki = AnkiConnect()
+            deck_name = choose("deck", anki.decks(), args.deck_name)
+            models = [name for name in anki.models() if "Hanzi" in anki.model_fields(name)]
+            model_name = choose("note type", models, args.model_name)
+            print("Fields managed by AnkiChinese: " + ", ".join(name for name in anki.model_fields(model_name) if name in NOTE_FIELDS))
+            include_existing = args.include_existing if args.include_existing is not None else confirm("Also process the deck's existing characters?")
+        request = RunRequest(characters, args.export, options, Path(args.output_path), deck_name, model_name, include_existing)
+        app = Application(anki=anki)
+        run = app.prepare(request, progress)
+        progress.close()
+        if run.plan:
+            print(run.plan.summary())
+            if run.plan.has_changes and not confirm("Apply these changes to Anki?"):
+                print("Update canceled")
+                return 0
+        app.apply(run, progress)
         return 0
+    except (ValueError, OSError, AnkiConnectError) as exc:
+        print(str(exc))
+        return 1
+    except KeyboardInterrupt:
+        print("Interrupted. Any confirmed Anki changes remain applied.")
+        return 130
+    finally:
+        progress.close()
+        if anki is not None:
+            anki.close()
 
 
 if __name__ == "__main__":
-    cli()
+    raise SystemExit(cli())

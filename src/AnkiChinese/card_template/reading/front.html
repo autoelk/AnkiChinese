@@ -20,21 +20,13 @@
             document.querySelector(".diagramContainer.simp").style.display = "none";
             return;
         }
-
         var writer = HanziWriter.create('diagramSimp', '{{Hanzi}}', {
-            width: 300,
-            height: 300,
-            radicalColor: '#337ab7',
-            showCharacter: false,
-            showOutline: true,
-            delayBetweenStrokes: 100,
-            padding: 5
+            width: 300, height: 300, radicalColor: '#337ab7',
+            showCharacter: false, showOutline: true, delayBetweenStrokes: 100, padding: 5
         });
-
         writer.loopCharacterAnimation();
     })();
 </script>
-
 <div class="diagram-flex">
     <a class="strokeOrder simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
     <a class="diagramContainer simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">

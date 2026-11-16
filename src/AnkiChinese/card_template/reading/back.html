@@ -20,21 +20,13 @@
             document.querySelector(".diagramContainer.simp").style.display = "none";
             return;
         }
-
         var writer = HanziWriter.create('diagramSimp', '{{Hanzi}}', {
-            width: 300,
-            height: 300,
-            radicalColor: '#337ab7',
-            showCharacter: false,
-            showOutline: true,
-            delayBetweenStrokes: 100,
-            padding: 5
+            width: 300, height: 300, radicalColor: '#337ab7',
+            showCharacter: false, showOutline: true, delayBetweenStrokes: 100, padding: 5
         });
-
         writer.loopCharacterAnimation();
     })();
 </script>
-
 <div class="diagram-flex">
     <a class="strokeOrder simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">{{Hanzi}}</a>
     <a class="diagramContainer simp" href="plecoapi://x-callback-url/df?hw={{Hanzi}}">
@@ -51,14 +43,13 @@
 <div class="character">
     <div>{{Audio}}</div>
     <h1 class="pinyin">{{Pinyin}}</h1>
-    <p class="pinyin2">{{Pinyin 2}}</p>
     <p class="definition">{{Definition}}</p>
 </div>
 
 <hr>
 
 <div class="notes">
-    <p>HSK: {{HSK}}. Frequency: #{{Frequency Rank}}, Count: {{Frequency Count}}</p>
+    <p>HSK: {{HSK}}. Frequency: #{{Frequency Rank}}, per million: {{Frequency Count}}</p>
     <p>{{Formation}}</p>
     <p class="ruby-text">{{furigana:Examples}}</p>
 </div>

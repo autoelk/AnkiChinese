@@ -1,767 +1,252 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import font
-from tkinter import filedialog
-from tkinter import messagebox
-
-import sys
-import os.path
-import re as regex
-import asyncio
+"""Tk frontend. All widgets are accessed only by the main Tk thread."""
+import logging
+import queue
 import threading
+from pathlib import Path
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+from .anki_connect import AnkiConnect
+from .application import Application
+from .config import GenerationOptions, RunRequest
 
-sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
-
-import scraper
-import export
-from interface import Interface
-from anki_connect import AnkiConnect, AnkiConnectError
+MODES = {"Anki deck": "anki", "CSV": "csv", "Update existing deck": "update"}
 
 
-class Page(ttk.Frame):
+class Window:
     def __init__(self, root):
-        ttk.Frame.__init__(self, root)
+        self.root = root
+        self.events = queue.Queue()
+        self.busy = False
+        self.catalog_loaded = False
+        self.controls = []
+        defaults = GenerationOptions()
+        root.title("AnkiChinese")
+        root.geometry("800x760")
+        root.minsize(680, 650)
+        root.columnconfigure(0, weight=1)
+        root.rowconfigure(0, weight=1)
+        frame = ttk.Frame(root, padding=12)
+        frame.grid(sticky="nsew")
+        frame.columnconfigure(1, weight=1)
+        frame.rowconfigure(8, weight=1)
+        ttk.Label(frame, text="AnkiChinese", font=("TkDefaultFont", 20)).grid(row=0, column=0, columnspan=3, sticky="w")
+        ttk.Label(frame, text="Output").grid(row=1, column=0, sticky="w")
+        self.mode = tk.StringVar(value="Anki deck")
+        mode_box = ttk.Combobox(frame, textvariable=self.mode, values=list(MODES), state="readonly")
+        mode_box.grid(row=1, column=1, sticky="ew", pady=6)
+        self.controls.append((mode_box, "readonly"))
+        mode_box.bind("<<ComboboxSelected>>", self.change_mode)
+        ttk.Label(frame, text="Characters").grid(row=2, column=0, sticky="nw")
+        self.characters = tk.Text(frame, height=5, wrap="char")
+        self.characters.grid(row=2, column=1, sticky="ew")
+        self.controls.append((self.characters, "normal"))
+        self.add_button(frame, "Import file…", self.import_characters, 2, 2)
+        self.output_frame = ttk.Frame(frame)
+        self.output_frame.grid(row=3, column=0, columnspan=3, sticky="ew", pady=6)
+        self.output_frame.columnconfigure(1, weight=1)
+        ttk.Label(self.output_frame, text="Output file").grid(row=0, column=0)
+        self.output_path = tk.StringVar(value=str(Path.cwd() / "ankichinese_output.apkg"))
+        self.add_entry(self.output_frame, self.output_path, 0, 1)
+        self.add_button(self.output_frame, "Browse…", self.browse_output, 0, 2)
+        self.target_frame = ttk.LabelFrame(frame, text="Anki collection", padding=6)
+        self.target_frame.columnconfigure(1, weight=1)
+        ttk.Label(self.target_frame, text="Deck").grid(row=0, column=0, sticky="w")
+        self.deck_name = tk.StringVar()
+        self.deck_box = ttk.Combobox(self.target_frame, textvariable=self.deck_name, state="readonly")
+        self.deck_box.grid(row=0, column=1, sticky="ew")
+        ttk.Label(self.target_frame, text="Note type").grid(row=1, column=0, sticky="w")
+        self.model_name = tk.StringVar()
+        self.model_box = ttk.Combobox(self.target_frame, textvariable=self.model_name, state="readonly")
+        self.model_box.grid(row=1, column=1, sticky="ew")
+        self.controls.extend(((self.deck_box, "readonly"), (self.model_box, "readonly")))
+        self.add_button(self.target_frame, "Refresh", self.refresh_collection, 0, 2)
+        self.include_existing = tk.BooleanVar(value=False)
+        include = ttk.Checkbutton(self.target_frame, text="Also process existing deck characters", variable=self.include_existing)
+        include.grid(row=2, column=0, columnspan=3, sticky="w")
+        self.controls.append((include, "normal"))
+        self.connection_status = ttk.Label(self.target_frame, text="Open Anki with AnkiConnect installed")
+        self.connection_status.grid(row=3, column=0, columnspan=3, sticky="w")
+        options_frame = ttk.LabelFrame(frame, text="Options", padding=6)
+        options_frame.grid(row=4, column=0, columnspan=3, sticky="ew", pady=6)
+        self.option_vars = {}
+        for index, (name, label, value) in enumerate((
+            ("definition_limit", "Maximum definitions", defaults.definition_limit),
+            ("example_limit", "Example words", defaults.example_limit),
+            ("audio_concurrency", "Concurrent audio downloads", defaults.audio_concurrency),
+            ("audio_per_second", "Audio downloads per second", defaults.audio_per_second),
+        )):
+            row, column = divmod(index, 2)
+            ttk.Label(options_frame, text=label).grid(row=row, column=column * 2, sticky="w", padx=5)
+            variable = tk.StringVar(value=str(value))
+            spin = ttk.Spinbox(options_frame, textvariable=variable, from_=1, to=100, width=7)
+            spin.grid(row=row, column=column * 2 + 1, padx=5)
+            self.option_vars[name] = variable
+            self.controls.append((spin, "normal"))
+        ttk.Label(options_frame, text="Audio cache").grid(row=2, column=0, sticky="w", padx=5)
+        self.audio_cache_dir = tk.StringVar(value=str(defaults.audio_cache_dir))
+        self.add_entry(options_frame, self.audio_cache_dir, 2, 1, columnspan=3)
+        self.status = ttk.Label(frame, text="Ready")
+        self.status.grid(row=5, column=0, columnspan=3, sticky="w")
+        self.progress = ttk.Progressbar(frame, mode="determinate")
+        self.progress.grid(row=6, column=0, columnspan=3, sticky="ew", pady=6)
+        self.start_button = ttk.Button(frame, text="Start", command=self.start_run)
+        self.start_button.grid(row=7, column=2, sticky="e")
+        self.log = tk.Text(frame, state="disabled", height=12, wrap="word")
+        self.log.grid(row=8, column=0, columnspan=3, sticky="nsew", pady=6)
+        root.protocol("WM_DELETE_WINDOW", self.close)
+        root.after(50, self.process_events)
 
-    def show(self):
-        self.lift()
+    def add_button(self, parent, text, command, row, column):
+        button = ttk.Button(parent, text=text, command=command)
+        button.grid(row=row, column=column, padx=5, pady=3)
+        self.controls.append((button, "normal"))
+        return button
 
+    def add_entry(self, parent, variable, row, column, columnspan=1):
+        entry = ttk.Entry(parent, textvariable=variable)
+        entry.grid(row=row, column=column, columnspan=columnspan, sticky="ew", padx=5)
+        self.controls.append((entry, "normal"))
+        return entry
 
-class MainMenuPage(Page):
-    def __init__(self, root, controller):
-        Page.__init__(self, root)
-        self.name = "MainMenu"
-
-        menu_text_frame = ttk.Frame(self)
-        menu_text_frame.grid(row=0, column=0)
-
-        ttk.Label(menu_text_frame, text="AnkiChinese", font=controller.h1_font).grid(
-            row=0, column=0
-        )
-        ttk.Label(
-            menu_text_frame, text="Chinese Flashcard Generator", font=controller.h3_font
-        ).grid(row=1, column=0)
-
-        buttons = ttk.Frame(self)
-        buttons.grid(row=1, column=0, sticky=N)
-        ttk.Label(buttons, text="Select a mode:").grid(row=0, column=0, columnspan=2)
-        ttk.Button(
-            buttons, text="CSV", command=lambda: controller.show_page("CSV")
-        ).grid(row=1, column=0, padx=5)
-        ttk.Label(
-            buttons, text="Generate a CSV file containing information on characters"
-        ).grid(row=1, column=1, sticky=W)
-        ttk.Button(
-            buttons, text="Anki", command=lambda: controller.show_page("AnkiDeck")
-        ).grid(row=2, column=0, padx=5)
-        ttk.Label(buttons, text="Generate a new Anki deck with special features").grid(
-            row=2, column=1, sticky=W
-        )
-        ttk.Button(
-            buttons, text="Update", command=lambda: controller.show_page("Update")
-        ).grid(row=3, column=0, padx=5)
-        ttk.Label(
-            buttons, text="Update existing Anki deck without losing progress"
-        ).grid(row=3, column=1, sticky=W)
-
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-
-class SpinboxField(ttk.Frame):
-    def __init__(
-        self,
-        page,
-        parent_frame,
-        label,
-        default_val=None,
-        min_val=1,
-        max_val=10,
-        incr=1,
-    ):
-        ttk.Frame.__init__(self, parent_frame)
-        self.grid()
-        ttk.Label(self, text=label).grid(row=0, column=0, padx=5, sticky=W)
-        self.page = page
-        self.label = label
-        self.value = StringVar(page)
-
-        if default_val != None:
-            self.value.set(str(default_val))
-            self.valid = True
+    def change_mode(self, _event=None):
+        update = MODES[self.mode.get()] == "update"
+        if update:
+            self.output_frame.grid_remove()
+            self.target_frame.grid(row=3, column=0, columnspan=3, sticky="ew", pady=6)
+            if not self.catalog_loaded:
+                self.refresh_collection()
         else:
-            self.valid = False
+            self.target_frame.grid_remove()
+            self.output_frame.grid()
+            suffix = ".csv" if MODES[self.mode.get()] == "csv" else ".apkg"
+            output = Path(self.output_path.get())
+            if output.name and not output.is_dir():
+                self.output_path.set(str(output.with_suffix(suffix)))
 
-        self.spinbox = ttk.Spinbox(
-            self,
-            from_=min_val,
-            to=max_val,
-            increment=incr,
-            textvariable=self.value,
-            width=15,
-            validate="focusout",
-            validatecommand=(
-                page.register(self.val_field),
-                "%P",
-            ),
-        )
-        self.spinbox.grid(row=1, column=0, padx=5)
-        self.error_msg = StringVar(page)
-        ttk.Label(
-            self,
-            font="TkSmallCaptionFont",
-            foreground="red",
-            textvariable=self.error_msg,
-        ).grid(row=2, column=0, sticky=W)
-
-    def val_field(self, new_val):
-        valid = new_val.isdigit() and 1 <= int(new_val) and int(new_val) <= 10
-        self.error_msg.set("" if valid else "Invalid " + self.label)
-        self.valid = valid
-        self.page.update_next_btn_state()
-        return valid
-
-
-class ConfigPage(Page):
-    def __init__(self, root, controller, name, desc, ext):
-        Page.__init__(self, root)
-        self.name = name
-        self.ext = ext
-
-        title_frame = ttk.Frame(self)
-        title_frame.grid(row=0, column=0)
-        ttk.Label(title_frame, text=name, font=controller.h2_font).grid(row=0, column=0)
-        ttk.Label(
-            title_frame,
-            text=desc,
-        ).grid(row=1, column=0)
-
-        # Basic options section
-        self.create_basic_opt()
-
-        # Advanced options section
-        self.create_adv_opt()
-
-        # Navigation buttons
-        nav_buttons_frame = ttk.Frame(self)
-        nav_buttons_frame.grid(row=3, column=0, sticky=SE)
-
-        ttk.Button(
-            nav_buttons_frame,
-            text="Back",
-            command=lambda: controller.show_page("MainMenu"),
-        ).grid(row=0, column=0, padx=5, pady=5)
-        self.next_button = ttk.Button(
-            nav_buttons_frame,
-            text="Next",
-            command=self.update_controller,
-        )
-        self.next_button.grid(row=0, column=1, padx=5, pady=5)
-
-        self.val_chars()
-
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-    def create_basic_opt(self):
-        basic_opt_frame = ttk.Frame(self)
-        basic_opt_frame.grid(row=1, column=0)
-
-        # Characters to scrape
-        ttk.Label(basic_opt_frame, text="Characters").grid(row=0, column=0, sticky=W)
-        self.char_text_box = ttk.Entry(basic_opt_frame, width=50)
-        self.char_text_box.grid(row=1, column=0, sticky=W)
-        ttk.Button(basic_opt_frame, text="Import", command=self.import_chars).grid(
-            row=1, column=1, sticky=SW
-        )
-        self.char_text_box.bind("<Leave>", lambda e: self.val_chars())
-        self.chars_valid = False
-        self.chars_error_msg = StringVar(self)
-        ttk.Label(
-            basic_opt_frame,
-            font="TkSmallCaptionFont",
-            foreground="red",
-            textvariable=self.chars_error_msg,
-        ).grid(row=2, column=0, sticky=W)
-
-        # Output file location
-        ttk.Label(basic_opt_frame, text="Output file location").grid(
-            row=3, column=0, sticky=W
-        )
-        self.output = StringVar(self)
-        self.output.set(os.path.join(os.getcwd(), "ankichinese_output." + self.ext))
-        self.output_entry = ttk.Entry(
-            basic_opt_frame,
-            textvariable=self.output,
-            width=30,
-            validate="focusout",
-            validatecommand=(
-                self.register(self.val_output),
-                "%P",
-            ),
-        )
-        self.output_valid = True
-        self.output_entry.grid(row=4, column=0, sticky=W)
-        ttk.Button(basic_opt_frame, text="Browse", command=self.get_output).grid(
-            row=4, column=1, sticky=W
-        )
-        self.output_error_msg = StringVar(self)
-        ttk.Label(
-            basic_opt_frame,
-            font="TkSmallCaptionFont",
-            foreground="red",
-            textvariable=self.output_error_msg,
-        ).grid(row=5, column=0, sticky=W)
-
-    def create_adv_opt(self):
-        adv_opt_frame = ttk.Labelframe(self, text="Advanced Options")
-        adv_opt_frame.grid(row=2, column=0, sticky=N)
-
-        # Number of Definitions
-        self.num_defs = SpinboxField(self, adv_opt_frame, "# of definitions", 5)
-        self.num_defs.grid(row=0, column=0)
-        self.num_ex = SpinboxField(self, adv_opt_frame, "# of examples", 5)
-        self.num_ex.grid(row=1, column=0)
-        self.max_req_ps = SpinboxField(
-            self, adv_opt_frame, "Max requests per second", 5
-        )
-        self.max_req_ps.grid(row=0, column=1)
-        self.max_req_simul = SpinboxField(
-            self, adv_opt_frame, "Max requests at once", 5
-        )
-        self.max_req_simul.grid(row=1, column=1)
-
-    def import_chars(self):
-        input_file = filedialog.askopenfilename()
-        content = ""
-        try:
-            with open(input_file, encoding="utf8", errors="replace", mode="r") as f:
-                for line in f:
-                    content += line
-        except FileNotFoundError as e:
-            print(e)
-
-        cursor_index = self.char_text_box.index(INSERT)
-        self.char_text_box.insert(cursor_index, content)
-        self.val_chars()
-
-    def get_output(self):
-        self.output.set(
-            filedialog.asksaveasfilename(
-                defaultextension=self.ext,
-                initialfile="ankichinese_output",
-            )
-        )
-        self.output_entry.validate()
-
-    # Validation helpers
-    def val_chars(self):
-        content = self.char_text_box.get()
-        valid = len(set(filter(lambda char: "\u4e00" <= char <= "\u9fff", content))) > 0
-        self.chars_error_msg.set("" if valid else "No hanzi found")
-        self.chars_valid = valid
-        self.update_next_btn_state()
-        return valid
-
-    def val_output(self, new_val):
-        # Make sure output ends with correct extension
-        valid = (
-            regex.search(r"[^\/]+(?=\." + regex.escape(self.ext) + r"$)", new_val)
-            is not None
-        )
-        self.output_error_msg.set("" if valid else "Invalid file location")
-        self.output_valid = valid
-        self.update_next_btn_state()
-        return valid
-
-    # Enable next button if and only if all input fields are valid
-    def update_next_btn_state(self):
-        if (
-            self.chars_valid
-            and self.output_valid
-            and self.num_ex.valid
-            and self.num_defs.valid
-            and self.max_req_ps.valid
-            and self.max_req_simul.valid
-        ):
-            self.next_button.state(["!disabled"])
-        else:
-            self.next_button.state(["disabled"])
-
-    def update_controller(self):
-        controller.export_mode = self.name
-        controller.chars = self.char_text_box.get()
-        controller.req_simul = int(self.max_req_simul.value.get())
-        controller.req_ps = int(self.max_req_ps.value.get())
-        controller.num_ex = int(self.num_ex.value.get())
-        controller.num_defs = int(self.num_defs.value.get())
-        controller.output = self.output.get()
-        controller.show_page("Generator")
-
-
-class UpdateConfigPage(ConfigPage):
-    def __init__(self, root, controller):
-        self.controller = controller
-        ConfigPage.__init__(
-            self,
-            root,
-            controller,
-            "Update",
-            "Update existing Anki deck without losing progress",
-            None,
-        )
-        self.do_select_model()
-
-    def create_basic_opt(self):
-        basic_opt_frame = ttk.Frame(self)
-        basic_opt_frame.grid(row=1, column=0)
-
-        # Characters to scrape
-        char_frame = ttk.Frame(basic_opt_frame)
-        char_frame.grid(row=0, column=1)
-
-        ttk.Label(char_frame, text="Characters").grid(row=0, column=0, padx=5, sticky=W)
-        self.chars_valid = False
-        self.chars_error_msg = StringVar(self)
-        ttk.Label(
-            char_frame,
-            font="TkSmallCaptionFont",
-            foreground="red",
-            textvariable=self.chars_error_msg,
-        ).grid(row=0, column=1, sticky=W)
-
-        self.char_text_box = ttk.Entry(char_frame, width=30)
-        self.char_text_box.grid(row=1, column=0, columnspan=2)
-        self.char_text_box.bind("<Leave>", lambda e: self.val_chars())
-        ttk.Button(char_frame, text="Import from file", command=self.import_chars).grid(
-            row=2, column=0, columnspan=2, padx=5, sticky=EW
-        )
-        self.add_existing_button = ttk.Button(
-            char_frame, text="Add existing chars", command=self.add_existing_chars
-        )
-        self.add_existing_button.grid(
-            row=3, column=0, columnspan=2, padx=5, sticky=EW
-        )
-
-        # Deck and Model
-        deck_model_frame = ttk.Frame(basic_opt_frame)
-        deck_model_frame.grid(row=0, column=0)
-
-        # Display decks along with models it contains
-        ttk.Label(deck_model_frame, text="Select deck & model").grid(
-            row=0, column=0, padx=5, sticky=W
-        )
-        self.connection_status = StringVar(self)
-        self.connection_label = ttk.Label(
-            deck_model_frame,
-            textvariable=self.connection_status,
-            foreground="red",
-            wraplength=360,
-        )
-        self.connection_label.grid(
-            row=2, column=0, columnspan=3, padx=5, sticky=W
-        )
-        ttk.Button(deck_model_frame, text="Refresh", command=self.load_anki_collection).grid(
-            row=0, column=2, padx=5
-        )
-        self.deck_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
-        self.deck_tree.grid(row=1, column=0, padx=5)
-
-        # Display fields of selected model
-        ttk.Label(deck_model_frame, text="Fields").grid(
-            row=0, column=3, padx=5, sticky=W
-        )
-        self.field_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
-        self.field_tree.grid(row=1, column=3, padx=5)
-
-        # Fields that AnkiChinese would modify
-        target_fields = [
-            "Hanzi",
-            "Traditional",
-            "Definition",
-            "Pinyin",
-            "Pinyin 2",
-            "Examples",
-            "Formation",
-            "HSK",
-            "Frequency Rank",
-            "Frequency Count",
-            "Audio",
-        ]
-
-        self.target_fields = target_fields
-        self.deck_names = []
-        self.model_names = {}
-        self.column_names = {}
-        self.notes_in_deck = {}
-        # Error messages
-        self.field_tree.insert(
-            "",
-            END,
-            "deck_not_model",
-            text="Please select a model",
-            tags="error",
-        )
-        self.field_tree.detach("deck_not_model")
-        self.field_tree.insert(
-            "",
-            END,
-            "no_hanzi",
-            text='Model must contain "Hanzi" field',
-            tags="error",
-        )
-        self.field_tree.detach("no_hanzi")
-
-        self.field_tree.tag_configure("hanzi", foreground="green")
-        self.field_tree.tag_configure("error", foreground="red")
-        self.field_tree.tag_configure("modify", foreground="blue")
-        self.output_valid = False
-        self.load_anki_collection()
-
-        self.deck_tree.bind(
-            "<<TreeviewSelect>>",
-            lambda e: self.do_select_model(),
-        )
-        if self.deck_names:
-            self.deck_tree.focus(item=self.deck_names[0])
-            self.show_model_cols(self.deck_names[0])
-
-    def load_anki_collection(self):
-        for item in self.deck_tree.get_children(""):
-            self.deck_tree.delete(item)
-        for item in self.field_tree.get_children(""):
-            if item not in ("deck_not_model", "no_hanzi"):
-                self.field_tree.delete(item)
-        self.deck_names = []
-        self.model_names = {}
-        self.column_names = {}
-        self.notes_in_deck = {}
-        try:
-            self.controller.anki = AnkiConnect()
-            self.deck_names = self.controller.anki.decks()
-            for deck_name in self.deck_names:
-                notes = self.controller.anki.notes(deck_name)
-                models = sorted({n.get("modelName") for n in notes if n.get("modelName")})
-                self.notes_in_deck[deck_name] = notes
-                self.model_names[deck_name] = models
-                self.deck_tree.insert("", END, deck_name, text=deck_name)
-                for model_name in models:
-                    model_id = deck_name + "::" + model_name
-                    fields = self.controller.anki.model_fields(model_name)
-                    self.column_names[model_id] = fields
-                    self.deck_tree.insert(deck_name, END, model_id, text=model_name)
-                    for field_name in fields:
-                        field_id = model_id + "::" + field_name
-                        self.field_tree.insert(
-                            "", END, field_id, text=field_name,
-                            tags=("hanzi" if field_name == "Hanzi" else "",
-                                  "modify" if field_name in self.target_fields else ""),
-                        )
-                        self.field_tree.detach(field_id)
-                self.deck_tree.item(deck_name, open=TRUE)
-            self.connection_status.set(
-                "AnkiConnect connected"
-                if self.deck_names
-                else "Connected, but no decks were found."
-            )
-            self.connection_label.configure(foreground="green")
-        except AnkiConnectError as exc:
-            self.connection_status.set(str(exc))
-            self.connection_label.configure(foreground="red")
-            self.deck_names = []
-            for item in self.deck_tree.get_children(""):
-                self.deck_tree.delete(item)
-            for item in self.field_tree.get_children(""):
-                if item not in ("deck_not_model", "no_hanzi"):
-                    self.field_tree.delete(item)
-        model_id = self.deck_tree.focus()
-        self.show_model_cols(model_id)
-        if hasattr(self, "next_button"):
-            self.val_output(model_id)
-
-    def add_existing_chars(self):
-        """ Add existing characters from selected deck to character text box.
-        """
-        model_id = self.deck_tree.focus()
-        if model_id not in self.column_names:
+    def import_characters(self):
+        filename = filedialog.askopenfilename(parent=self.root)
+        if not filename:
             return
-        deck_name = self.deck_tree.parent(model_id)
-        model_name = self.deck_tree.item(model_id, "text")
-        existing_chars = [
-            note.get("fields", {}).get("Hanzi", {}).get("value", "")
-            for note in self.notes_in_deck[deck_name]
-            if note.get("modelName") == model_name
-        ]
-        cursor_index = self.char_text_box.index(INSERT)
-        self.char_text_box.insert(cursor_index, "".join(existing_chars))
-        self.val_chars()
+        try:
+            self.characters.insert("end", Path(filename).read_text(encoding="utf-8"))
+        except (OSError, UnicodeError) as exc:
+            messagebox.showerror("Cannot read file", str(exc), parent=self.root)
 
-    def show_model_cols(self, model_id):
-        # Error messages
-        self.field_tree.detach("deck_not_model")
-        self.field_tree.detach("no_hanzi")
-        if model_id not in self.column_names:
-            self.field_tree.move("deck_not_model", "", END)
-        else:
-            if "Hanzi" not in self.column_names[model_id]:
-                self.field_tree.move("no_hanzi", "", END)
+    def browse_output(self):
+        suffix = ".csv" if MODES[self.mode.get()] == "csv" else ".apkg"
+        filename = filedialog.asksaveasfilename(parent=self.root, defaultextension=suffix, initialfile="ankichinese_output" + suffix)
+        if filename:
+            self.output_path.set(filename)
 
-        # Attach fields with model_id detach others
-        for deck_name in self.deck_names:
-            for model_name in self.model_names[deck_name]:
-                curr_model_id = deck_name + "::" + model_name
-                for column_name in self.column_names[curr_model_id]:
-                    if curr_model_id == model_id:
-                        self.field_tree.move(
-                            curr_model_id + "::" + column_name, "", END
-                        )
-                    else:
-                        self.field_tree.detach(curr_model_id + "::" + column_name)
+    def set_busy(self, busy):
+        self.busy = busy
+        self.start_button.configure(state="disabled" if busy else "normal")
+        for control, state in self.controls:
+            control.configure(state="disabled" if busy else state)
 
-    def do_select_model(self):
-        self.show_model_cols(self.deck_tree.focus())
-        self.val_output(self.deck_tree.focus())
-
-    def val_output(self, model_id):
-        if model_id in self.column_names:
-            valid = "Hanzi" in self.column_names[model_id]
-        else:
-            valid = False
-        self.output_valid = valid
-        if hasattr(self, "add_existing_button"):
-            self.add_existing_button.state(
-                ["!disabled"] if valid else ["disabled"]
-            )
-        self.update_next_btn_state()
-        return valid
-
-    def update_controller(self):
-        controller.export_mode = self.name
-        controller.req_simul = int(self.max_req_simul.value.get())
-        controller.req_ps = int(self.max_req_ps.value.get())
-        controller.num_ex = int(self.num_ex.value.get())
-        controller.num_defs = int(self.num_defs.value.get())
-        model_id = self.deck_tree.focus()
-        controller.output = [
-            self.deck_tree.parent(model_id), self.deck_tree.item(model_id, "text")
-        ]
-
-        controller.chars = self.char_text_box.get()
-        controller.show_page("Generator")
-
-
-class GeneratorPage(Page):
-    def __init__(self, root, controller):
-        Page.__init__(self, root)
-        self.name = "Generator"
-
-        main_frame = ttk.Frame(self)
-        main_frame.grid(row=0, column=0, sticky=NSEW)
-
-        ttk.Label(main_frame, text="Generate", font=controller.h2_font).grid(
-            row=0, column=0, pady=5
-        )
-        self.log_text_box = Text(main_frame, state=DISABLED)
-        self.log_text_box.grid(row=1, column=0, padx=5, sticky=NSEW)
-        self.log_text_box.bind(
-            "<1>", lambda e: self.log_text_box.focus_set()
-        )  # Allow clicking into box on MacOS
-        main_frame.grid_rowconfigure(1, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
-
-        # Navigation buttons
-        nav_buttons_frame = ttk.Frame(self)
-        nav_buttons_frame.grid(row=2, column=0, sticky=EW)
-
-        self.progress_bar = ttk.Progressbar(
-            nav_buttons_frame, orient=HORIZONTAL, mode="determinate"
-        )
-        self.progress_bar.grid(row=0, column=0, padx=10, sticky=EW)
-
-        ttk.Button(
-            nav_buttons_frame,
-            text="Back",
-            command=self.do_go_back,
-        ).grid(row=0, column=1, padx=5, pady=5)
-        self.start_button = ttk.Button(
-            nav_buttons_frame,
-            text="Start",
-            command=self.do_scrape_and_export,
-        )
-        self.start_button.grid(row=0, column=2, padx=5, pady=5)
-        self.finish_button = ttk.Button(
-            nav_buttons_frame,
-            text="Finish",
-            command=root.destroy,
-        )
-        self.finish_button.grid(row=0, column=2, padx=5, pady=5)
-        self.start_button.lift()
-        self.start_button.state(["!disabled"])
-
-        self.progress_bar.bind(
-            "<<StartProgressBar>>", lambda e: self.start_button.state(["disabled"])
-        )
-        self.progress_bar.bind(
-            "<<StepProgressBar>>", lambda e: self.progress_bar.step(1)
-        )
-        self.progress_bar.bind("<<FinishProgressBar>>", lambda e: self.do_finish())
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        nav_buttons_frame.grid_columnconfigure(0, weight=1)
-
-    def do_go_back(self):
-        controller.show_page(controller.export_mode)
-        self.start_button.lift()
-
-    def do_finish(self):
-        self.start_button.state(["!disabled"])
-        self.finish_button.lift()
-
-    def do_scrape_and_export(self):
-        thread = threading.Thread(target=controller.scrape_and_export_wrapper)
-        thread.start()
-
-
-class GUI(Interface):
-    def __init__(self, pbar, text_box):
-        self.pbar = pbar
-        self.text_box = text_box
-
-    def start_pbar(self, num):
-        self.pbar.configure(maximum=num)
-        self.pbar.event_generate("<<StartProgressBar>>")
-
-    async def step_pbar(self):
-        self.pbar.event_generate("<<StepProgressBar>>")
-
-    def finish_pbar(self):
-        self.pbar.event_generate("<<FinishProgressBar>>")
-
-    def print(self, msg):
-        self.text_box.configure(state="normal")
-        self.text_box.insert(END, str(msg) + "\n")
-        self.text_box.configure(state="disabled")
-
-    def confirm(self, msg):
-        return messagebox.askokcancel(message=msg, title="Confirm")
-
-
-class Controller:
-    def __init__(self, root):
-        # Store fonts here so they can be accessed from anywhere, essentially working as global variables
-        self.h1_font = font.Font(
-            family="Helvetica", name="h1_font", size=72, weight="bold"
-        )
-        self.h2_font = font.Font(
-            family="Helvetica", name="h2_font", size=48, weight="bold"
-        )
-        self.h3_font = font.Font(
-            family="Helvetica", name="h3_font", size=24, weight="normal"
-        )
-
-        # Create and store pages in pages dictionary
-        self.pages = {}
-        self.add_page(MainMenuPage(root, self))
-        self.add_page(
-            ConfigPage(
-                root,
-                self,
-                "CSV",
-                "Generate a CSV file containing information on characters",
-                "csv",
-            )
-        )
-        self.add_page(
-            ConfigPage(
-                root,
-                self,
-                "AnkiDeck",
-                "Generate a new Anki deck with special features",
-                "apkg",
-            )
-        )
-        self.add_page(UpdateConfigPage(root, self))
-        self.add_page(GeneratorPage(root, self))
-
-        self.interface = GUI(
-            self.get_page("Generator").progress_bar,
-            self.get_page("Generator").log_text_box,
-        )
-
-        # Default values
-        self.export_mode = "AnkiDeck"
-        self.chars = []
-        self.req_simul = None
-        self.req_ps = None
-        self.num_ex = None
-        self.num_defs = None
-        self.output = None
-
-        # Create event loop for threading later
-        self.scrape_loop = asyncio.new_event_loop()
-
-    def add_page(self, page):
-        self.pages[page.name] = page
-        page.grid(row=0, column=0, sticky=NSEW)  # Make page frame fill window
-
-    def get_page(self, name):
-        page = self.pages.get(name)  # Check that page exists
-        if page:
-            return page
-
-    def show_page(self, name):
-        page = self.pages.get(name)  # Check that page exists
-        if page:
-            self.cur_page = name
-            page.show()
-
-    def scrape_and_export_wrapper(self):
-        # Run scrape and export asynchronously so that GUI does not freeze
-        asyncio.set_event_loop(self.scrape_loop)
-        self.scrape_loop.run_until_complete(self.scrape_and_export())
-
-    async def scrape_and_export(self):
-        # Filter for only unique Chinese characters
-        self.chars = list(
-            filter(lambda char: "\u4e00" <= char <= "\u9fff", set(self.chars))
-        )
-
-        results = await scraper.main(
-            self.chars,
-            self.req_simul,
-            self.req_ps,
-            self.num_ex,
-            self.num_defs,
-            self.interface,
-        )
-
-        if self.export_mode == "CSV":
-            export.gen_csv(self.interface, results, self.output)
-        elif self.export_mode == "AnkiDeck":
-            export.gen_anki(self.interface, results, self.output)
-        elif self.export_mode == "Update":
-            deck_name = self.output[0]
-            model_name = self.output[1]
+    def run_in_background(self, function, result_event):
+        def target():
             try:
-                export.update_anki(
-                    self.interface, results, self.anki, deck_name, model_name
-                )
-            except (AnkiConnectError, ValueError) as exc:
-                self.interface.print("AnkiConnect error: {}".format(exc))
-        return 0
+                self.events.put((result_event, function()))
+            except Exception as exc:
+                logging.exception("AnkiChinese task failed")
+                self.events.put(("error", str(exc)))
+        threading.Thread(target=target, daemon=True).start()
+
+    def refresh_collection(self):
+        if self.busy:
+            return
+        self.set_busy(True)
+        self.connection_status.configure(text="Loading deck and note-type names…")
+        def load():
+            with AnkiConnect() as anki:
+                decks = anki.decks()
+                models = [name for name in anki.models() if "Hanzi" in anki.model_fields(name)]
+            return decks, models
+        self.run_in_background(load, "catalog")
+
+    def start_run(self):
+        if self.busy:
+            return
+        try:
+            options = GenerationOptions(**{key: int(value.get()) for key, value in self.option_vars.items()}, audio_cache_dir=Path(self.audio_cache_dir.get()))
+            request = RunRequest(self.characters.get("1.0", "end"), MODES[self.mode.get()], options,
+                                 Path(self.output_path.get()), self.deck_name.get(), self.model_name.get(), self.include_existing.get())
+        except (ValueError, OSError) as exc:
+            messagebox.showerror("Check options", str(exc), parent=self.root)
+            return
+        self.set_busy(True)
+        self.log.configure(state="normal")
+        self.log.delete("1.0", "end")
+        self.log.configure(state="disabled")
+        self.app = Application()
+        report = lambda event: self.events.put(("progress", event))
+        self.run_in_background(lambda: self.app.prepare(request, report), "prepared")
+
+    def append_log(self, message):
+        self.log.configure(state="normal")
+        self.log.insert("end", message + "\n")
+        self.log.see("end")
+        self.log.configure(state="disabled")
+
+    def process_events(self):
+        for _ in range(100):
+            try:
+                kind, value = self.events.get_nowait()
+            except queue.Empty:
+                break
+            if kind == "catalog":
+                decks, models = value
+                self.deck_box.configure(values=decks)
+                self.model_box.configure(values=models)
+                if self.deck_name.get() not in decks:
+                    self.deck_name.set(decks[0] if decks else "")
+                if self.model_name.get() not in models:
+                    self.model_name.set(models[0] if models else "")
+                self.catalog_loaded = True
+                self.connection_status.configure(text="Connected; collection notes load when you start")
+                self.set_busy(False)
+            elif kind == "progress":
+                suffix = " ({}/{})".format(value.completed, value.total) if value.total else ""
+                self.status.configure(text=value.message + suffix)
+                self.progress.configure(maximum=max(value.total, 1), value=value.completed)
+                if not value.total:
+                    self.append_log(value.message)
+            elif kind == "prepared":
+                if value.plan:
+                    self.append_log(value.plan.summary())
+                    if value.plan.has_changes and not messagebox.askokcancel("Apply Anki update", value.plan.summary(), parent=self.root):
+                        self.append_log("Update canceled")
+                        self.status.configure(text="Canceled")
+                        self.app.close()
+                        self.set_busy(False)
+                        continue
+                report = lambda event: self.events.put(("progress", event))
+                self.run_in_background(lambda run=value: self.app.apply(run, report), "finished")
+            elif kind == "finished":
+                self.app.close()
+                self.set_busy(False)
+            elif kind == "error":
+                if hasattr(self, "app"):
+                    self.app.close()
+                self.append_log(value)
+                self.status.configure(text="Stopped: " + value)
+                self.connection_status.configure(text="")
+                self.set_busy(False)
+        self.root.after(50, self.process_events)
+
+    def close(self):
+        if self.busy:
+            messagebox.showinfo("Task running", "Wait for the current task to finish before closing.", parent=self.root)
+        else:
+            self.root.destroy()
+
+
+def main():
+    root = tk.Tk()
+    Window(root)
+    root.mainloop()
 
 
 if __name__ == "__main__":
-    root = Tk()
-    root.geometry("720x600")
-    root.minsize(650, 500)
-    # root.state("zoomed")
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-    root.title("AnkiChinese")
-
-    controller = Controller(root)
-    controller.show_page("MainMenu")
-
-    root.mainloop()
+    main()

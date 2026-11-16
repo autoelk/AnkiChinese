@@ -1,0 +1,18 @@
+{
+  "吗": {"reading": "ma5", "examples": [{"word": "好吗", "pinyin": "hao3 ma5", "definition": "is that okay?"}]},
+  "您": {"examples": [{"word": "您好", "pinyin": "nin2 hao3", "definition": "hello (polite)"}]},
+  "诶": {"reading": "ei2", "examples": [{"word": "诶怎么了", "pinyin": "ei2 zen3 me5 le5", "definition": "huh, what happened?"}]},
+  "喔": {"reading": "o1", "examples": [{"word": "喔原来如此", "pinyin": "o1 yuan2 lai2 ru2 ci3", "definition": "oh, I see"}]},
+  "嘞": {"examples": [{"word": "好嘞", "pinyin": "hao3 lei5", "definition": "okay! (cheerful agreement)"}]},
+  "噗": {"examples": [{"word": "噗的一声", "pinyin": "pu1 de5 yi1 sheng1", "definition": "with a puff or splutter"}]},
+  "嘤": {"examples": [{"word": "嘤嘤", "pinyin": "ying1 ying1", "definition": "whimpering; sobbing"}]},
+  "咦": {"examples": [{"word": "咦怎么回事", "pinyin": "yi2 zen3 me5 hui2 shi4", "definition": "huh, what's going on?"}]},
+  "呸": {"examples": [{"word": "呸呸呸", "pinyin": "pei1 pei1 pei1", "definition": "pah! (spitting in disgust)"}]},
+  "妳": {"examples": [{"word": "妳好", "pinyin": "ni3 hao3", "definition": "hello (addressing a woman, Taiwan)"}]},
+  "囧": {"examples": [{"word": "好囧", "pinyin": "hao3 jiong3", "definition": "so awkward"}]},
+  "仨": {"examples": [{"word": "咱仨", "pinyin": "zan2 sa1", "definition": "the three of us"}]},
+  "艘": {"examples": [{"word": "一艘船", "pinyin": "yi1 sou1 chuan2", "definition": "a ship"}]},
+  "柒": {"examples": [{"word": "柒佰元", "pinyin": "qi1 bai3 yuan2", "definition": "seven hundred yuan (financial numerals)"}]},
+  "嚯": {"examples": [{"word": "嚯真大", "pinyin": "huo4 zhen1 da4", "definition": "wow, that's big!"}]},
+  "忒": {"reading": "tei1", "examples": [{"word": "忒好了", "pinyin": "tei1 hao3 le5", "definition": "really good (colloquial)"}]}
+}

@@ -1,0 +1,4821 @@
+{
+  "行": {
+    "before": {
+      "readings": [
+        "xing2",
+        "hang2"
+      ],
+      "definitions": [
+        "capable; competent",
+        "line of business; trade; profession"
+      ],
+      "examples": [
+        {
+          "word": "不行",
+          "pronunciation": [
+            "bu4",
+            "xing2"
+          ],
+          "definitions": [
+            "won't do",
+            "be out of the question",
+            "be no good"
+          ]
+        },
+        {
+          "word": "旅行",
+          "pronunciation": [
+            "lu:3",
+            "xing2"
+          ],
+          "definitions": [
+            "to travel",
+            "journey; trip"
+          ]
+        },
+        {
+          "word": "行动",
+          "pronunciation": [
+            "xing2",
+            "dong4"
+          ],
+          "definitions": [
+            "operation",
+            "action",
+            "to move about"
+          ]
+        },
+        {
+          "word": "自行车",
+          "pronunciation": [
+            "zi4",
+            "xing2",
+            "che1"
+          ],
+          "definitions": [
+            "bicycle; bike"
+          ]
+        },
+        {
+          "word": "银行",
+          "pronunciation": [
+            "yin2",
+            "hang2"
+          ],
+          "definitions": [
+            "bank"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "xing2",
+        "hang2",
+        "heng2"
+      ],
+      "definitions": [
+        "behavior; conduct (Taiwan pr. [xing4])",
+        "line of business; trade; profession"
+      ],
+      "examples": [
+        {
+          "word": "道行",
+          "pronunciation": [
+            "dao4",
+            "heng2"
+          ],
+          "definitions": [
+            "skills acquired through religious practice",
+            "ability",
+            "skill"
+          ]
+        },
+        {
+          "word": "行业",
+          "pronunciation": [
+            "hang2",
+            "ye4"
+          ],
+          "definitions": [
+            "trade; profession; industry; business"
+          ]
+        },
+        {
+          "word": "进行",
+          "pronunciation": [
+            "jin4",
+            "xing2"
+          ],
+          "definitions": [
+            "(of a process etc) to proceed; to be in progress; to be underway",
+            "(of people) to carry out; to conduct (an investigation or discussion etc)",
+            "(of an army etc) to be on the march; to advance"
+          ]
+        },
+        {
+          "word": "不行",
+          "pronunciation": [
+            "bu4",
+            "xing2"
+          ],
+          "definitions": [
+            "won't do",
+            "be out of the question",
+            "be no good"
+          ]
+        },
+        {
+          "word": "举行",
+          "pronunciation": [
+            "ju3",
+            "xing2"
+          ],
+          "definitions": [
+            "to hold (a meeting, ceremony etc)"
+          ]
+        }
+      ],
+      "reasons": [
+        "道行: covers heng2; 0.52 per million",
+        "行业: covers hang2; 94.05 per million",
+        "进行: covers xing2; 583.20 per million",
+        "不行: frequency and meaning variety; 263.27 per million",
+        "举行: frequency and meaning variety; 252.13 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "长": {
+    "before": {
+      "readings": [
+        "zhang3",
+        "chang2"
+      ],
+      "definitions": [
+        "to grow",
+        "long"
+      ],
+      "examples": [
+        {
+          "word": "长大",
+          "pronunciation": [
+            "zhang3",
+            "da4"
+          ],
+          "definitions": [
+            "to grow up"
+          ]
+        },
+        {
+          "word": "成长",
+          "pronunciation": [
+            "cheng2",
+            "zhang3"
+          ],
+          "definitions": [
+            "to mature",
+            "to grow",
+            "growth"
+          ]
+        },
+        {
+          "word": "社长",
+          "pronunciation": [
+            "she4",
+            "zhang3"
+          ],
+          "definitions": [
+            "president or director (of association etc)"
+          ]
+        },
+        {
+          "word": "家长",
+          "pronunciation": [
+            "jia1",
+            "zhang3"
+          ],
+          "definitions": [
+            "head of a household",
+            "family head",
+            "patriarch"
+          ]
+        },
+        {
+          "word": "长期",
+          "pronunciation": [
+            "chang2",
+            "qi1"
+          ],
+          "definitions": [
+            "long-term; for a protracted period"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "zhang3",
+        "chang2"
+      ],
+      "definitions": [
+        "to grow",
+        "long"
+      ],
+      "examples": [
+        {
+          "word": "增长",
+          "pronunciation": [
+            "zeng1",
+            "zhang3"
+          ],
+          "definitions": [
+            "to grow; to increase"
+          ]
+        },
+        {
+          "word": "长期",
+          "pronunciation": [
+            "chang2",
+            "qi1"
+          ],
+          "definitions": [
+            "long-term; for a protracted period"
+          ]
+        },
+        {
+          "word": "部长",
+          "pronunciation": [
+            "bu4",
+            "zhang3"
+          ],
+          "definitions": [
+            "head of a (government etc) department",
+            "section chief",
+            "section head"
+          ]
+        },
+        {
+          "word": "学长",
+          "pronunciation": [
+            "xue2",
+            "zhang3"
+          ],
+          "definitions": [
+            "senior or older male schoolmate"
+          ]
+        },
+        {
+          "word": "家长",
+          "pronunciation": [
+            "jia1",
+            "zhang3"
+          ],
+          "definitions": [
+            "head of a household",
+            "family head",
+            "patriarch"
+          ]
+        }
+      ],
+      "reasons": [
+        "增长: covers zhang3; 214.09 per million",
+        "长期: covers chang2; 92.09 per million",
+        "部长: frequency and meaning variety; 102.40 per million",
+        "学长: frequency and meaning variety; 47.09 per million",
+        "家长: frequency and meaning variety; 45.78 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "重": {
+    "before": {
+      "readings": [
+        "zhong4",
+        "chong2"
+      ],
+      "definitions": [
+        "serious",
+        "again"
+      ],
+      "examples": [
+        {
+          "word": "重要",
+          "pronunciation": [
+            "zhong4",
+            "yao4"
+          ],
+          "definitions": [
+            "important; significant; major"
+          ]
+        },
+        {
+          "word": "重点",
+          "pronunciation": [
+            "zhong4",
+            "dian3"
+          ],
+          "definitions": [
+            "important point; main point; focus",
+            "key (project etc)",
+            "to focus on; to put the emphasis on"
+          ]
+        },
+        {
+          "word": "严重",
+          "pronunciation": [
+            "yan2",
+            "zhong4"
+          ],
+          "definitions": [
+            "grave; serious; severe; critical"
+          ]
+        },
+        {
+          "word": "重新",
+          "pronunciation": [
+            "chong2",
+            "xin1"
+          ],
+          "definitions": [
+            "again; once more; re-"
+          ]
+        },
+        {
+          "word": "尊重",
+          "pronunciation": [
+            "zun1",
+            "zhong4"
+          ],
+          "definitions": [
+            "to esteem",
+            "to respect",
+            "to honor"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "zhong4",
+        "chong2"
+      ],
+      "definitions": [
+        "serious",
+        "again"
+      ],
+      "examples": [
+        {
+          "word": "重点",
+          "pronunciation": [
+            "chong2",
+            "dian3"
+          ],
+          "definitions": [
+            "to recount (e.g. results of election)",
+            "to re-evaluate"
+          ]
+        },
+        {
+          "word": "重要",
+          "pronunciation": [
+            "zhong4",
+            "yao4"
+          ],
+          "definitions": [
+            "important; significant; major"
+          ]
+        },
+        {
+          "word": "严重",
+          "pronunciation": [
+            "yan2",
+            "zhong4"
+          ],
+          "definitions": [
+            "grave; serious; severe; critical"
+          ]
+        },
+        {
+          "word": "重视",
+          "pronunciation": [
+            "zhong4",
+            "shi4"
+          ],
+          "definitions": [
+            "to attach importance to sth; to value"
+          ]
+        },
+        {
+          "word": "重新",
+          "pronunciation": [
+            "chong2",
+            "xin1"
+          ],
+          "definitions": [
+            "again; once more; re-"
+          ]
+        }
+      ],
+      "reasons": [
+        "重点: covers chong2; 210.94 per million; written frequency shared across readings",
+        "重要: covers zhong4; 568.29 per million",
+        "严重: frequency and meaning variety; 187.63 per million",
+        "重视: frequency and meaning variety; 96.72 per million",
+        "重新: frequency and meaning variety; 91.31 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "乐": {
+    "before": {
+      "readings": [
+        "le4",
+        "yue4"
+      ],
+      "definitions": [
+        "happy",
+        "music"
+      ],
+      "examples": [
+        {
+          "word": "快乐",
+          "pronunciation": [
+            "kuai4",
+            "le4"
+          ],
+          "definitions": [
+            "happy; joyful"
+          ]
+        },
+        {
+          "word": "音乐",
+          "pronunciation": [
+            "yin1",
+            "yue4"
+          ],
+          "definitions": [
+            "music"
+          ]
+        },
+        {
+          "word": "欢乐",
+          "pronunciation": [
+            "huan1",
+            "le4"
+          ],
+          "definitions": [
+            "gaiety",
+            "gladness",
+            "glee"
+          ]
+        },
+        {
+          "word": "娱乐",
+          "pronunciation": [
+            "yu2",
+            "le4"
+          ],
+          "definitions": [
+            "to entertain",
+            "to amuse",
+            "entertainment"
+          ]
+        },
+        {
+          "word": "乐观",
+          "pronunciation": [
+            "le4",
+            "guan1"
+          ],
+          "definitions": [
+            "optimistic; hopeful"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "le4",
+        "yue4"
+      ],
+      "definitions": [
+        "happy",
+        "music"
+      ],
+      "examples": [
+        {
+          "word": "音乐",
+          "pronunciation": [
+            "yin1",
+            "yue4"
+          ],
+          "definitions": [
+            "music",
+            "CL:"
+          ]
+        },
+        {
+          "word": "快乐",
+          "pronunciation": [
+            "kuai4",
+            "le4"
+          ],
+          "definitions": [
+            "happy; joyful"
+          ]
+        },
+        {
+          "word": "欢乐",
+          "pronunciation": [
+            "huan1",
+            "le4"
+          ],
+          "definitions": [
+            "gaiety",
+            "gladness",
+            "glee"
+          ]
+        },
+        {
+          "word": "娱乐",
+          "pronunciation": [
+            "yu2",
+            "le4"
+          ],
+          "definitions": [
+            "to entertain",
+            "to amuse",
+            "entertainment"
+          ]
+        },
+        {
+          "word": "可乐",
+          "pronunciation": [
+            "ke3",
+            "le4"
+          ],
+          "definitions": [
+            "amusing",
+            "entertaining",
+            "cola"
+          ]
+        }
+      ],
+      "reasons": [
+        "音乐: covers yue4; 79.35 per million",
+        "快乐: covers le4; 1073.59 per million",
+        "欢乐: frequency and meaning variety; 35.61 per million",
+        "娱乐: frequency and meaning variety; 33.27 per million",
+        "可乐: frequency and meaning variety; 23.04 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "得": {
+    "before": {
+      "readings": [
+        "de5",
+        "de2",
+        "dei3"
+      ],
+      "definitions": [
+        "structural particle: used after a verb (or adjective as main verb), linking it to following phrase indicating effect, degree, possibility etc",
+        "to obtain",
+        "must"
+      ],
+      "examples": [
+        {
+          "word": "觉得",
+          "pronunciation": [
+            "jue2",
+            "de5"
+          ],
+          "definitions": [
+            "to think that ...; to feel that ...",
+            "to feel (uncomfortable etc)"
+          ]
+        },
+        {
+          "word": "记得",
+          "pronunciation": [
+            "ji4",
+            "de5"
+          ],
+          "definitions": [
+            "to remember"
+          ]
+        },
+        {
+          "word": "值得",
+          "pronunciation": [
+            "zhi2",
+            "de5"
+          ],
+          "definitions": [
+            "worth the money",
+            "to merit; to deserve; to be worth (doing sth)"
+          ]
+        },
+        {
+          "word": "得到",
+          "pronunciation": [
+            "de2",
+            "dao4"
+          ],
+          "definitions": [
+            "to get; to obtain; to receive"
+          ]
+        },
+        {
+          "word": "非得",
+          "pronunciation": [
+            "fei1",
+            "dei3"
+          ],
+          "definitions": [
+            "must"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "de5",
+        "de2",
+        "de4",
+        "dei3"
+      ],
+      "definitions": [
+        "structural particle: used after a verb (or adjective as main verb), linking it to following phrase indicating effect, degree, possibility etc",
+        "to obtain",
+        "must"
+      ],
+      "examples": [
+        {
+          "word": "得瑟",
+          "pronunciation": [
+            "de4",
+            "se5"
+          ],
+          "definitions": [
+            "cocky; smug",
+            "to show off"
+          ]
+        },
+        {
+          "word": "非得",
+          "pronunciation": [
+            "fei1",
+            "dei3"
+          ],
+          "definitions": [
+            "must"
+          ]
+        },
+        {
+          "word": "觉得",
+          "pronunciation": [
+            "jue2",
+            "de5"
+          ],
+          "definitions": [
+            "to think that ...; to feel that ...",
+            "to feel (uncomfortable etc)"
+          ]
+        },
+        {
+          "word": "得到",
+          "pronunciation": [
+            "de2",
+            "dao4"
+          ],
+          "definitions": [
+            "to get; to obtain; to receive"
+          ]
+        },
+        {
+          "word": "记得",
+          "pronunciation": [
+            "ji4",
+            "de5"
+          ],
+          "definitions": [
+            "to remember"
+          ]
+        }
+      ],
+      "reasons": [
+        "得瑟: covers de4; 12.32 per million",
+        "非得: covers dei3; 10.25 per million",
+        "觉得: covers de5; 1302.57 per million",
+        "得到: covers de2; 203.85 per million",
+        "记得: frequency and meaning variety; 334.20 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "还": {
+    "before": {
+      "readings": [
+        "hai2",
+        "huan2"
+      ],
+      "definitions": [
+        "still",
+        "to return"
+      ],
+      "examples": [
+        {
+          "word": "还是",
+          "pronunciation": [
+            "hai2",
+            "shi5"
+          ],
+          "definitions": [
+            "still (as before)",
+            "had better",
+            "unexpectedly"
+          ]
+        },
+        {
+          "word": "还有",
+          "pronunciation": [
+            "hai2",
+            "you3"
+          ],
+          "definitions": [
+            "there still remain(s); there is (or are) still",
+            "in addition"
+          ]
+        },
+        {
+          "word": "还给",
+          "pronunciation": [
+            "huan2",
+            "gei3"
+          ],
+          "definitions": [
+            "to return sth to sb"
+          ]
+        },
+        {
+          "word": "还原",
+          "pronunciation": [
+            "huan2",
+            "yuan2"
+          ],
+          "definitions": [
+            "to restore to the original state",
+            "to reconstruct (an event)",
+            "reduction (chemistry)"
+          ]
+        },
+        {
+          "word": "还债",
+          "pronunciation": [
+            "huan2",
+            "zhai4"
+          ],
+          "definitions": [
+            "to settle a debt"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "hai2",
+        "huan2"
+      ],
+      "definitions": [
+        "still",
+        "to return"
+      ],
+      "examples": [
+        {
+          "word": "还是",
+          "pronunciation": [
+            "hai2",
+            "shi5"
+          ],
+          "definitions": [
+            "still (as before)",
+            "had better",
+            "unexpectedly"
+          ]
+        },
+        {
+          "word": "还给",
+          "pronunciation": [
+            "huan2",
+            "gei3"
+          ],
+          "definitions": [
+            "to return sth to sb"
+          ]
+        },
+        {
+          "word": "还有",
+          "pronunciation": [
+            "hai2",
+            "you3"
+          ],
+          "definitions": [
+            "there still remain(s); there is (or are) still",
+            "in addition"
+          ]
+        },
+        {
+          "word": "还好",
+          "pronunciation": [
+            "hai2",
+            "hao3"
+          ],
+          "definitions": [
+            "not bad; pretty good",
+            "fortunately; luckily"
+          ]
+        },
+        {
+          "word": "还原",
+          "pronunciation": [
+            "huan2",
+            "yuan2"
+          ],
+          "definitions": [
+            "to restore to the original state",
+            "to reconstruct (an event)",
+            "reduction (chemistry)"
+          ]
+        }
+      ],
+      "reasons": [
+        "还是: covers hai2; 1534.42 per million",
+        "还给: covers huan2; 6.00 per million",
+        "还有: frequency and meaning variety; 833.55 per million",
+        "还好: frequency and meaning variety; 48.26 per million",
+        "还原: frequency and meaning variety; 5.21 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "了": {
+    "before": {
+      "readings": [
+        "le5",
+        "liao3"
+      ],
+      "definitions": [
+        "completed action marker",
+        "clear in one's mind; to understand clearly"
+      ],
+      "examples": [
+        {
+          "word": "为了",
+          "pronunciation": [
+            "wei4",
+            "le5"
+          ],
+          "definitions": [
+            "for; for the purpose of; in order to"
+          ]
+        },
+        {
+          "word": "了解",
+          "pronunciation": [
+            "liao3",
+            "jie3"
+          ],
+          "definitions": [
+            "to understand; to know about",
+            "to learn about; to find out"
+          ]
+        },
+        {
+          "word": "除了",
+          "pronunciation": [
+            "chu2",
+            "le5"
+          ],
+          "definitions": [
+            "apart from; besides; in addition to"
+          ]
+        },
+        {
+          "word": "受不了",
+          "pronunciation": [
+            "shou4",
+            "bu4",
+            "liao3"
+          ],
+          "definitions": [
+            "unbearable",
+            "unable to endure",
+            "can't stand"
+          ]
+        },
+        {
+          "word": "罢了",
+          "pronunciation": [
+            "ba4",
+            "le5"
+          ],
+          "definitions": [
+            "a modal particle indicating (that's all, only, nothing much)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "le5",
+        "liao3"
+      ],
+      "definitions": [
+        "completed action marker",
+        "clear in one's mind; to understand clearly"
+      ],
+      "examples": [
+        {
+          "word": "了解",
+          "pronunciation": [
+            "liao3",
+            "jie3"
+          ],
+          "definitions": [
+            "to understand; to know about",
+            "to learn about; to find out"
+          ]
+        },
+        {
+          "word": "为了",
+          "pronunciation": [
+            "wei4",
+            "le5"
+          ],
+          "definitions": [
+            "for; for the purpose of; in order to"
+          ]
+        },
+        {
+          "word": "除了",
+          "pronunciation": [
+            "chu2",
+            "le5"
+          ],
+          "definitions": [
+            "apart from; besides; in addition to",
+            "used to introduce one of two habitual alternatives in the pattern + A + + B, \"either A or B\""
+          ]
+        },
+        {
+          "word": "受不了",
+          "pronunciation": [
+            "shou4",
+            "bu4",
+            "liao3"
+          ],
+          "definitions": [
+            "unbearable",
+            "unable to endure",
+            "can't stand"
+          ]
+        },
+        {
+          "word": "罢了",
+          "pronunciation": [
+            "ba4",
+            "le5"
+          ],
+          "definitions": [
+            "a modal particle indicating (that's all, only, nothing much)"
+          ]
+        }
+      ],
+      "reasons": [
+        "了解: covers liao3; 227.61 per million",
+        "为了: covers le5; 408.04 per million",
+        "除了: frequency and meaning variety; 162.03 per million",
+        "受不了: frequency and meaning variety; 31.26 per million",
+        "罢了: frequency and meaning variety; 19.64 per million; written frequency shared across readings"
+      ],
+      "warnings": []
+    }
+  },
+  "着": {
+    "before": {
+      "readings": [
+        "zhe5",
+        "zhao2",
+        "zhuo2",
+        "zhao1"
+      ],
+      "definitions": [
+        "aspect particle indicating action in progress or ongoing state",
+        "to feel",
+        "to wear (clothes)"
+      ],
+      "examples": [
+        {
+          "word": "跟着",
+          "pronunciation": [
+            "gen1",
+            "zhe5"
+          ],
+          "definitions": [
+            "to follow after",
+            "immediately afterwards"
+          ]
+        },
+        {
+          "word": "着急",
+          "pronunciation": [
+            "zhao2",
+            "ji2"
+          ],
+          "definitions": [
+            "to worry; to feel anxious",
+            "to feel a sense of urgency; to be in a hurry",
+            "Taiwan pr. [zhao1ji2]"
+          ]
+        },
+        {
+          "word": "接着",
+          "pronunciation": [
+            "jie1",
+            "zhe5"
+          ],
+          "definitions": [
+            "to catch and hold on",
+            "to continue",
+            "to go on to do sth"
+          ]
+        },
+        {
+          "word": "背着",
+          "pronunciation": [
+            "bei1",
+            "zhe5"
+          ],
+          "definitions": [
+            "carrying on one's back"
+          ]
+        },
+        {
+          "word": "执着",
+          "pronunciation": [
+            "zhi2",
+            "zhuo2"
+          ],
+          "definitions": [
+            "dedicated; devoted; persistent",
+            "to persist in; to cling to",
+            "attachment"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "zhe5",
+        "zhao2",
+        "zhuo2",
+        "zhao1"
+      ],
+      "definitions": [
+        "aspect particle indicating action in progress or ongoing state",
+        "to feel",
+        "to wear (clothes)"
+      ],
+      "examples": [
+        {
+          "word": "怎么着",
+          "pronunciation": [
+            "zen3",
+            "me5",
+            "zhao1"
+          ],
+          "definitions": [
+            "what?",
+            "how?",
+            "whatever"
+          ]
+        },
+        {
+          "word": "着急",
+          "pronunciation": [
+            "zhao2",
+            "ji2"
+          ],
+          "definitions": [
+            "to worry; to feel anxious",
+            "to feel a sense of urgency; to be in a hurry",
+            "Taiwan pr. [zhao1ji2]"
+          ]
+        },
+        {
+          "word": "着力",
+          "pronunciation": [
+            "zhuo2",
+            "li4"
+          ],
+          "definitions": [
+            "to put effort into sth",
+            "to try really hard"
+          ]
+        },
+        {
+          "word": "随着",
+          "pronunciation": [
+            "sui2",
+            "zhe5"
+          ],
+          "definitions": [
+            "along with",
+            "in the wake of",
+            "following"
+          ]
+        },
+        {
+          "word": "跟着",
+          "pronunciation": [
+            "gen1",
+            "zhe5"
+          ],
+          "definitions": [
+            "to follow after",
+            "immediately afterwards"
+          ]
+        }
+      ],
+      "reasons": [
+        "怎么着: covers zhao1; 0.67 per million",
+        "着急: covers zhao2; 42.50 per million",
+        "着力: covers zhuo2; 30.77 per million",
+        "随着: covers zhe5; 79.29 per million",
+        "跟着: frequency and meaning variety; 56.75 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "单": {
+    "before": {
+      "readings": [
+        "dan1"
+      ],
+      "definitions": [
+        "single",
+        "list",
+        "only"
+      ],
+      "examples": [
+        {
+          "word": "简单",
+          "pronunciation": [
+            "jian3",
+            "dan1"
+          ],
+          "definitions": [
+            "simple; not complicated"
+          ]
+        },
+        {
+          "word": "单位",
+          "pronunciation": [
+            "dan1",
+            "wei4"
+          ],
+          "definitions": [
+            "unit (of measure)",
+            "unit (group of people as a whole)",
+            "work unit (place of employment, esp. in the PRC prior to economic reform)"
+          ]
+        },
+        {
+          "word": "单纯",
+          "pronunciation": [
+            "dan1",
+            "chun2"
+          ],
+          "definitions": [
+            "simple",
+            "pure",
+            "unsophisticated"
+          ]
+        },
+        {
+          "word": "单身",
+          "pronunciation": [
+            "dan1",
+            "shen1"
+          ],
+          "definitions": [
+            "unmarried; single",
+            "alone"
+          ]
+        },
+        {
+          "word": "单独",
+          "pronunciation": [
+            "dan1",
+            "du2"
+          ],
+          "definitions": [
+            "alone",
+            "by oneself",
+            "on one's own"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "dan1"
+      ],
+      "definitions": [
+        "single",
+        "list",
+        "only"
+      ],
+      "examples": [
+        {
+          "word": "单位",
+          "pronunciation": [
+            "dan1",
+            "wei4"
+          ],
+          "definitions": [
+            "unit (of measure)",
+            "unit (group of people as a whole)",
+            "work unit (place of employment, esp. in the PRC prior to economic reform)"
+          ]
+        },
+        {
+          "word": "单身",
+          "pronunciation": [
+            "dan1",
+            "shen1"
+          ],
+          "definitions": [
+            "unmarried; single",
+            "alone"
+          ]
+        },
+        {
+          "word": "简单",
+          "pronunciation": [
+            "jian3",
+            "dan1"
+          ],
+          "definitions": [
+            "simple; not complicated"
+          ]
+        },
+        {
+          "word": "脱单",
+          "pronunciation": [
+            "tuo1",
+            "dan1"
+          ],
+          "definitions": [
+            "to find oneself a partner"
+          ]
+        },
+        {
+          "word": "孤单",
+          "pronunciation": [
+            "gu1",
+            "dan1"
+          ],
+          "definitions": [
+            "lone",
+            "lonely",
+            "loneliness"
+          ]
+        }
+      ],
+      "reasons": [
+        "单位: covers dan1; 234.29 per million",
+        "单身: frequency and meaning variety; 133.70 per million",
+        "简单: frequency and meaning variety; 121.06 per million",
+        "脱单: frequency and meaning variety; 24.85 per million",
+        "孤单: frequency and meaning variety; 20.37 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "曾": {
+    "before": {
+      "readings": [
+        "ceng2",
+        "zeng1"
+      ],
+      "definitions": [
+        "once",
+        "great- (grandfather, grandchild etc)"
+      ],
+      "examples": [
+        {
+          "word": "曾经",
+          "pronunciation": [
+            "ceng2",
+            "jing1"
+          ],
+          "definitions": [
+            "once",
+            "already",
+            "former"
+          ]
+        },
+        {
+          "word": "不曾",
+          "pronunciation": [
+            "bu4",
+            "ceng2"
+          ],
+          "definitions": [
+            "hasn't yet; hasn't ever"
+          ]
+        },
+        {
+          "word": "未曾",
+          "pronunciation": [
+            "wei4",
+            "ceng2"
+          ],
+          "definitions": [
+            "hasn't (or haven't); hasn't ever"
+          ]
+        },
+        {
+          "word": "似曾相识",
+          "pronunciation": [
+            "si4",
+            "ceng2",
+            "xiang1",
+            "shi2"
+          ],
+          "definitions": [
+            "déjà vu (the experience of seeing exactly the same situation a second time)",
+            "seemingly familiar",
+            "apparently already acquainted"
+          ]
+        },
+        {
+          "word": "曾祖父",
+          "pronunciation": [
+            "zeng1",
+            "zu3",
+            "fu4"
+          ],
+          "definitions": [
+            "father's father's father; paternal great-grandfather"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "ceng2"
+      ],
+      "definitions": [
+        "once",
+        "already",
+        "ever (in the past)"
+      ],
+      "examples": [
+        {
+          "word": "曾经",
+          "pronunciation": [
+            "ceng2",
+            "jing1"
+          ],
+          "definitions": [
+            "once",
+            "already",
+            "former"
+          ]
+        },
+        {
+          "word": "不曾",
+          "pronunciation": [
+            "bu4",
+            "ceng2"
+          ],
+          "definitions": [
+            "hasn't yet; hasn't ever"
+          ]
+        },
+        {
+          "word": "未曾",
+          "pronunciation": [
+            "wei4",
+            "ceng2"
+          ],
+          "definitions": [
+            "hasn't (or haven't); hasn't ever"
+          ]
+        },
+        {
+          "word": "似曾相识",
+          "pronunciation": [
+            "si4",
+            "ceng2",
+            "xiang1",
+            "shi2"
+          ],
+          "definitions": [
+            "déjà vu (the experience of seeing exactly the same situation a second time)",
+            "seemingly familiar",
+            "apparently already acquainted"
+          ]
+        },
+        {
+          "word": "曾几何时",
+          "pronunciation": [
+            "ceng2",
+            "ji3",
+            "he2",
+            "shi2"
+          ],
+          "definitions": [
+            "just a while before",
+            "not so long ago",
+            "everyone can remember when.."
+          ]
+        }
+      ],
+      "reasons": [
+        "曾经: covers ceng2; 94.72 per million",
+        "不曾: frequency and meaning variety; 6.66 per million",
+        "未曾: frequency and meaning variety; 3.42 per million",
+        "似曾相识: frequency and meaning variety; 2.01 per million",
+        "曾几何时: frequency and meaning variety; 1.02 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "解": {
+    "before": {
+      "readings": [
+        "jie3",
+        "jie4"
+      ],
+      "definitions": [
+        "to understand",
+        "to transport under guard"
+      ],
+      "examples": [
+        {
+          "word": "理解",
+          "pronunciation": [
+            "li3",
+            "jie3"
+          ],
+          "definitions": [
+            "to comprehend; to understand"
+          ]
+        },
+        {
+          "word": "了解",
+          "pronunciation": [
+            "liao3",
+            "jie3"
+          ],
+          "definitions": [
+            "to understand; to know about",
+            "to learn about; to find out"
+          ]
+        },
+        {
+          "word": "解决",
+          "pronunciation": [
+            "jie3",
+            "jue2"
+          ],
+          "definitions": [
+            "to solve; to resolve; to settle (a problem)",
+            "to eliminate; to wipe out (an enemy, bandits etc)"
+          ]
+        },
+        {
+          "word": "解释",
+          "pronunciation": [
+            "jie3",
+            "shi4"
+          ],
+          "definitions": [
+            "explanation",
+            "to explain",
+            "to interpret"
+          ]
+        },
+        {
+          "word": "解放",
+          "pronunciation": [
+            "jie3",
+            "fang4"
+          ],
+          "definitions": [
+            "to liberate",
+            "to emancipate",
+            "liberation"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "jie3",
+        "jie4",
+        "xie4"
+      ],
+      "definitions": [
+        "to solve",
+        "to transport under guard",
+        "surname Xie"
+      ],
+      "examples": [
+        {
+          "word": "押解",
+          "pronunciation": [
+            "ya1",
+            "jie4"
+          ],
+          "definitions": [
+            "to send away under escort (criminals, goods etc)"
+          ]
+        },
+        {
+          "word": "解数",
+          "pronunciation": [
+            "xie4",
+            "shu4"
+          ],
+          "definitions": [
+            "talent",
+            "ability",
+            "capability"
+          ]
+        },
+        {
+          "word": "解决",
+          "pronunciation": [
+            "jie3",
+            "jue2"
+          ],
+          "definitions": [
+            "to solve; to resolve; to settle (a problem)",
+            "to eliminate; to wipe out (an enemy, bandits etc)"
+          ]
+        },
+        {
+          "word": "了解",
+          "pronunciation": [
+            "liao3",
+            "jie3"
+          ],
+          "definitions": [
+            "to understand; to know about",
+            "to learn about; to find out"
+          ]
+        },
+        {
+          "word": "理解",
+          "pronunciation": [
+            "li3",
+            "jie3"
+          ],
+          "definitions": [
+            "to comprehend; to understand"
+          ]
+        }
+      ],
+      "reasons": [
+        "押解: covers jie4; 0.38 per million",
+        "解数: covers xie4; 0.36 per million",
+        "解决: covers jie3; 337.62 per million",
+        "了解: frequency and meaning variety; 227.61 per million",
+        "理解: frequency and meaning variety; 180.36 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "仇": {
+    "before": {
+      "readings": [
+        "chou2"
+      ],
+      "definitions": [
+        "hatred",
+        "enmity",
+        "foe"
+      ],
+      "examples": [
+        {
+          "word": "仇恨",
+          "pronunciation": [
+            "chou2",
+            "hen4"
+          ],
+          "definitions": [
+            "to hate",
+            "hatred",
+            "enmity"
+          ]
+        },
+        {
+          "word": "报仇",
+          "pronunciation": [
+            "bao4",
+            "chou2"
+          ],
+          "definitions": [
+            "to take revenge",
+            "to avenge"
+          ]
+        },
+        {
+          "word": "复仇",
+          "pronunciation": [
+            "fu4",
+            "chou2"
+          ],
+          "definitions": [
+            "to avenge",
+            "vengeance"
+          ]
+        },
+        {
+          "word": "仇人",
+          "pronunciation": [
+            "chou2",
+            "ren2"
+          ],
+          "definitions": [
+            "foe",
+            "one's personal enemy"
+          ]
+        },
+        {
+          "word": "记仇",
+          "pronunciation": [
+            "ji4",
+            "chou2"
+          ],
+          "definitions": [
+            "to hold a grudge"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "chou2"
+      ],
+      "definitions": [
+        "hatred",
+        "enmity",
+        "enemy"
+      ],
+      "examples": [
+        {
+          "word": "仇恨",
+          "pronunciation": [
+            "chou2",
+            "hen4"
+          ],
+          "definitions": [
+            "to hate",
+            "hatred",
+            "enmity"
+          ]
+        },
+        {
+          "word": "报仇",
+          "pronunciation": [
+            "bao4",
+            "chou2"
+          ],
+          "definitions": [
+            "to take revenge",
+            "to avenge"
+          ]
+        },
+        {
+          "word": "记仇",
+          "pronunciation": [
+            "ji4",
+            "chou2"
+          ],
+          "definitions": [
+            "to hold a grudge"
+          ]
+        },
+        {
+          "word": "仇视",
+          "pronunciation": [
+            "chou2",
+            "shi4"
+          ],
+          "definitions": [
+            "to view sb as an enemy; to be hateful towards"
+          ]
+        },
+        {
+          "word": "复仇",
+          "pronunciation": [
+            "fu4",
+            "chou2"
+          ],
+          "definitions": [
+            "to avenge",
+            "vengeance"
+          ]
+        }
+      ],
+      "reasons": [
+        "仇恨: covers chou2; 18.74 per million",
+        "报仇: frequency and meaning variety; 3.68 per million",
+        "记仇: frequency and meaning variety; 2.57 per million",
+        "仇视: frequency and meaning variety; 1.84 per million",
+        "复仇: frequency and meaning variety; 2.15 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "区": {
+    "before": {
+      "readings": [
+        "qu1"
+      ],
+      "definitions": [
+        "distinguish",
+        "district",
+        "area"
+      ],
+      "examples": [
+        {
+          "word": "区别",
+          "pronunciation": [
+            "qu1",
+            "bie2"
+          ],
+          "definitions": [
+            "difference",
+            "to distinguish",
+            "to discriminate"
+          ]
+        },
+        {
+          "word": "小区",
+          "pronunciation": [
+            "xiao3",
+            "qu1"
+          ],
+          "definitions": [
+            "housing estate; community; neighborhood",
+            "(telecommunications) cell"
+          ]
+        },
+        {
+          "word": "市区",
+          "pronunciation": [
+            "shi4",
+            "qu1"
+          ],
+          "definitions": [
+            "urban district",
+            "downtown",
+            "city center"
+          ]
+        },
+        {
+          "word": "地区",
+          "pronunciation": [
+            "di4",
+            "qu1"
+          ],
+          "definitions": [
+            "region; area (informal or geographical term)",
+            "prefecture (in China's administrative system)"
+          ]
+        },
+        {
+          "word": "校区",
+          "pronunciation": [
+            "xiao4",
+            "qu1"
+          ],
+          "definitions": [
+            "campus"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "qu1"
+      ],
+      "definitions": [
+        "area",
+        "region",
+        "district"
+      ],
+      "examples": [
+        {
+          "word": "地区",
+          "pronunciation": [
+            "di4",
+            "qu1"
+          ],
+          "definitions": [
+            "region; area (informal or geographical term)",
+            "prefecture (in China's administrative system)"
+          ]
+        },
+        {
+          "word": "社区",
+          "pronunciation": [
+            "she4",
+            "qu1"
+          ],
+          "definitions": [
+            "community",
+            "neighborhood"
+          ]
+        },
+        {
+          "word": "区别",
+          "pronunciation": [
+            "qu1",
+            "bie2"
+          ],
+          "definitions": [
+            "difference",
+            "to distinguish",
+            "to discriminate"
+          ]
+        },
+        {
+          "word": "山区",
+          "pronunciation": [
+            "shan1",
+            "qu1"
+          ],
+          "definitions": [
+            "mountain area",
+            "CL:"
+          ]
+        },
+        {
+          "word": "市区",
+          "pronunciation": [
+            "shi4",
+            "qu1"
+          ],
+          "definitions": [
+            "urban district",
+            "downtown",
+            "city center"
+          ]
+        }
+      ],
+      "reasons": [
+        "地区: covers qu1; 300.08 per million",
+        "社区: frequency and meaning variety; 73.81 per million",
+        "区别: frequency and meaning variety; 43.16 per million",
+        "山区: frequency and meaning variety; 30.89 per million",
+        "市区: frequency and meaning variety; 24.05 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "翟": {
+    "before": {
+      "readings": [
+        "di2"
+      ],
+      "definitions": [
+        "long-tail pheasant"
+      ],
+      "examples": [
+        {
+          "word": "翟志刚",
+          "pronunciation": [
+            "zhai2",
+            "zhi4",
+            "gang1"
+          ],
+          "definitions": [
+            "Zhai Zhigang (1966-), Chinese astronaut"
+          ]
+        },
+        {
+          "word": "翟理斯",
+          "pronunciation": [
+            "zhai2",
+            "li3",
+            "si1"
+          ],
+          "definitions": [
+            "Herbert Allen Giles (1845-1935), British diplomat and linguist, contributor to the Wade-Giles Chinese romanization system"
+          ]
+        },
+        {
+          "word": "威翟",
+          "pronunciation": [
+            "wei1",
+            "zhai2"
+          ],
+          "definitions": [
+            "Wade-Giles (romanization system for Chinese)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "di2"
+      ],
+      "definitions": [
+        "long-tail pheasant"
+      ],
+      "examples": [],
+      "reasons": [],
+      "warnings": [
+        "No example selected for di2"
+      ]
+    }
+  },
+  "厦": {
+    "before": {
+      "readings": [
+        "sha4"
+      ],
+      "definitions": [
+        "tall building; mansion",
+        "rear annex; lean-to"
+      ],
+      "examples": [
+        {
+          "word": "高楼大厦",
+          "pronunciation": [
+            "gao1",
+            "lou2",
+            "da4",
+            "sha4"
+          ],
+          "definitions": [
+            "tall building"
+          ]
+        },
+        {
+          "word": "摩天大厦",
+          "pronunciation": [
+            "mo2",
+            "tian1",
+            "da4",
+            "sha4"
+          ],
+          "definitions": [
+            "skyscraper"
+          ]
+        },
+        {
+          "word": "噶厦",
+          "pronunciation": [
+            "ga2",
+            "xia4"
+          ],
+          "definitions": [
+            "government of Tibet, dissolved in 1959"
+          ]
+        },
+        {
+          "word": "偏厦",
+          "pronunciation": [
+            "pian1",
+            "sha4"
+          ],
+          "definitions": [
+            "side annex",
+            "lean-to"
+          ]
+        },
+        {
+          "word": "国会大厦",
+          "pronunciation": [
+            "guo2",
+            "hui4",
+            "da4",
+            "sha4"
+          ],
+          "definitions": [
+            "capitol"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "xia4",
+        "sha4"
+      ],
+      "definitions": [
+        "tall building; mansion"
+      ],
+      "examples": [
+        {
+          "word": "厦门",
+          "pronunciation": [
+            "xia4",
+            "men2"
+          ],
+          "definitions": [
+            "Xiamen, sub-provincial city in Fujian Province"
+          ]
+        },
+        {
+          "word": "高楼大厦",
+          "pronunciation": [
+            "gao1",
+            "lou2",
+            "da4",
+            "sha4"
+          ],
+          "definitions": [
+            "tall building"
+          ]
+        },
+        {
+          "word": "摩天大厦",
+          "pronunciation": [
+            "mo2",
+            "tian1",
+            "da4",
+            "sha4"
+          ],
+          "definitions": [
+            "skyscraper",
+            "CL:"
+          ]
+        },
+        {
+          "word": "噶厦",
+          "pronunciation": [
+            "ga2",
+            "xia4"
+          ],
+          "definitions": [
+            "government of Tibet, dissolved in 1959"
+          ]
+        },
+        {
+          "word": "偏厦",
+          "pronunciation": [
+            "pian1",
+            "sha4"
+          ],
+          "definitions": [
+            "side annex",
+            "lean-to"
+          ]
+        }
+      ],
+      "reasons": [
+        "厦门: covers xia4; 63.07 per million; name",
+        "高楼大厦: covers sha4; 1.23 per million",
+        "摩天大厦: frequency and meaning variety; 0.12 per million",
+        "噶厦: frequency and meaning variety; 0.09 per million",
+        "偏厦: frequency and meaning variety; 0.01 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "柏": {
+    "before": {
+      "readings": [
+        "bai3",
+        "bo2",
+        "bo4"
+      ],
+      "definitions": [
+        "cypress",
+        "used for transcribing names",
+        "Taiwan pr. [bo2]"
+      ],
+      "examples": [
+        {
+          "word": "松柏",
+          "pronunciation": [
+            "song1",
+            "bai3"
+          ],
+          "definitions": [
+            "pine and cypress",
+            "fig. chaste and undefiled",
+            "fig. tomb"
+          ]
+        },
+        {
+          "word": "柏油路",
+          "pronunciation": [
+            "bai3",
+            "you2",
+            "lu4"
+          ],
+          "definitions": [
+            "tarred road",
+            "asphalt road"
+          ]
+        },
+        {
+          "word": "柏油",
+          "pronunciation": [
+            "bai3",
+            "you2"
+          ],
+          "definitions": [
+            "asphalt",
+            "tar",
+            "pitch"
+          ]
+        },
+        {
+          "word": "柏树",
+          "pronunciation": [
+            "bai3",
+            "shu4"
+          ],
+          "definitions": [
+            "cypress tree",
+            "Taiwan pr. [bo2 shu4]"
+          ]
+        },
+        {
+          "word": "苍松翠柏",
+          "pronunciation": [
+            "cang1",
+            "song1",
+            "cui4",
+            "bai3"
+          ],
+          "definitions": [
+            "evergreen pine and cypress (idiom); steadfast nobility"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "bai3"
+      ],
+      "definitions": [
+        "cypress",
+        "Taiwan pr. [bo2]"
+      ],
+      "examples": [
+        {
+          "word": "松柏",
+          "pronunciation": [
+            "song1",
+            "bai3"
+          ],
+          "definitions": [
+            "pine and cypress",
+            "fig. chaste and undefiled",
+            "fig. tomb"
+          ]
+        },
+        {
+          "word": "柏油路",
+          "pronunciation": [
+            "bai3",
+            "you2",
+            "lu4"
+          ],
+          "definitions": [
+            "tarred road",
+            "asphalt road"
+          ]
+        },
+        {
+          "word": "柏油",
+          "pronunciation": [
+            "bai3",
+            "you2"
+          ],
+          "definitions": [
+            "asphalt",
+            "tar",
+            "pitch"
+          ]
+        },
+        {
+          "word": "柏树",
+          "pronunciation": [
+            "bai3",
+            "shu4"
+          ],
+          "definitions": [
+            "cypress tree",
+            "Taiwan pr. [bo2 shu4]"
+          ]
+        },
+        {
+          "word": "苍松翠柏",
+          "pronunciation": [
+            "cang1",
+            "song1",
+            "cui4",
+            "bai3"
+          ],
+          "definitions": [
+            "evergreen pine and cypress (idiom); steadfast nobility"
+          ]
+        }
+      ],
+      "reasons": [
+        "松柏: covers bai3; 0.92 per million",
+        "柏油路: frequency and meaning variety; 0.85 per million",
+        "柏油: frequency and meaning variety; 0.63 per million",
+        "柏树: frequency and meaning variety; 0.30 per million",
+        "苍松翠柏: frequency and meaning variety; 0.16 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "薄": {
+    "before": {
+      "readings": [
+        "bo2",
+        "bao2"
+      ],
+      "definitions": [
+        "meager",
+        "thin"
+      ],
+      "examples": [
+        {
+          "word": "微薄",
+          "pronunciation": [
+            "wei1",
+            "bo2"
+          ],
+          "definitions": [
+            "scanty",
+            "meager"
+          ]
+        },
+        {
+          "word": "薄荷",
+          "pronunciation": [
+            "bo4",
+            "he5"
+          ],
+          "definitions": [
+            "mint (plant)",
+            "Taiwan pr. [bo4he2]"
+          ]
+        },
+        {
+          "word": "单薄",
+          "pronunciation": [
+            "dan1",
+            "bo2"
+          ],
+          "definitions": [
+            "weak",
+            "frail",
+            "thin"
+          ]
+        },
+        {
+          "word": "刻薄",
+          "pronunciation": [
+            "ke4",
+            "bo2"
+          ],
+          "definitions": [
+            "unkind",
+            "harsh",
+            "cutting"
+          ]
+        },
+        {
+          "word": "薄饼",
+          "pronunciation": [
+            "bao2",
+            "bing3"
+          ],
+          "definitions": [
+            "thin flat cake",
+            "pancake",
+            "pizza"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "bo2",
+        "bo4",
+        "bao2"
+      ],
+      "definitions": [
+        "meager",
+        "mint (plant)",
+        "thin"
+      ],
+      "examples": [
+        {
+          "word": "薄荷",
+          "pronunciation": [
+            "bo4",
+            "he5"
+          ],
+          "definitions": [
+            "mint (plant)",
+            "Taiwan pr. [bo4he2]"
+          ]
+        },
+        {
+          "word": "薄饼",
+          "pronunciation": [
+            "bao2",
+            "bing3"
+          ],
+          "definitions": [
+            "thin flat cake",
+            "pancake",
+            "pizza"
+          ]
+        },
+        {
+          "word": "微薄",
+          "pronunciation": [
+            "wei1",
+            "bo2"
+          ],
+          "definitions": [
+            "scanty",
+            "meager"
+          ]
+        },
+        {
+          "word": "薄弱",
+          "pronunciation": [
+            "bo2",
+            "ruo4"
+          ],
+          "definitions": [
+            "weak; frail"
+          ]
+        },
+        {
+          "word": "刻薄",
+          "pronunciation": [
+            "ke4",
+            "bo2"
+          ],
+          "definitions": [
+            "unkind",
+            "harsh",
+            "cutting"
+          ]
+        }
+      ],
+      "reasons": [
+        "薄荷: covers bo4; 4.14 per million",
+        "薄饼: covers bao2; 0.46 per million",
+        "微薄: covers bo2; 16.20 per million",
+        "薄弱: frequency and meaning variety; 13.41 per million",
+        "刻薄: frequency and meaning variety; 1.56 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "朝": {
+    "before": {
+      "readings": [
+        "zhao1",
+        "chao2"
+      ],
+      "definitions": [
+        "morning",
+        "towards"
+      ],
+      "examples": [
+        {
+          "word": "朝阳",
+          "pronunciation": [
+            "zhao1",
+            "yang2"
+          ],
+          "definitions": [
+            "the morning sun"
+          ]
+        },
+        {
+          "word": "今朝",
+          "pronunciation": [
+            "jin1",
+            "zhao1"
+          ],
+          "definitions": [
+            "today"
+          ]
+        },
+        {
+          "word": "朝着",
+          "pronunciation": [
+            "chao2",
+            "zhe5"
+          ],
+          "definitions": [
+            "towards"
+          ]
+        },
+        {
+          "word": "朝气",
+          "pronunciation": [
+            "zhao1",
+            "qi4"
+          ],
+          "definitions": [
+            "vitality",
+            "dynamism"
+          ]
+        },
+        {
+          "word": "有朝一日",
+          "pronunciation": [
+            "you3",
+            "zhao1",
+            "yi1",
+            "ri4"
+          ],
+          "definitions": [
+            "one day",
+            "sometime in the future"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "chao2",
+        "zhao1"
+      ],
+      "definitions": [
+        "towards",
+        "morning"
+      ],
+      "examples": [
+        {
+          "word": "朝阳",
+          "pronunciation": [
+            "zhao1",
+            "yang2"
+          ],
+          "definitions": [
+            "the morning sun"
+          ]
+        },
+        {
+          "word": "朝着",
+          "pronunciation": [
+            "chao2",
+            "zhe5"
+          ],
+          "definitions": [
+            "towards"
+          ]
+        },
+        {
+          "word": "今朝",
+          "pronunciation": [
+            "jin1",
+            "zhao1"
+          ],
+          "definitions": [
+            "today",
+            "the present; this age"
+          ]
+        },
+        {
+          "word": "王朝",
+          "pronunciation": [
+            "wang2",
+            "chao2"
+          ],
+          "definitions": [
+            "dynasty"
+          ]
+        },
+        {
+          "word": "朝气蓬勃",
+          "pronunciation": [
+            "zhao1",
+            "qi4",
+            "peng2",
+            "bo2"
+          ],
+          "definitions": [
+            "full of youthful energy (idiom); vigorous",
+            "energetic",
+            "a bright spark"
+          ]
+        }
+      ],
+      "reasons": [
+        "朝阳: covers zhao1; 5.64 per million; written frequency shared across readings",
+        "朝着: covers chao2; 9.17 per million",
+        "今朝: frequency and meaning variety; 3.47 per million",
+        "王朝: frequency and meaning variety; 3.35 per million",
+        "朝气蓬勃: frequency and meaning variety; 3.11 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "便": {
+    "before": {
+      "readings": [
+        "bian4"
+      ],
+      "definitions": [
+        "suitable",
+        "convenient",
+        "in that case"
+      ],
+      "examples": [
+        {
+          "word": "方便",
+          "pronunciation": [
+            "fang1",
+            "bian4"
+          ],
+          "definitions": [
+            "convenient; suitable",
+            "to facilitate; to make things easy",
+            "having money to spare"
+          ]
+        },
+        {
+          "word": "随便",
+          "pronunciation": [
+            "sui2",
+            "bian4"
+          ],
+          "definitions": [
+            "as one wishes",
+            "as one pleases",
+            "at random"
+          ]
+        },
+        {
+          "word": "便宜",
+          "pronunciation": [
+            "bian4",
+            "yi2"
+          ],
+          "definitions": [
+            "convenient"
+          ]
+        },
+        {
+          "word": "顺便",
+          "pronunciation": [
+            "shun4",
+            "bian4"
+          ],
+          "definitions": [
+            "conveniently",
+            "in passing",
+            "without much extra effort"
+          ]
+        },
+        {
+          "word": "方便面",
+          "pronunciation": [
+            "fang1",
+            "bian4",
+            "mian4"
+          ],
+          "definitions": [
+            "instant noodles"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "bian4",
+        "pian2"
+      ],
+      "definitions": [
+        "suitable"
+      ],
+      "examples": [
+        {
+          "word": "便宜",
+          "pronunciation": [
+            "pian2",
+            "yi5"
+          ],
+          "definitions": [
+            "cheap; inexpensive",
+            "a petty advantage",
+            "to let sb off lightly"
+          ]
+        },
+        {
+          "word": "随便",
+          "pronunciation": [
+            "sui2",
+            "bian4"
+          ],
+          "definitions": [
+            "as one wishes",
+            "as one pleases",
+            "at random"
+          ]
+        },
+        {
+          "word": "方便",
+          "pronunciation": [
+            "fang1",
+            "bian4"
+          ],
+          "definitions": [
+            "convenient; suitable",
+            "to facilitate; to make things easy",
+            "having money to spare"
+          ]
+        },
+        {
+          "word": "顺便",
+          "pronunciation": [
+            "shun4",
+            "bian4"
+          ],
+          "definitions": [
+            "conveniently",
+            "in passing",
+            "without much extra effort"
+          ]
+        },
+        {
+          "word": "以便",
+          "pronunciation": [
+            "yi3",
+            "bian4"
+          ],
+          "definitions": [
+            "so that",
+            "so as to",
+            "in order to"
+          ]
+        }
+      ],
+      "reasons": [
+        "便宜: covers pian2; 93.51 per million; written frequency shared across readings",
+        "随便: covers bian4; 115.12 per million",
+        "方便: frequency and meaning variety; 99.64 per million",
+        "顺便: frequency and meaning variety; 52.95 per million",
+        "以便: frequency and meaning variety; 24.38 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "都": {
+    "before": {
+      "readings": [
+        "dou1",
+        "du1"
+      ],
+      "definitions": [
+        "all; both; entirely",
+        "capital city"
+      ],
+      "examples": [
+        {
+          "word": "全都",
+          "pronunciation": [
+            "quan2",
+            "dou1"
+          ],
+          "definitions": [
+            "all",
+            "without exception"
+          ]
+        },
+        {
+          "word": "首都",
+          "pronunciation": [
+            "shou3",
+            "du1"
+          ],
+          "definitions": [
+            "capital (city)"
+          ]
+        },
+        {
+          "word": "大都",
+          "pronunciation": [
+            "da4",
+            "dou1"
+          ],
+          "definitions": [
+            "for the most part",
+            "on the whole"
+          ]
+        },
+        {
+          "word": "都市",
+          "pronunciation": [
+            "du1",
+            "shi4"
+          ],
+          "definitions": [
+            "city; metropolis"
+          ]
+        },
+        {
+          "word": "京都",
+          "pronunciation": [
+            "jing1",
+            "du1"
+          ],
+          "definitions": [
+            "capital (of a country)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "du1",
+        "dou1"
+      ],
+      "definitions": [
+        "capital city",
+        "all; both; entirely"
+      ],
+      "examples": [
+        {
+          "word": "全都",
+          "pronunciation": [
+            "quan2",
+            "dou1"
+          ],
+          "definitions": [
+            "all",
+            "without exception"
+          ]
+        },
+        {
+          "word": "成都",
+          "pronunciation": [
+            "cheng2",
+            "du1"
+          ],
+          "definitions": [
+            "Chengdu, sub-provincial city and capital of Sichuan Province"
+          ]
+        },
+        {
+          "word": "首都",
+          "pronunciation": [
+            "shou3",
+            "du1"
+          ],
+          "definitions": [
+            "capital (city)",
+            "CL:"
+          ]
+        },
+        {
+          "word": "大都",
+          "pronunciation": [
+            "da4",
+            "dou1"
+          ],
+          "definitions": [
+            "for the most part",
+            "on the whole"
+          ]
+        },
+        {
+          "word": "都市",
+          "pronunciation": [
+            "du1",
+            "shi4"
+          ],
+          "definitions": [
+            "city; metropolis"
+          ]
+        }
+      ],
+      "reasons": [
+        "全都: covers dou1; 21.78 per million",
+        "成都: covers du1; 133.94 per million; name",
+        "首都: frequency and meaning variety; 58.32 per million",
+        "大都: frequency and meaning variety; 13.55 per million; written frequency shared across readings",
+        "都市: frequency and meaning variety; 6.53 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "地": {
+    "before": {
+      "readings": [
+        "di4",
+        "de5"
+      ],
+      "definitions": [
+        "place",
+        "-ly"
+      ],
+      "examples": [
+        {
+          "word": "地方",
+          "pronunciation": [
+            "di4",
+            "fang1"
+          ],
+          "definitions": [
+            "region",
+            "regional (away from the central administration)",
+            "local"
+          ]
+        },
+        {
+          "word": "地铁",
+          "pronunciation": [
+            "di4",
+            "tie3"
+          ],
+          "definitions": [
+            "underground railway; subway",
+            "subway train"
+          ]
+        },
+        {
+          "word": "地址",
+          "pronunciation": [
+            "di4",
+            "zhi3"
+          ],
+          "definitions": [
+            "address"
+          ]
+        },
+        {
+          "word": "地球",
+          "pronunciation": [
+            "di4",
+            "qiu2"
+          ],
+          "definitions": [
+            "the earth"
+          ]
+        },
+        {
+          "word": "异地",
+          "pronunciation": [
+            "yi4",
+            "di4"
+          ],
+          "definitions": [
+            "different place",
+            "abroad"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "di4",
+        "de5"
+      ],
+      "definitions": [
+        "place",
+        "-ly"
+      ],
+      "examples": [
+        {
+          "word": "似地",
+          "pronunciation": [
+            "shi4",
+            "de5"
+          ],
+          "definitions": [
+            "like (X); as if (X)",
+            "Taiwan pr. [si4de5]"
+          ]
+        },
+        {
+          "word": "地方",
+          "pronunciation": [
+            "di4",
+            "fang1"
+          ],
+          "definitions": [
+            "region",
+            "regional (away from the central administration)",
+            "local"
+          ]
+        },
+        {
+          "word": "各地",
+          "pronunciation": [
+            "ge4",
+            "di4"
+          ],
+          "definitions": [
+            "in all parts of (a country)",
+            "various regions"
+          ]
+        },
+        {
+          "word": "土地",
+          "pronunciation": [
+            "tu3",
+            "di4"
+          ],
+          "definitions": [
+            "land",
+            "soil",
+            "territory"
+          ]
+        },
+        {
+          "word": "基地",
+          "pronunciation": [
+            "ji1",
+            "di4"
+          ],
+          "definitions": [
+            "base (of operations, industrial, military, research etc)"
+          ]
+        }
+      ],
+      "reasons": [
+        "似地: covers de5; 1.18 per million",
+        "地方: covers di4; 478.41 per million",
+        "各地: frequency and meaning variety; 131.12 per million",
+        "土地: frequency and meaning variety; 96.73 per million; written frequency shared across readings",
+        "基地: frequency and meaning variety; 75.93 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "的": {
+    "before": {
+      "readings": [
+        "de5",
+        "di2",
+        "di4",
+        "di1"
+      ],
+      "definitions": [
+        "of; ~'s (possessive particle)",
+        "really and truly",
+        "bull's-eye; target"
+      ],
+      "examples": [
+        {
+          "word": "有的",
+          "pronunciation": [
+            "you3",
+            "de5"
+          ],
+          "definitions": [
+            "(there are) some (who are...)",
+            "some (exist)"
+          ]
+        },
+        {
+          "word": "真的",
+          "pronunciation": [
+            "zhen1",
+            "de5"
+          ],
+          "definitions": [
+            "really; truly; indeed",
+            "real; true; genuine",
+            "proper"
+          ]
+        },
+        {
+          "word": "的确",
+          "pronunciation": [
+            "di2",
+            "que4"
+          ],
+          "definitions": [
+            "really",
+            "indeed"
+          ]
+        },
+        {
+          "word": "目的",
+          "pronunciation": [
+            "mu4",
+            "di4"
+          ],
+          "definitions": [
+            "purpose; aim; goal; target; objective"
+          ]
+        },
+        {
+          "word": "的士",
+          "pronunciation": [
+            "di1",
+            "shi4"
+          ],
+          "definitions": [
+            "taxi (loanword)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "de5",
+        "di4",
+        "di2",
+        "di1"
+      ],
+      "definitions": [
+        "of; ~'s (possessive particle)",
+        "bull's-eye; target",
+        "really and truly"
+      ],
+      "examples": [
+        {
+          "word": "的确",
+          "pronunciation": [
+            "di2",
+            "que4"
+          ],
+          "definitions": [
+            "really",
+            "indeed"
+          ]
+        },
+        {
+          "word": "的士",
+          "pronunciation": [
+            "di1",
+            "shi4"
+          ],
+          "definitions": [
+            "taxi (loanword)"
+          ]
+        },
+        {
+          "word": "目的",
+          "pronunciation": [
+            "mu4",
+            "di4"
+          ],
+          "definitions": [
+            "purpose; aim; goal; target; objective"
+          ]
+        },
+        {
+          "word": "真的",
+          "pronunciation": [
+            "zhen1",
+            "de5"
+          ],
+          "definitions": [
+            "really; truly; indeed",
+            "real; true; genuine",
+            "proper"
+          ]
+        },
+        {
+          "word": "是的",
+          "pronunciation": [
+            "shi4",
+            "de5"
+          ],
+          "definitions": [
+            "yes, that's right"
+          ]
+        }
+      ],
+      "reasons": [
+        "的确: covers di2; 58.18 per million",
+        "的士: covers di1; 2.29 per million",
+        "目的: covers di4; 69.24 per million",
+        "真的: covers de5; 646.00 per million",
+        "是的: frequency and meaning variety; 611.48 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "和": {
+    "before": {
+      "readings": [
+        "he2",
+        "huo2",
+        "he4",
+        "huo4",
+        "hu2"
+      ],
+      "definitions": [
+        "harmonious",
+        "to combine a powdery substance (flour, plaster etc) with water",
+        "to compose a poem in reply (to sb's poem) using the same rhyme sequence"
+      ],
+      "examples": [
+        {
+          "word": "和谐",
+          "pronunciation": [
+            "he2",
+            "xie2"
+          ],
+          "definitions": [
+            "harmonious",
+            "harmony",
+            "(euphemism) to censor"
+          ]
+        },
+        {
+          "word": "暖和",
+          "pronunciation": [
+            "nuan3",
+            "huo5"
+          ],
+          "definitions": [
+            "warm"
+          ]
+        },
+        {
+          "word": "和平",
+          "pronunciation": [
+            "he2",
+            "ping2"
+          ],
+          "definitions": [
+            "peace",
+            "peaceful"
+          ]
+        },
+        {
+          "word": "和尚",
+          "pronunciation": [
+            "he2",
+            "shang5"
+          ],
+          "definitions": [
+            "Buddhist monk"
+          ]
+        },
+        {
+          "word": "和面",
+          "pronunciation": [
+            "huo2",
+            "mian4"
+          ],
+          "definitions": [
+            "to knead dough"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "he2",
+        "huo5",
+        "huo2",
+        "he4"
+      ],
+      "definitions": [
+        "to make peace",
+        "to combine a powdery substance (flour, plaster etc) with water",
+        "to compose a poem in reply (to sb's poem) using the same rhyme sequence"
+      ],
+      "examples": [
+        {
+          "word": "和面",
+          "pronunciation": [
+            "huo2",
+            "mian4"
+          ],
+          "definitions": [
+            "to knead dough"
+          ]
+        },
+        {
+          "word": "暖和",
+          "pronunciation": [
+            "nuan3",
+            "huo5"
+          ],
+          "definitions": [
+            "warm"
+          ]
+        },
+        {
+          "word": "附和",
+          "pronunciation": [
+            "fu4",
+            "he4"
+          ],
+          "definitions": [
+            "to agree",
+            "to go along with",
+            "to echo (what sb says)"
+          ]
+        },
+        {
+          "word": "和平",
+          "pronunciation": [
+            "he2",
+            "ping2"
+          ],
+          "definitions": [
+            "peace",
+            "peaceful"
+          ]
+        },
+        {
+          "word": "和谐",
+          "pronunciation": [
+            "he2",
+            "xie2"
+          ],
+          "definitions": [
+            "harmonious",
+            "harmony",
+            "(euphemism) to censor"
+          ]
+        }
+      ],
+      "reasons": [
+        "和面: covers huo2; 1.11 per million",
+        "暖和: covers huo5; 31.26 per million",
+        "附和: covers he4; 0.82 per million",
+        "和平: covers he2; 228.12 per million",
+        "和谐: frequency and meaning variety; 94.72 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "哪": {
+    "before": {
+      "readings": [
+        "na3",
+        "ne2",
+        "nei3"
+      ],
+      "definitions": [
+        "which",
+        "Taiwan pr. [nuo2]",
+        "which? (interrogative, followed by classifier or numeral-classifier)"
+      ],
+      "examples": [
+        {
+          "word": "哪里",
+          "pronunciation": [
+            "na3",
+            "li3"
+          ],
+          "definitions": [
+            "where?",
+            "somewhere",
+            "anywhere"
+          ]
+        },
+        {
+          "word": "哪个",
+          "pronunciation": [
+            "na3",
+            "ge5"
+          ],
+          "definitions": [
+            "which",
+            "who"
+          ]
+        },
+        {
+          "word": "哪儿",
+          "pronunciation": [
+            "na3",
+            "r5"
+          ],
+          "definitions": [
+            "where?",
+            "wherever; anywhere; somewhere",
+            "(used in rhetorical questions) how can ...?; how could ...?"
+          ]
+        },
+        {
+          "word": "哪些",
+          "pronunciation": [
+            "na3",
+            "xie1"
+          ],
+          "definitions": [
+            "which ones?",
+            "who?",
+            "what?"
+          ]
+        },
+        {
+          "word": "哪怕",
+          "pronunciation": [
+            "na3",
+            "pa4"
+          ],
+          "definitions": [
+            "even",
+            "no matter how"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "na3"
+      ],
+      "definitions": [
+        "which",
+        "how"
+      ],
+      "examples": [
+        {
+          "word": "哪里",
+          "pronunciation": [
+            "na3",
+            "li3"
+          ],
+          "definitions": [
+            "where?",
+            "somewhere",
+            "anywhere"
+          ]
+        },
+        {
+          "word": "哪个",
+          "pronunciation": [
+            "na3",
+            "ge5"
+          ],
+          "definitions": [
+            "which",
+            "who"
+          ]
+        },
+        {
+          "word": "哪儿",
+          "pronunciation": [
+            "na3",
+            "r5"
+          ],
+          "definitions": [
+            "where?",
+            "wherever; anywhere; somewhere",
+            "(used in rhetorical questions) how can ...?; how could ...?"
+          ]
+        },
+        {
+          "word": "哪怕",
+          "pronunciation": [
+            "na3",
+            "pa4"
+          ],
+          "definitions": [
+            "even",
+            "no matter how"
+          ]
+        },
+        {
+          "word": "哪些",
+          "pronunciation": [
+            "na3",
+            "xie1"
+          ],
+          "definitions": [
+            "which ones?",
+            "who?",
+            "what?"
+          ]
+        }
+      ],
+      "reasons": [
+        "哪里: covers na3; 578.52 per million",
+        "哪个: frequency and meaning variety; 212.79 per million",
+        "哪儿: frequency and meaning variety; 127.67 per million",
+        "哪怕: frequency and meaning variety; 16.01 per million",
+        "哪些: frequency and meaning variety; 28.24 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "谁": {
+    "before": {
+      "readings": [
+        "shei2"
+      ],
+      "definitions": [
+        "who"
+      ],
+      "examples": [
+        {
+          "word": "谁知",
+          "pronunciation": [
+            "shei2",
+            "zhi1"
+          ],
+          "definitions": [
+            "who would have thought",
+            "unexpectedly"
+          ]
+        },
+        {
+          "word": "谁料",
+          "pronunciation": [
+            "shei2",
+            "liao4"
+          ],
+          "definitions": [
+            "who would have thought that"
+          ]
+        },
+        {
+          "word": "花落谁家",
+          "pronunciation": [
+            "hua1",
+            "luo4",
+            "shei2",
+            "jia1"
+          ],
+          "definitions": [
+            "who will be the winner?"
+          ]
+        },
+        {
+          "word": "鹿死谁手",
+          "pronunciation": [
+            "lu4",
+            "si3",
+            "shei2",
+            "shou3"
+          ],
+          "definitions": [
+            "lit. at whose hand will the deer die (idiom)",
+            "fig. who will emerge victorious"
+          ]
+        },
+        {
+          "word": "人谁无过",
+          "pronunciation": [
+            "ren2",
+            "shei2",
+            "wu2",
+            "guo4"
+          ],
+          "definitions": [
+            "Everyone makes mistakes (idiom)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "shei2"
+      ],
+      "definitions": [
+        "who"
+      ],
+      "examples": [
+        {
+          "word": "谁知",
+          "pronunciation": [
+            "shei2",
+            "zhi1"
+          ],
+          "definitions": [
+            "who would have thought",
+            "unexpectedly"
+          ]
+        },
+        {
+          "word": "谁料",
+          "pronunciation": [
+            "shei2",
+            "liao4"
+          ],
+          "definitions": [
+            "who would have thought that"
+          ]
+        },
+        {
+          "word": "花落谁家",
+          "pronunciation": [
+            "hua1",
+            "luo4",
+            "shei2",
+            "jia1"
+          ],
+          "definitions": [
+            "who will be the winner?"
+          ]
+        },
+        {
+          "word": "鹿死谁手",
+          "pronunciation": [
+            "lu4",
+            "si3",
+            "shei2",
+            "shou3"
+          ],
+          "definitions": [
+            "lit. at whose hand will the deer die (idiom)",
+            "fig. who will emerge victorious"
+          ]
+        },
+        {
+          "word": "人谁无过",
+          "pronunciation": [
+            "ren2",
+            "shei2",
+            "wu2",
+            "guo4"
+          ],
+          "definitions": [
+            "Everyone makes mistakes (idiom)"
+          ]
+        }
+      ],
+      "reasons": [
+        "谁知: covers shei2; 3.02 per million",
+        "谁料: frequency and meaning variety; 0.21 per million",
+        "花落谁家: frequency and meaning variety; 0.09 per million",
+        "鹿死谁手: frequency and meaning variety; 0.04 per million",
+        "人谁无过: frequency and meaning variety; 0.00 per million; frequency missing"
+      ],
+      "warnings": []
+    }
+  },
+  "王": {
+    "before": {
+      "readings": [
+        "wang2"
+      ],
+      "definitions": [
+        "king or monarch",
+        "best or strongest of its type"
+      ],
+      "examples": [
+        {
+          "word": "王子",
+          "pronunciation": [
+            "wang2",
+            "zi3"
+          ],
+          "definitions": [
+            "prince",
+            "son of a king"
+          ]
+        },
+        {
+          "word": "王者",
+          "pronunciation": [
+            "wang2",
+            "zhe3"
+          ],
+          "definitions": [
+            "king; emperor",
+            "the best; champion"
+          ]
+        },
+        {
+          "word": "女王",
+          "pronunciation": [
+            "nu:3",
+            "wang2"
+          ],
+          "definitions": [
+            "queen"
+          ]
+        },
+        {
+          "word": "大王",
+          "pronunciation": [
+            "da4",
+            "wang2"
+          ],
+          "definitions": [
+            "king",
+            "magnate",
+            "person having expert skill in something"
+          ]
+        },
+        {
+          "word": "霸王",
+          "pronunciation": [
+            "ba4",
+            "wang2"
+          ],
+          "definitions": [
+            "hegemon",
+            "overlord",
+            "despot"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "wang2"
+      ],
+      "definitions": [
+        "king or monarch",
+        "best or strongest of its type"
+      ],
+      "examples": [
+        {
+          "word": "王者",
+          "pronunciation": [
+            "wang2",
+            "zhe3"
+          ],
+          "definitions": [
+            "king; emperor",
+            "the best; champion"
+          ]
+        },
+        {
+          "word": "王子",
+          "pronunciation": [
+            "wang2",
+            "zi3"
+          ],
+          "definitions": [
+            "prince",
+            "son of a king"
+          ]
+        },
+        {
+          "word": "女王",
+          "pronunciation": [
+            "nu:3",
+            "wang2"
+          ],
+          "definitions": [
+            "queen"
+          ]
+        },
+        {
+          "word": "霸王",
+          "pronunciation": [
+            "ba4",
+            "wang2"
+          ],
+          "definitions": [
+            "hegemon",
+            "overlord",
+            "despot"
+          ]
+        },
+        {
+          "word": "王道",
+          "pronunciation": [
+            "wang2",
+            "dao4"
+          ],
+          "definitions": [
+            "the Way of the King",
+            "statecraft",
+            "benevolent rule"
+          ]
+        }
+      ],
+      "reasons": [
+        "王者: covers wang2; 42.34 per million",
+        "王子: frequency and meaning variety; 22.50 per million",
+        "女王: frequency and meaning variety; 13.83 per million",
+        "霸王: frequency and meaning variety; 9.15 per million",
+        "王道: frequency and meaning variety; 7.42 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "张": {
+    "before": {
+      "readings": [
+        "zhang1"
+      ],
+      "definitions": [
+        "to open up",
+        "to spread",
+        "sheet of paper"
+      ],
+      "examples": [
+        {
+          "word": "紧张",
+          "pronunciation": [
+            "jin3",
+            "zhang1"
+          ],
+          "definitions": [
+            "nervous",
+            "keyed up",
+            "intense"
+          ]
+        },
+        {
+          "word": "夸张",
+          "pronunciation": [
+            "kua1",
+            "zhang1"
+          ],
+          "definitions": [
+            "to exaggerate",
+            "overstated; exaggerated",
+            "hyperbole"
+          ]
+        },
+        {
+          "word": "嚣张",
+          "pronunciation": [
+            "xiao1",
+            "zhang1"
+          ],
+          "definitions": [
+            "rampant",
+            "unbridled",
+            "arrogant"
+          ]
+        },
+        {
+          "word": "张嘴",
+          "pronunciation": [
+            "zhang1",
+            "zui3"
+          ],
+          "definitions": [
+            "to open one's mouth (to speak, esp. to make a request)",
+            "to gape"
+          ]
+        },
+        {
+          "word": "张开",
+          "pronunciation": [
+            "zhang1",
+            "kai1"
+          ],
+          "definitions": [
+            "to open up",
+            "to spread",
+            "to extend"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "zhang1"
+      ],
+      "definitions": [
+        "to open up",
+        "to spread",
+        "sheet of paper"
+      ],
+      "examples": [
+        {
+          "word": "紧张",
+          "pronunciation": [
+            "jin3",
+            "zhang1"
+          ],
+          "definitions": [
+            "nervous",
+            "keyed up",
+            "intense"
+          ]
+        },
+        {
+          "word": "主张",
+          "pronunciation": [
+            "zhu3",
+            "zhang1"
+          ],
+          "definitions": [
+            "to advocate",
+            "to stand for",
+            "view"
+          ]
+        },
+        {
+          "word": "夸张",
+          "pronunciation": [
+            "kua1",
+            "zhang1"
+          ],
+          "definitions": [
+            "to exaggerate",
+            "overstated; exaggerated",
+            "hyperbole"
+          ]
+        },
+        {
+          "word": "扩张",
+          "pronunciation": [
+            "kuo4",
+            "zhang1"
+          ],
+          "definitions": [
+            "expansion",
+            "dilation",
+            "to expand (e.g. one's power or influence)"
+          ]
+        },
+        {
+          "word": "嚣张",
+          "pronunciation": [
+            "xiao1",
+            "zhang1"
+          ],
+          "definitions": [
+            "rampant",
+            "unbridled",
+            "arrogant"
+          ]
+        }
+      ],
+      "reasons": [
+        "紧张: covers zhang1; 89.95 per million",
+        "主张: frequency and meaning variety; 39.19 per million",
+        "夸张: frequency and meaning variety; 28.58 per million",
+        "扩张: frequency and meaning variety; 11.76 per million",
+        "嚣张: frequency and meaning variety; 6.68 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "微": {
+    "before": {
+      "readings": [
+        "wei1"
+      ],
+      "definitions": [
+        "slightly",
+        "tiny"
+      ],
+      "examples": [
+        {
+          "word": "微笑",
+          "pronunciation": [
+            "wei1",
+            "xiao4"
+          ],
+          "definitions": [
+            "smile"
+          ]
+        },
+        {
+          "word": "稍微",
+          "pronunciation": [
+            "shao1",
+            "wei1"
+          ],
+          "definitions": [
+            "a little bit"
+          ]
+        },
+        {
+          "word": "微薄",
+          "pronunciation": [
+            "wei1",
+            "bo2"
+          ],
+          "definitions": [
+            "scanty",
+            "meager"
+          ]
+        },
+        {
+          "word": "微微",
+          "pronunciation": [
+            "wei1",
+            "wei1"
+          ],
+          "definitions": [
+            "slight",
+            "faint",
+            "humble"
+          ]
+        },
+        {
+          "word": "微波炉",
+          "pronunciation": [
+            "wei1",
+            "bo1",
+            "lu2"
+          ],
+          "definitions": [
+            "microwave oven"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "wei1"
+      ],
+      "definitions": [
+        "micro-",
+        "tiny",
+        "miniature"
+      ],
+      "examples": [
+        {
+          "word": "微笑",
+          "pronunciation": [
+            "wei1",
+            "xiao4"
+          ],
+          "definitions": [
+            "smile",
+            "CL:"
+          ]
+        },
+        {
+          "word": "稍微",
+          "pronunciation": [
+            "shao1",
+            "wei1"
+          ],
+          "definitions": [
+            "a little bit"
+          ]
+        },
+        {
+          "word": "微薄",
+          "pronunciation": [
+            "wei1",
+            "bo2"
+          ],
+          "definitions": [
+            "scanty",
+            "meager"
+          ]
+        },
+        {
+          "word": "微微",
+          "pronunciation": [
+            "wei1",
+            "wei1"
+          ],
+          "definitions": [
+            "slight",
+            "faint",
+            "humble"
+          ]
+        },
+        {
+          "word": "微博",
+          "pronunciation": [
+            "wei1",
+            "bo2"
+          ],
+          "definitions": [
+            "microblogging",
+            "microblog"
+          ]
+        }
+      ],
+      "reasons": [
+        "微笑: covers wei1; 32.79 per million",
+        "稍微: frequency and meaning variety; 29.96 per million",
+        "微薄: frequency and meaning variety; 16.20 per million",
+        "微微: frequency and meaning variety; 10.30 per million",
+        "微博: frequency and meaning variety; 6.00 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "抖": {
+    "before": {
+      "readings": [
+        "dou3"
+      ],
+      "definitions": [
+        "to tremble",
+        "to shake out"
+      ],
+      "examples": [
+        {
+          "word": "发抖",
+          "pronunciation": [
+            "fa1",
+            "dou3"
+          ],
+          "definitions": [
+            "to tremble",
+            "to shake",
+            "to shiver"
+          ]
+        },
+        {
+          "word": "颤抖",
+          "pronunciation": [
+            "chan4",
+            "dou3"
+          ],
+          "definitions": [
+            "to shudder",
+            "to shiver",
+            "to shake"
+          ]
+        },
+        {
+          "word": "抖动",
+          "pronunciation": [
+            "dou3",
+            "dong4"
+          ],
+          "definitions": [
+            "to quiver",
+            "to vibrate",
+            "to shake (sth)"
+          ]
+        },
+        {
+          "word": "抖擞",
+          "pronunciation": [
+            "dou3",
+            "sou3"
+          ],
+          "definitions": [
+            "to rouse",
+            "to invigorate",
+            "to enliven"
+          ]
+        },
+        {
+          "word": "抖落",
+          "pronunciation": [
+            "dou3",
+            "luo4"
+          ],
+          "definitions": [
+            "to shake out"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "dou3"
+      ],
+      "definitions": [
+        "to tremble",
+        "to shake out"
+      ],
+      "examples": [
+        {
+          "word": "发抖",
+          "pronunciation": [
+            "fa1",
+            "dou3"
+          ],
+          "definitions": [
+            "to tremble",
+            "to shake",
+            "to shiver"
+          ]
+        },
+        {
+          "word": "抖音",
+          "pronunciation": [
+            "dou3",
+            "yin1"
+          ],
+          "definitions": [
+            "Douyin, Chinese app for creating and sharing short videos, released in its international version as TikTok"
+          ]
+        },
+        {
+          "word": "颤抖",
+          "pronunciation": [
+            "chan4",
+            "dou3"
+          ],
+          "definitions": [
+            "to shudder",
+            "to shiver",
+            "to shake"
+          ]
+        },
+        {
+          "word": "抖动",
+          "pronunciation": [
+            "dou3",
+            "dong4"
+          ],
+          "definitions": [
+            "to quiver",
+            "to vibrate",
+            "to shake (sth)"
+          ]
+        },
+        {
+          "word": "精神抖擞",
+          "pronunciation": [
+            "jing1",
+            "shen2",
+            "dou3",
+            "sou3"
+          ],
+          "definitions": [
+            "spirit trembling with excitement (idiom); in high spirits",
+            "lively and full of enthusiasm",
+            "full of energy"
+          ]
+        }
+      ],
+      "reasons": [
+        "发抖: covers dou3; 18.73 per million",
+        "抖音: frequency and meaning variety; 12.19 per million; name",
+        "颤抖: frequency and meaning variety; 4.25 per million",
+        "抖动: frequency and meaning variety; 1.12 per million",
+        "精神抖擞: frequency and meaning variety; 0.67 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "淘": {
+    "before": {
+      "readings": [
+        "tao2"
+      ],
+      "definitions": [
+        "to wash (rice, sand etc in water to remove impurities)",
+        "to dredge; to scoop out (sediment or waste)",
+        "naughty; mischievous"
+      ],
+      "examples": [
+        {
+          "word": "淘汰",
+          "pronunciation": [
+            "tao2",
+            "tai4"
+          ],
+          "definitions": [
+            "to wash out",
+            "to cull",
+            "to weed out"
+          ]
+        },
+        {
+          "word": "淘气",
+          "pronunciation": [
+            "tao2",
+            "qi4"
+          ],
+          "definitions": [
+            "naughty",
+            "mischievous"
+          ]
+        },
+        {
+          "word": "海淘",
+          "pronunciation": [
+            "hai3",
+            "tao2"
+          ],
+          "definitions": [
+            "online purchase of goods dispatched from overseas"
+          ]
+        },
+        {
+          "word": "淘汰赛",
+          "pronunciation": [
+            "tao2",
+            "tai4",
+            "sai4"
+          ],
+          "definitions": [
+            "a knockout competition"
+          ]
+        },
+        {
+          "word": "淘金",
+          "pronunciation": [
+            "tao2",
+            "jin1"
+          ],
+          "definitions": [
+            "to pan for gold",
+            "to seek quick profits; to cash in (on an opportunity)"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "tao2"
+      ],
+      "definitions": [
+        "to wash (rice, sand etc in water to remove impurities)",
+        "to dredge; to scoop out (sediment or waste)",
+        "naughty; mischievous"
+      ],
+      "examples": [
+        {
+          "word": "淘汰",
+          "pronunciation": [
+            "tao2",
+            "tai4"
+          ],
+          "definitions": [
+            "to wash out",
+            "to cull",
+            "to weed out"
+          ]
+        },
+        {
+          "word": "淘气",
+          "pronunciation": [
+            "tao2",
+            "qi4"
+          ],
+          "definitions": [
+            "naughty",
+            "mischievous"
+          ]
+        },
+        {
+          "word": "海淘",
+          "pronunciation": [
+            "hai3",
+            "tao2"
+          ],
+          "definitions": [
+            "online purchase of goods dispatched from overseas"
+          ]
+        },
+        {
+          "word": "淘汰赛",
+          "pronunciation": [
+            "tao2",
+            "tai4",
+            "sai4"
+          ],
+          "definitions": [
+            "a knockout competition"
+          ]
+        },
+        {
+          "word": "淘金",
+          "pronunciation": [
+            "tao2",
+            "jin1"
+          ],
+          "definitions": [
+            "to pan for gold",
+            "to seek quick profits; to cash in (on an opportunity)"
+          ]
+        }
+      ],
+      "reasons": [
+        "淘汰: covers tao2; 17.96 per million",
+        "淘气: frequency and meaning variety; 8.50 per million",
+        "海淘: frequency and meaning variety; 1.91 per million",
+        "淘汰赛: frequency and meaning variety; 0.97 per million",
+        "淘金: frequency and meaning variety; 0.71 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "京": {
+    "before": {
+      "readings": [
+        "jing1"
+      ],
+      "definitions": [
+        "capital city of a country"
+      ],
+      "examples": [
+        {
+          "word": "京城",
+          "pronunciation": [
+            "jing1",
+            "cheng2"
+          ],
+          "definitions": [
+            "capital of a country"
+          ]
+        },
+        {
+          "word": "京都",
+          "pronunciation": [
+            "jing1",
+            "du1"
+          ],
+          "definitions": [
+            "capital (of a country)"
+          ]
+        },
+        {
+          "word": "京味",
+          "pronunciation": [
+            "jing1",
+            "wei4"
+          ],
+          "definitions": [
+            "Beijing flavor",
+            "Beijing style"
+          ]
+        },
+        {
+          "word": "京畿",
+          "pronunciation": [
+            "jing1",
+            "ji1"
+          ],
+          "definitions": [
+            "capital city and its surrounding area"
+          ]
+        },
+        {
+          "word": "京兆",
+          "pronunciation": [
+            "jing1",
+            "zhao4"
+          ],
+          "definitions": [
+            "capital of a country"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "jing1"
+      ],
+      "definitions": [
+        "capital city of a country"
+      ],
+      "examples": [
+        {
+          "word": "北京",
+          "pronunciation": [
+            "bei3",
+            "jing1"
+          ],
+          "definitions": [
+            "Beijing municipality, capital of the People's Republic of China"
+          ]
+        },
+        {
+          "word": "京城",
+          "pronunciation": [
+            "jing1",
+            "cheng2"
+          ],
+          "definitions": [
+            "capital of a country"
+          ]
+        },
+        {
+          "word": "京都",
+          "pronunciation": [
+            "jing1",
+            "du1"
+          ],
+          "definitions": [
+            "capital (of a country)"
+          ]
+        },
+        {
+          "word": "京味",
+          "pronunciation": [
+            "jing1",
+            "wei4"
+          ],
+          "definitions": [
+            "Beijing flavor",
+            "Beijing style"
+          ]
+        },
+        {
+          "word": "京畿",
+          "pronunciation": [
+            "jing1",
+            "ji1"
+          ],
+          "definitions": [
+            "capital city and its surrounding area"
+          ]
+        }
+      ],
+      "reasons": [
+        "北京: covers jing1; 462.64 per million; name",
+        "京城: frequency and meaning variety; 4.61 per million",
+        "京都: frequency and meaning variety; 3.32 per million",
+        "京味: frequency and meaning variety; 0.16 per million",
+        "京畿: frequency and meaning variety; 0.11 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "沪": {
+    "before": {
+      "readings": [
+        "hu4"
+      ],
+      "definitions": [
+        "short name for Shanghai"
+      ],
+      "examples": [
+        {
+          "word": "京沪高铁",
+          "pronunciation": [
+            "jing1",
+            "hu4",
+            "gao1",
+            "tie3"
+          ],
+          "definitions": [
+            "Beijing-Shanghai High-Speed Railway, completed in 2010"
+          ]
+        },
+        {
+          "word": "沪宁线",
+          "pronunciation": [
+            "hu4",
+            "ning2",
+            "xian4"
+          ],
+          "definitions": [
+            "Shanghai-Nanjing line"
+          ]
+        },
+        {
+          "word": "沪宁",
+          "pronunciation": [
+            "hu4",
+            "ning2"
+          ],
+          "definitions": [
+            "Shanghai and Nanjing"
+          ]
+        },
+        {
+          "word": "沪剧",
+          "pronunciation": [
+            "hu4",
+            "ju4"
+          ],
+          "definitions": [
+            "Shanghai opera"
+          ]
+        },
+        {
+          "word": "朱广沪",
+          "pronunciation": [
+            "zhu1",
+            "guang3",
+            "hu4"
+          ],
+          "definitions": [
+            "Zhu Guanghu (1949-), PRC soccer coach"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "hu4"
+      ],
+      "definitions": [
+        "short name for Shanghai"
+      ],
+      "examples": [],
+      "reasons": [],
+      "warnings": [
+        "No example selected for hu4"
+      ]
+    }
+  },
+  "渝": {
+    "before": {
+      "readings": [
+        "yu2"
+      ],
+      "definitions": [
+        "(of faith, affection etc) to change; to waver"
+      ],
+      "examples": [
+        {
+          "word": "忠贞不渝",
+          "pronunciation": [
+            "zhong1",
+            "zhen1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unswerving in one's loyalty (idiom); faithful and constant"
+          ]
+        },
+        {
+          "word": "始终不渝",
+          "pronunciation": [
+            "shi3",
+            "zhong1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unswerving",
+            "unflinching"
+          ]
+        },
+        {
+          "word": "坚持不渝",
+          "pronunciation": [
+            "jian1",
+            "chi2",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "to stick to sth without change (idiom); to persevere"
+          ]
+        },
+        {
+          "word": "坚贞不渝",
+          "pronunciation": [
+            "jian1",
+            "zhen1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unyielding integrity (idiom); unwavering"
+          ]
+        },
+        {
+          "word": "不渝",
+          "pronunciation": [
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "(of loyalty, affection etc) unchanging; unwavering; constant"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "yu2"
+      ],
+      "definitions": [
+        "(of faith, affection etc) to change; to waver"
+      ],
+      "examples": [
+        {
+          "word": "始终不渝",
+          "pronunciation": [
+            "shi3",
+            "zhong1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unswerving",
+            "unflinching"
+          ]
+        },
+        {
+          "word": "坚持不渝",
+          "pronunciation": [
+            "jian1",
+            "chi2",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "to stick to sth without change (idiom); to persevere"
+          ]
+        },
+        {
+          "word": "忠贞不渝",
+          "pronunciation": [
+            "zhong1",
+            "zhen1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unswerving in one's loyalty (idiom); faithful and constant"
+          ]
+        },
+        {
+          "word": "坚贞不渝",
+          "pronunciation": [
+            "jian1",
+            "zhen1",
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "unyielding integrity (idiom); unwavering"
+          ]
+        },
+        {
+          "word": "不渝",
+          "pronunciation": [
+            "bu4",
+            "yu2"
+          ],
+          "definitions": [
+            "(of loyalty, affection etc) unchanging; unwavering; constant"
+          ]
+        }
+      ],
+      "reasons": [
+        "始终不渝: covers yu2; 2.19 per million",
+        "坚持不渝: frequency and meaning variety; 0.37 per million",
+        "忠贞不渝: frequency and meaning variety; 0.25 per million",
+        "坚贞不渝: frequency and meaning variety; 0.10 per million",
+        "不渝: frequency and meaning variety; 0.01 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "猫": {
+    "before": {
+      "readings": [
+        "mao1"
+      ],
+      "definitions": [
+        "cat"
+      ],
+      "examples": [
+        {
+          "word": "熊猫",
+          "pronunciation": [
+            "xiong2",
+            "mao1"
+          ],
+          "definitions": [
+            "panda"
+          ]
+        },
+        {
+          "word": "大熊猫",
+          "pronunciation": [
+            "da4",
+            "xiong2",
+            "mao1"
+          ],
+          "definitions": [
+            "giant panda (Ailuropoda melanoleuca)"
+          ]
+        },
+        {
+          "word": "猫咪",
+          "pronunciation": [
+            "mao1",
+            "mi1"
+          ],
+          "definitions": [
+            "kitty (affectionate term for a cat)"
+          ]
+        },
+        {
+          "word": "猫头鹰",
+          "pronunciation": [
+            "mao1",
+            "tou2",
+            "ying1"
+          ],
+          "definitions": [
+            "owl"
+          ]
+        },
+        {
+          "word": "猫腻",
+          "pronunciation": [
+            "mao1",
+            "ni4"
+          ],
+          "definitions": [
+            "something fishy; shenanigans"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "readings": [
+        "mao1"
+      ],
+      "definitions": [
+        "cat"
+      ],
+      "examples": [
+        {
+          "word": "熊猫",
+          "pronunciation": [
+            "xiong2",
+            "mao1"
+          ],
+          "definitions": [
+            "panda",
+            "CL:"
+          ]
+        },
+        {
+          "word": "猫咪",
+          "pronunciation": [
+            "mao1",
+            "mi1"
+          ],
+          "definitions": [
+            "kitty (affectionate term for a cat)"
+          ]
+        },
+        {
+          "word": "大熊猫",
+          "pronunciation": [
+            "da4",
+            "xiong2",
+            "mao1"
+          ],
+          "definitions": [
+            "giant panda (Ailuropoda melanoleuca)"
+          ]
+        },
+        {
+          "word": "龙猫",
+          "pronunciation": [
+            "long2",
+            "mao1"
+          ],
+          "definitions": [
+            "chinchilla",
+            "Totoro (anime character)"
+          ]
+        },
+        {
+          "word": "猫头鹰",
+          "pronunciation": [
+            "mao1",
+            "tou2",
+            "ying1"
+          ],
+          "definitions": [
+            "owl"
+          ]
+        }
+      ],
+      "reasons": [
+        "熊猫: covers mao1; 27.14 per million",
+        "猫咪: frequency and meaning variety; 17.48 per million",
+        "大熊猫: frequency and meaning variety; 6.48 per million",
+        "龙猫: frequency and meaning variety; 2.04 per million",
+        "猫头鹰: frequency and meaning variety; 1.64 per million"
+      ],
+      "warnings": []
+    }
+  },
+  "龘": {
+    "before": {
+      "readings": [
+        "da2"
+      ],
+      "definitions": [
+        "variant form"
+      ],
+      "examples": []
+    },
+    "after": {
+      "readings": [
+        "da2"
+      ],
+      "definitions": [
+        "variant form"
+      ],
+      "examples": [],
+      "reasons": [],
+      "warnings": [
+        "No example selected for da2"
+      ]
+    }
+  }
+}

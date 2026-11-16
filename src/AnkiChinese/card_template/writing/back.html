@@ -16,51 +16,33 @@
                 await injectScript("https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js");
             }
         } else {
-            // Toggle offline mode
             document.querySelector(".strokeOrder.simp").style.display = "block";
             document.querySelector(".diagramContainer.simp").style.display = "none";
             document.querySelector(".strokeOrder.trad").style.display = "block";
             document.querySelector(".diagramContainer.trad").style.display = "none";
             return;
         }
-
         var writer = HanziWriter.create('diagramSimp', '{{Hanzi}}', {
-            width: 300,
-            height: 300,
-            radicalColor: '#337ab7',
-            showCharacter: false,
-            showOutline: true,
-            delayBetweenStrokes: 100,
-            padding: 5
+            width: 300, height: 300, radicalColor: '#337ab7',
+            showCharacter: false, showOutline: true, delayBetweenStrokes: 100, padding: 5
         });
-
         writer.loopCharacterAnimation();
-
         if ('{{Traditional}}' != '') {
             var writer = HanziWriter.create('diagramTrad', '{{Traditional}}', {
-                width: 300,
-                height: 300,
-                radicalColor: '#337ab7',
-                showCharacter: false,
-                showOutline: true,
-                delayBetweenStrokes: 100,
-                padding: 5
+                width: 300, height: 300, radicalColor: '#337ab7',
+                showCharacter: false, showOutline: true, delayBetweenStrokes: 100, padding: 5
             });
-
             writer.loopCharacterAnimation();
-        }
-        else {
+        } else {
             document.querySelector(".strokeOrder.trad").style.display = "none";
             document.querySelector(".diagramContainer.trad").style.display = "none";
         }
     })();
 </script>
-
 <!-- front side -->
 <div class="character">
     <div>{{Audio}}</div>
     <h1 class="pinyin">{{Pinyin}}</h1>
-    <p class="pinyin2">{{Pinyin 2}}</p>
     <p class="definition">{{Definition}}</p>
 </div>
 
@@ -92,7 +74,7 @@
 </div>
 
 <div class="notes">
-    <p>HSK: {{HSK}}. Frequency: #{{Frequency Rank}}, Count: {{Frequency Count}}</p>
+    <p>HSK: {{HSK}}. Frequency: #{{Frequency Rank}}, per million: {{Frequency Count}}</p>
     <p>{{Formation}}</p>
     <p class="ruby-text">{{furigana:Examples}}</p>
 </div>
