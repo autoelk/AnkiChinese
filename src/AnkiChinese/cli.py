@@ -15,8 +15,14 @@ from anki_connect import AnkiConnect, AnkiConnectError
 
 
 class CLI(Interface):
-    def print(self, str):
-        print(str)
+    def __init__(self):
+        self.pbar = None
+
+    def print(self, msg):
+        if self.pbar is None:
+            print(msg)
+        else:
+            tqdm.write(str(msg), file=self.pbar.fp)
 
     def confirm(self, msg):
         resp = input(msg + " [y/n] ").lower().strip()
@@ -30,6 +36,7 @@ class CLI(Interface):
 
     def finish_pbar(self):
         self.pbar.close()
+        self.pbar = None
 
 
 def cli():

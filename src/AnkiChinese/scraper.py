@@ -7,6 +7,8 @@ import os
 import csv
 from typing import Optional
 from bs4 import BeautifulSoup
+from playwright.async_api import Error as PlaywrightError
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from playwright.async_api import async_playwright
 
 # Cached mapping from character -> (frequency rank, occurrence count)
@@ -48,6 +50,19 @@ def load_char_freq_map() -> dict:
 
     _CHAR_FREQ_MAP = freq_map
     return _CHAR_FREQ_MAP
+
+# Return the dictionary fragments as soon as the scraper's data is available.
+DICTIONARY_HTML = """
+() => {
+    const definition = document.querySelector('div#charDef');
+    const words = document.querySelector('#wordPaneContent #wordTable');
+    const pronunciation = document.querySelector('#primaryPinyin a.arch-pinyin-font[onclick]');
+    if (!definition || !words || !pronunciation) return false;
+    return definition.outerHTML
+        + '<div id="wordPaneContent">' + words.outerHTML + '</div>'
+        + '<div id="primaryPinyin">' + pronunciation.outerHTML + '</div>';
+}
+"""
 
 
 def load_hsk_level_map() -> dict:
@@ -134,7 +149,7 @@ def scrape_example_words(soup, num_examples, num_defs) -> str:
     return clean_string("<br>".join(examples))
 
 
-def scrape_audio(soup) -> str:
+def audio_filename(soup) -> str:
     pinyin_tone = (
         regex.search(
             r'(?<=fn_playSinglePinyin\(")(.*)(?="\))',
@@ -144,16 +159,22 @@ def scrape_audio(soup) -> str:
         .lower()
     )
 
-    file_path = f"ankichinese_audio/{pinyin_tone}.mp3"
-    if not os.path.exists(file_path):
-        r = requests.get(f"https://cdn.yoyochinese.com/audio/pychart/{pinyin_tone}.mp3")
-        if r.status_code == 404:
-            r = requests.get(f"https://www.purpleculture.net/mp3/{pinyin_tone}.mp3")
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "wb") as f:
-            f.write(r.content)
+    return f"{pinyin_tone}.mp3"
 
-    return f"[sound:{pinyin_tone}.mp3]"
+
+def download_audio(file_path):
+    filename = os.path.basename(file_path)
+    response = requests.get(
+        f"https://cdn.yoyochinese.com/audio/pychart/{filename}", timeout=15
+    )
+    if response.status_code == 404:
+        response = requests.get(
+            f"https://www.purpleculture.net/mp3/{filename}", timeout=15
+        )
+    response.raise_for_status()
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, "wb") as stream:
+        stream.write(response.content)
 
 
 def get_frequency(hanzi) -> tuple:
@@ -170,8 +191,8 @@ def get_frequency(hanzi) -> tuple:
     return freq_map[hanzi]
 
 
-def scrape_word(r, num_examples, num_defs, hanzi) -> dict:
-    soup = BeautifulSoup(r, "html5lib")
+def scrape_word(r, num_examples, num_defs, hanzi) -> tuple:
+    soup = BeautifulSoup(r, "html.parser")
 
     info = dict()
     info["Hanzi"] = hanzi
@@ -181,21 +202,47 @@ def scrape_word(r, num_examples, num_defs, hanzi) -> dict:
     freq_rank, freq_count = get_frequency(hanzi)
     info["Frequency Rank"] = str(freq_rank) if freq_rank is not None else ""
     info["Frequency Count"] = str(freq_count) if freq_count is not None else ""
-    info["Audio"] = scrape_audio(soup)
+    filename = audio_filename(soup)
+    info["Audio"] = f"[sound:{filename}]"
+    return info, filename
 
-    return info
 
+async def fetch(
+    interface, context, num_examples, num_defs, audio_locks, hanzi
+) -> Optional[dict]:
+    url = f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
+    for attempt in range(2):
+        try:
+            page = await context.new_page()
+            try:
+                await page.goto(url, wait_until="domcontentloaded")
+                fragments = await page.wait_for_function(DICTIONARY_HTML)
+                content = await fragments.json_value()
+            finally:
+                await page.close()
+        except PlaywrightTimeoutError as exc:
+            if attempt == 0:
+                interface.print(f"Timed out loading {hanzi}. Retrying once.")
+                await asyncio.sleep(1)
+                continue
+            detail = str(exc).partition("\n")[0]
+            interface.print(f"Skipping {hanzi} after two attempts: {detail}")
+            return None
+        except PlaywrightError as exc:
+            detail = str(exc).partition("\n")[0]
+            interface.print(f"Skipping {hanzi}: {detail}")
+            return None
+        break
 
-async def fetch(interface, context, num_examples, num_defs, hanzi) -> Optional[dict]:
-    page = await context.new_page()
-    await page.goto(
-        f"https://www.archchinese.com/chinese_english_dictionary.html?find={hanzi}"
-    )
-    await page.wait_for_function("() => !!document.querySelector('#wordTable')")
-    content = await page.content()
-    await page.close()
     try:
-        return scrape_word(content, num_examples, num_defs, hanzi)
+        info, filename = scrape_word(content, num_examples, num_defs, hanzi)
+        file_path = os.path.join("ankichinese_audio", filename)
+        async with audio_locks.setdefault(filename, asyncio.Lock()):
+            if not os.path.exists(file_path):
+                await asyncio.get_running_loop().run_in_executor(
+                    None, download_audio, file_path
+                )
+        return info
     except Exception as e:
         interface.print(f"Error scraping {hanzi}: {e}")
         return None
@@ -216,8 +263,11 @@ async def main(
         interface.print("Started scraping")
         interface.start_pbar(len(chars))
         result_list = []
+        audio_locks = {}
         async with aiometer.amap(
-            functools.partial(fetch, interface, context, num_examples, num_defs),
+            functools.partial(
+                fetch, interface, context, num_examples, num_defs, audio_locks
+            ),
             chars,
             max_at_once=requests_at_once,
             max_per_second=requests_per_second,
@@ -228,5 +278,6 @@ async def main(
                 await interface.step_pbar()
         await browser.close()
         interface.finish_pbar()
-        interface.print(f"Finished scraping {len(chars)} character(s)")
+        skipped = len(chars) - len(result_list)
+        interface.print(f"Finished scraping: {len(result_list)} succeeded, {skipped} skipped")
         return result_list
