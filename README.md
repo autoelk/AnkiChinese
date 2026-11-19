@@ -95,7 +95,6 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 - Existing Anki collection updates: [AnkiConnect](https://github.com/ankicommunity/anki-desktop-addon-connect)
 - Progress bars: [tqdm](https://github.com/tqdm/tqdm)
 - HTML parsing and scraping: [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
-- Data manipulation: [Pandas](https://pandas.pydata.org/)
 - GUI: [Tkinter](https://docs.python.org/3/library/tkinter.html)
 
 # Credits

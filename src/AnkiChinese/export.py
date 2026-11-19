@@ -1,6 +1,6 @@
 import genanki
+import csv
 import os
-import pandas as pd
 import re as regex
 import base64
 import tempfile
@@ -14,10 +14,12 @@ def get_full_path(relative_path):
 
 def gen_csv(interface, results, output):
     interface.print("Started generating CSV")
-    output_name = regex.search(r"[^\/]+(?=\.csv$)", output).group(0)
-    df = pd.DataFrame(results)
-    df.to_csv(output_name + ".csv", index=False, sep="\t")
-    interface.print("Finished generating " + output_name + ".csv")
+    fields = list(dict.fromkeys(field for row in results for field in row))
+    with open(output, "w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(results)
+    interface.print("Finished generating " + os.path.basename(output))
 
 
 def gen_model():
