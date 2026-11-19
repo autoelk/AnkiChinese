@@ -371,21 +371,6 @@ class UpdateConfigPage(ConfigPage):
         self.field_tree = ttk.Treeview(deck_model_frame, selectmode=BROWSE, show="tree")
         self.field_tree.grid(row=1, column=3, padx=5)
 
-        # Fields that AnkiChinese would modify
-        target_fields = [
-            "Hanzi",
-            "Traditional",
-            "Definition",
-            "Pinyin",
-            "Examples",
-            "Formation",
-            "HSK",
-            "Frequency Rank",
-            "Frequency Score",
-            "Audio",
-        ]
-
-        self.target_fields = target_fields
         self.deck_names = []
         self.model_names = {}
         self.column_names = {}
@@ -451,7 +436,7 @@ class UpdateConfigPage(ConfigPage):
                         self.field_tree.insert(
                             "", END, field_id, text=field_name,
                             tags=("hanzi" if field_name == "Hanzi" else "",
-                                  "modify" if field_name in self.target_fields else ""),
+                                  "modify" if field_name in export.NOTE_FIELDS else ""),
                         )
                         self.field_tree.detach(field_id)
                 self.deck_tree.item(deck_name, open=TRUE)

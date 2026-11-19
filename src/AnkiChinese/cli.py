@@ -192,23 +192,9 @@ def cli():
             print("AnkiConnect error: {}".format(exc))
             return 1
 
-        # Fields that AnkiChinese would modify
-        target_fields = [
-            "Hanzi",
-            "Traditional",
-            "Definition",
-            "Pinyin",
-            "Examples",
-            "Formation",
-            "HSK",
-            "Frequency Rank",
-            "Frequency Score",
-            "Audio",
-        ]
-
         print("\nAnkiChinese will update the following fields in your model:")
         for field in fields:
-            if field in target_fields:
+            if field in export.NOTE_FIELDS:
                 print(">> " + field)
             else:
                 print("-- " + field)

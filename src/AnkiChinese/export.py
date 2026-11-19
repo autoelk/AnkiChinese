@@ -8,6 +8,20 @@ import tempfile
 from .anki_connect import AnkiConnectError
 
 
+NOTE_FIELDS = (
+    "Hanzi",
+    "Traditional",
+    "Definition",
+    "Pinyin",
+    "Examples",
+    "Formation",
+    "Frequency Rank",
+    "Frequency Score",
+    "HSK",
+    "Audio",
+)
+
+
 def get_full_path(relative_path):
     return os.path.join(os.path.dirname(__file__), relative_path)
 
@@ -54,18 +68,7 @@ def gen_model():
     return genanki.Model(
         1354988330,
         "AnkiChinese",
-        fields=[
-            {"name": "Hanzi"},
-            {"name": "Traditional"},
-            {"name": "Definition"},
-            {"name": "Pinyin"},
-            {"name": "Examples"},
-            {"name": "Formation"},
-            {"name": "Frequency Rank"},
-            {"name": "Frequency Score"},
-            {"name": "HSK"},
-            {"name": "Audio"},
-        ],
+        fields=[{"name": field} for field in NOTE_FIELDS],
         templates=[
             {
                 "name": "AnkiChinese Writing",
@@ -91,18 +94,7 @@ def gen_model():
 def gen_note(model, data):
     return genanki.Note(
         model=model,
-        fields=[
-            data["Hanzi"],
-            data["Traditional"],
-            data["Definition"],
-            data["Pinyin"],
-            data["Examples"],
-            data["Formation"],
-            data["Frequency Rank"],
-            data["Frequency Score"],
-            data["HSK"],
-            data["Audio"],
-        ],
+        fields=[data[field] for field in NOTE_FIELDS],
         guid=genanki.guid_for(data["Hanzi"]),
     )
 
@@ -138,19 +130,7 @@ def update_anki(interface, results, anki, deck_name: str, model_name: str):
 
     notes = anki.notes(deck_name, model_name)
     model_fields = anki.model_fields(model_name)
-    target_fields = (
-        "Hanzi",
-        "Traditional",
-        "Definition",
-        "Pinyin",
-        "Examples",
-        "Formation",
-        "HSK",
-        "Frequency Rank",
-        "Frequency Score",
-        "Audio",
-    )
-    supported_fields = [field for field in model_fields if field in target_fields]
+    supported_fields = [field for field in model_fields if field in NOTE_FIELDS]
     if "Hanzi" not in model_fields:
         raise ValueError("Selected note type must contain a 'Hanzi' field.")
 
