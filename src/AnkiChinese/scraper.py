@@ -5,6 +5,7 @@ import re as regex
 import requests
 import os
 import csv
+import unicodedata
 from typing import Optional
 from bs4 import BeautifulSoup
 from playwright.async_api import Error as PlaywrightError
@@ -60,6 +61,16 @@ def load_hsk_level_map() -> dict:
 def get_hsk_level(hanzi) -> str:
     """Return the HSK 3.0 recognition-list level for a character, if listed."""
     return load_hsk_level_map().get(hanzi, "")
+
+
+def unique_hanzi(text: str) -> set:
+    return {
+        char
+        for char in text
+        if unicodedata.name(char, "").startswith(
+            ("CJK UNIFIED IDEOGRAPH-", "CJK COMPATIBILITY IDEOGRAPH-")
+        )
+    }
 
 
 def clean_string(string) -> str:
@@ -225,6 +236,7 @@ async def main(
     num_defs,
     interface,
 ) -> list:
+    chars = unique_hanzi(chars)
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context()

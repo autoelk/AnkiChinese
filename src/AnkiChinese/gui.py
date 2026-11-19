@@ -254,7 +254,7 @@ class ConfigPage(Page):
     # Validation helpers
     def val_chars(self):
         content = self.char_text_box.get()
-        valid = len(set(filter(lambda char: "\u4e00" <= char <= "\u9fff", content))) > 0
+        valid = bool(scraper.unique_hanzi(content))
         self.chars_error_msg.set("" if valid else "No hanzi found")
         self.chars_valid = valid
         self.update_next_btn_state()
@@ -717,11 +717,6 @@ class Controller:
         self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
-        # Filter for only unique Chinese characters
-        self.chars = list(
-            filter(lambda char: "\u4e00" <= char <= "\u9fff", set(self.chars))
-        )
-
         results = await scraper.main(
             self.chars,
             self.req_simul,

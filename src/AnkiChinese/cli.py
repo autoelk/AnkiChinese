@@ -105,17 +105,13 @@ def cli():
         f"OPTIONS:\nExport method: {args.export}\nInput file: {args.input}\nOutput name: {args.output}\nNumber of definitions: {args.definitions}\nNumber of examples: {args.examples}\nMax requests at once: {args.requests_at_once}\nMax requests per second: {args.requests_per_second}"
     )
 
-    chars = []  # List of characters to scrape
+    chars = set()
     try:
         with open(args.input, encoding="utf8", errors="replace", mode="r") as f:
-            for line in f:
-                for char in line:
-                    if not char.isspace():
-                        chars.append(char)
+            chars = scraper.unique_hanzi(f.read())
     except FileNotFoundError as e:
         print(e)
 
-    chars = set(chars)  # Remove duplicates
     if len(chars) == 0:
         print("No characters found!")
         return
@@ -233,7 +229,7 @@ def cli():
                 if note.get("modelName") == model_name
             ]
 
-        chars.update(char for char in existing_chars if char)
+        chars.update(scraper.unique_hanzi("".join(existing_chars)))
         results = asyncio.run(
             scraper.main(
                 chars,
