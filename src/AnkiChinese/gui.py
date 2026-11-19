@@ -377,7 +377,6 @@ class UpdateConfigPage(ConfigPage):
             "Traditional",
             "Definition",
             "Pinyin",
-            "Pinyin 2",
             "Examples",
             "Formation",
             "HSK",

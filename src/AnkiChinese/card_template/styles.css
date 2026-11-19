@@ -17,12 +17,6 @@
     margin: 0px;
 }
 
-.pinyin2 {
-    word-wrap: break-word;
-    font-size: 1rem;
-    margin: 0px;
-}
-
 .strokeOrder {
     text-align: center;
     font-family: CNstrokeorder;

@@ -76,8 +76,7 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 | Hanzi           | Simplified character (**REQUIRED**)          |
 | Traditional     | Traditional form                             |
 | Definition      | Meaning of character                         |
-| Pinyin          | Most common pinyin                           |
-| Pinyin 2        | Other possible pinyin                        |
+| Pinyin          | All readings in dictionary order |
 | Examples        | Example words                                |
 | Formation       | Origin / mnemonic for character              |
 | HSK             | HSK 3.0 character recognition level          |

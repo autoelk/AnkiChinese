@@ -76,14 +76,12 @@ def scrape_basic_info(soup, num_defs) -> dict:
         if len(parts) >= 2:
             details[parts[0].strip()] = clean_string(parts[1])
 
-    pinyin_list = details.get("Pinyin", "").split(", ")
     info = {
         "Traditional": clean_string(details.get("Traditional Form", "")),
         "Definition": clean_string(
             ", ".join(details.get("Definition", "").split(", ")[:num_defs])
         ),
-        "Pinyin": clean_string(pinyin_list[0]),
-        "Pinyin 2": clean_string(", ".join(pinyin_list[1:])),
+        "Pinyin": details.get("Pinyin", ""),
         "Formation": details.get("Formation", ""),
     }
     return info
