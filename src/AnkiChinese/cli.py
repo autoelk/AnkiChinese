@@ -1,17 +1,13 @@
-import sys
-import os.path
-
-sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
-
-import scraper
-import export
-from interface import Interface
-
-from tqdm import tqdm
 import argparse
 import asyncio
+import os.path
+from contextlib import contextmanager
 
-from anki_connect import AnkiConnect, AnkiConnectError
+from tqdm import tqdm
+
+from . import export, scraper
+from .anki_connect import AnkiConnect, AnkiConnectError
+from .interface import Interface
 
 
 class CLI(Interface):
@@ -37,6 +33,15 @@ class CLI(Interface):
     def finish_pbar(self):
         self.pbar.close()
         self.pbar = None
+
+    @contextmanager
+    def progress(self, label, total, unit):
+        with tqdm(desc=label, total=total, unit=unit, disable=total == 0) as bar:
+            self.pbar = bar
+            try:
+                yield bar.update
+            finally:
+                self.pbar = None
 
 
 def cli():
@@ -202,7 +207,7 @@ def cli():
             "Formation",
             "HSK",
             "Frequency Rank",
-            "Frequency Count",
+            "Frequency Score",
             "Audio",
         ]
 

@@ -5,10 +5,7 @@ import re as regex
 import base64
 import tempfile
 
-try:
-    from .anki_connect import AnkiConnectError
-except ImportError:
-    from anki_connect import AnkiConnectError
+from .anki_connect import AnkiConnectError
 
 
 def get_full_path(relative_path):
@@ -64,7 +61,7 @@ def gen_model():
             {"name": "Examples"},
             {"name": "Formation"},
             {"name": "Frequency Rank"},
-            {"name": "Frequency Count"},
+            {"name": "Frequency Score"},
             {"name": "HSK"},
             {"name": "Audio"},
         ],
@@ -102,7 +99,7 @@ def gen_note(model, data):
             data["Examples"],
             data["Formation"],
             data["Frequency Rank"],
-            data["Frequency Count"],
+            data["Frequency Score"],
             data["HSK"],
             data["Audio"],
         ],
@@ -151,7 +148,7 @@ def update_anki(interface, results, anki, deck_name: str, model_name: str):
         "Formation",
         "HSK",
         "Frequency Rank",
-        "Frequency Count",
+        "Frequency Score",
         "Audio",
     )
     supported_fields = [field for field in model_fields if field in target_fields]
@@ -268,43 +265,46 @@ def update_anki(interface, results, anki, deck_name: str, model_name: str):
     # Upload referenced sound files before changing note fields.
     applied = 0
     try:
-        if media_names:
-            interface.print("Uploading audio...")
-        for media_name in sorted(media_names):
-            media_path = os.path.join("ankichinese_audio", media_name)
-            with open(media_path, "rb") as media_file:
-                anki.invoke(
-                    "storeMediaFile",
-                    filename=media_name,
-                    data=base64.b64encode(media_file.read()).decode("ascii"),
-                )
-            applied += 1
+        with interface.progress("Uploading audio", len(media_names), "file") as advance:
+            for media_name in sorted(media_names):
+                media_path = os.path.join("ankichinese_audio", media_name)
+                with open(media_path, "rb") as media_file:
+                    anki.invoke(
+                        "storeMediaFile",
+                        filename=media_name,
+                        data=base64.b64encode(media_file.read()).decode("ascii"),
+                    )
+                applied += 1
+                advance(1)
 
-        interface.print("Applying note updates...")
-        for note_id, fields in updates:
-            anki.invoke("updateNoteFields", note={"id": note_id, "fields": fields})
-            applied += 1
-        if additions:
-            imported = anki.invoke("importPackage", path=package_path)
-            if imported is False:
-                raise ValueError("AnkiConnect could not import the generated package.")
-            imported_notes = anki.notes(deck_name, model_name)
-            imported_by_hanzi = {
-                note.get("fields", {}).get("Hanzi", {}).get("value", ""): note
-                for note in imported_notes
-            }
-            missing_hanzi = [
-                fields.get("Hanzi", "")
-                for fields in additions
-                if fields.get("Hanzi", "") not in imported_by_hanzi
-                or not imported_by_hanzi[fields.get("Hanzi", "")].get("cards")
-            ]
-            if missing_hanzi:
-                raise ValueError(
-                    "Could not verify imported notes for: {}. Run Check "
-                    "Database before retrying.".format(", ".join(missing_hanzi))
-                )
-            applied += len(additions)
+        note_total = len(updates) + len(additions)
+        with interface.progress("Applying note updates", note_total, "note") as advance:
+            for note_id, fields in updates:
+                anki.invoke("updateNoteFields", note={"id": note_id, "fields": fields})
+                applied += 1
+                advance(1)
+            if additions:
+                imported = anki.invoke("importPackage", path=package_path)
+                if imported is False:
+                    raise ValueError("AnkiConnect could not import the generated package.")
+                imported_notes = anki.notes(deck_name, model_name)
+                imported_by_hanzi = {
+                    note.get("fields", {}).get("Hanzi", {}).get("value", ""): note
+                    for note in imported_notes
+                }
+                missing_hanzi = [
+                    fields.get("Hanzi", "")
+                    for fields in additions
+                    if fields.get("Hanzi", "") not in imported_by_hanzi
+                    or not imported_by_hanzi[fields.get("Hanzi", "")].get("cards")
+                ]
+                if missing_hanzi:
+                    raise ValueError(
+                        "Could not verify imported notes for: {}. Run Check "
+                        "Database before retrying.".format(", ".join(missing_hanzi))
+                    )
+                applied += len(additions)
+                advance(len(additions))
     except (AnkiConnectError, OSError, ValueError) as exc:
         raise AnkiConnectError(
             "The update stopped after {} confirmed operation(s). Partial changes "

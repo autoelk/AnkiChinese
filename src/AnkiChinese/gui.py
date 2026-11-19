@@ -4,18 +4,14 @@ from tkinter import font
 from tkinter import filedialog
 from tkinter import messagebox
 
-import sys
 import os.path
 import re as regex
 import asyncio
 import threading
 
-sys.path.insert(1, os.path.dirname(__file__))  # Allows python to find other modules
-
-import scraper
-import export
-from interface import Interface
-from anki_connect import AnkiConnect, AnkiConnectError
+from . import export, scraper
+from .anki_connect import AnkiConnect, AnkiConnectError
+from .interface import Interface
 
 
 class Page(ttk.Frame):
@@ -386,7 +382,7 @@ class UpdateConfigPage(ConfigPage):
             "Formation",
             "HSK",
             "Frequency Rank",
-            "Frequency Count",
+            "Frequency Score",
             "Audio",
         ]
 

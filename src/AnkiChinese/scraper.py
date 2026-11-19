@@ -11,45 +11,9 @@ from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from playwright.async_api import async_playwright
 
-# Cached mapping from character -> (frequency rank, occurrence count)
-_CHAR_FREQ_MAP = None
+from .frequency import load_char_freq_map, word_frequency
+
 _HSK_LEVEL_MAP = None
-
-
-def load_char_freq_map() -> dict:
-    """Load character frequencies into a dict.
-
-    Returns a mapping of single-character string -> (int(rank), int(count)).
-    The source is ordered by descending count, so row order gives the rank.
-    """
-    global _CHAR_FREQ_MAP
-    if _CHAR_FREQ_MAP is not None:
-        return _CHAR_FREQ_MAP
-
-    base_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(base_dir, "data")
-    file_path = os.path.join(data_dir, "SUBTLEX-CH-CHR")
-
-    if not os.path.exists(file_path):
-        _CHAR_FREQ_MAP = {}
-        return {}
-
-    freq_map = {}
-    with open(file_path, newline="", encoding="gb18030") as f:
-        next(f, None)
-        next(f, None)
-        reader = csv.DictReader(f, delimiter="\t")
-        for row in reader:
-            char = (row.get("Character") or "").strip()
-            count_text = (row.get("CHRCount") or "").strip()
-            if len(char) != 1 or not count_text.isdigit():
-                continue
-
-            rank = len(freq_map) + 1
-            freq_map[char] = (rank, int(count_text))
-
-    _CHAR_FREQ_MAP = freq_map
-    return _CHAR_FREQ_MAP
 
 # Return the dictionary fragments as soon as the scraper's data is available.
 DICTIONARY_HTML = """
@@ -102,7 +66,7 @@ def clean_string(string) -> str:
     return regex.sub(" +", " ", string.strip().replace("\n", ""))
 
 
-def scrape_basic_info(soup, num_examples) -> dict:
+def scrape_basic_info(soup, num_defs) -> dict:
     char_def = soup.find("div", id="charDef").get_text().replace("\xa0", "").split("»")
 
     # Get information in first box
@@ -116,7 +80,7 @@ def scrape_basic_info(soup, num_examples) -> dict:
     info = {
         "Traditional": clean_string(details.get("Traditional Form", "")),
         "Definition": clean_string(
-            ", ".join(details.get("Definition", "").split(", ")[:num_examples])
+            ", ".join(details.get("Definition", "").split(", ")[:num_defs])
         ),
         "Pinyin": clean_string(pinyin_list[0]),
         "Pinyin 2": clean_string(", ".join(pinyin_list[1:])),
@@ -128,19 +92,24 @@ def scrape_basic_info(soup, num_examples) -> dict:
 def scrape_example_words(soup, num_examples, num_defs) -> str:
     word_table = soup.select_one("#wordPaneContent #wordTable")
 
-    ex_words = word_table.select(".word-container .char-effect:first-child")
-    ex_info = word_table.select(".col-md-7")
+    entries = []
+    for row in word_table.select("tr"):
+        word = row.select_one("td.col-md-3 > a.char-effect:first-child")
+        details = row.select_one(".col-md-7 p")
+        if word is None or details is None:
+            continue
+        entries.append((word.get_text(strip=True), details))
 
+    entries.sort(key=lambda entry: -word_frequency(entry[0]))
     examples = []
-    for i in range(min(num_examples, len(ex_words))):
-        word = ex_words[i].text
+    for word, details in entries[:max(0, num_examples)]:
         ruby_list = []  # Pinyin to appear above word
-        for part in ex_info[i + 1].select("p>a>span"):
+        for part in details.select(":scope > a > span"):
             ruby_list.append(part.get_text())
         ruby_text = " ".join(ruby_list)
         defn = ", ".join(
             regex.sub(
-                r'[\[].*?[\]]', "", ex_info[i + 1].select_one("p").get_text()
+                r'[\[].*?[\]]', "", details.get_text()
             ).split(", ")[:num_defs]
         )
 
@@ -183,7 +152,7 @@ def get_frequency(hanzi) -> tuple:
         hanzi (str): The Chinese character to look up.
     Returns:
         int: The frequency rank of the character
-        int: The frequency count of the character
+        float: Blended occurrences per million characters
     """
     freq_map = load_char_freq_map()
     if not hanzi or hanzi not in freq_map:
@@ -196,12 +165,14 @@ def scrape_word(r, num_examples, num_defs, hanzi) -> tuple:
 
     info = dict()
     info["Hanzi"] = hanzi
-    info.update(scrape_basic_info(soup, num_examples))
+    info.update(scrape_basic_info(soup, num_defs))
     info["HSK"] = get_hsk_level(hanzi)
     info["Examples"] = scrape_example_words(soup, num_examples, num_defs)
-    freq_rank, freq_count = get_frequency(hanzi)
+    freq_rank, freq_per_million = get_frequency(hanzi)
     info["Frequency Rank"] = str(freq_rank) if freq_rank is not None else ""
-    info["Frequency Count"] = str(freq_count) if freq_count is not None else ""
+    info["Frequency Score"] = (
+        "{:.2f}".format(freq_per_million) if freq_per_million is not None else ""
+    )
     filename = audio_filename(soup)
     info["Audio"] = f"[sound:{filename}]"
     return info, filename

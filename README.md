@@ -39,7 +39,7 @@ Asynchronously scrape the ArchChinese dictionary to generate [Anki](https://apps
 
     --export, -x {anki, csv, update}    Export mode (default: anki)
                                         anki: Generate new AnkiChinese deck
-                                        csv: Generate CSV file
+                                        csv: Generate a tab-separated .csv file
                                         update: Update existing deck
     --input, -i INPUT                   Input file with characters to scrape (default: input.txt)
     --output, -o OUTPUT                 Name of output file (do not include extension)
@@ -55,12 +55,12 @@ Asynchronously scrape the ArchChinese dictionary to generate [Anki](https://apps
 
 How to create an entirely new Anki deck with the name `ankichinese_output.apkg` in the current directory using custom AnkiChinese styling.
 
-1. Create `input.txt` with the characters you want to scrape.
+1. Create a UTF-8 `input.txt` with the characters you want to scrape.
 2. Run `ankichinese -x anki`.
 3. Open Anki and import `ankichinese_output.apkg`.
 
-**Updating is Easy!**  
-Just run `ankichinese -x anki` again with new characters in `input.txt` and import the new `ankichinese_output.apkg` file into Anki. Anki will automatically update the existing deck without losing progress.
+**Updating is Easy!**
+Run `ankichinese -x anki` again with the characters you want in `input.txt`, then import the new `ankichinese_output.apkg` using Anki's options for updating matching notes.
 
 You can also update the imported deck directly: keep Anki open with AnkiConnect installed, choose **Update** in the GUI or run `ankichinese -x update`, then select the deck and its `AnkiChinese` note type. Matching notes are updated in place, and new Hanzi are added to the deck.
 
@@ -71,19 +71,19 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 3. Choose **Update** in the GUI, or run `ankichinese -x update` in the CLI.
 4. Choose the deck and note type. AnkiChinese updates matching fields below; the note type must include `Hanzi`.
 
-| Field Name  | Description                              |
-| ----------- | ---------------------------------------- |
-| Hanzi       | Simplified character (**REQUIRED**)      |
-| Traditional | Traditional form                         |
-| Definition  | Meaning of character                     |
-| Pinyin      | Most common pinyin                       |
-| Pinyin 2    | Other possible pinyin                    |
-| Examples    | Example words                            |
-| Formation   | Origin / mnemonic for character          |
-| HSK         | HSK 3.0 character recognition level       |
-| Frequency Rank | Character frequency rank              |
-| Frequency Count | Character occurence count            |
-| Audio       | Audio file name (**required for audio**) |
+| Field Name      | Description                                  |
+| --------------- | -------------------------------------------- |
+| Hanzi           | Simplified character (**REQUIRED**)          |
+| Traditional     | Traditional form                             |
+| Definition      | Meaning of character                         |
+| Pinyin          | Most common pinyin                           |
+| Pinyin 2        | Other possible pinyin                        |
+| Examples        | Example words                                |
+| Formation       | Origin / mnemonic for character              |
+| HSK             | HSK 3.0 character recognition level          |
+| Frequency Rank  | Character rank by frequency score            |
+| Frequency Score | Estimated occurrences per million characters |
+| Audio           | Audio file name (**required for audio**)     |
 
 5. Choose whether to scrape the deck's existing Hanzi too, review the update summary, then confirm. Matching notes are updated in place, missing Hanzi are added, and audio is uploaded to Anki.
 
@@ -101,7 +101,7 @@ You can also update the imported deck directly: keep Anki open with AnkiConnect 
 
 # Credits
 
-Character information other than HSK: [ArchChinese](https://www.archchinese.com/)
+Character definitions, pronunciations, and example candidates: [ArchChinese](https://www.archchinese.com/)
 
 HSK character recognition levels: [Official HSK syllabus](https://www.chinesetest.cn/HSK).
 

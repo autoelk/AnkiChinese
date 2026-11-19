@@ -1,4 +1,13 @@
+from contextlib import contextmanager
+
+
 class Interface:
+    @contextmanager
+    def progress(self, label, total, unit):
+        if total:
+            self.print(f"{label}...")
+        yield lambda count: None
+
     def print(self, str: str):
         pass
 
