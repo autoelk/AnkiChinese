@@ -99,10 +99,27 @@ def gen_note(model, data):
     )
 
 
-def add_audio(package, audio_path):
-    audio_files = os.listdir(audio_path)
-    for file in audio_files:
-        package.media_files.append(audio_path + "/" + file)
+def audio_files(results):
+    names = sorted({
+        name
+        for result in results
+        for name in regex.findall(r"\[sound:([^\]]+)\]", result.get("Audio") or "")
+    })
+    invalid = [
+        name for name in names
+        if name in (".", "..") or "/" in name or "\\" in name
+        or os.path.basename(name) != name
+    ]
+    if invalid:
+        raise ValueError("invalid audio filename(s): " + ", ".join(invalid))
+    paths = [os.path.join("ankichinese_audio", name) for name in names]
+    missing = [os.path.basename(path) for path in paths if not os.path.isfile(path)]
+    if missing:
+        raise ValueError(
+            "local audio file(s) are missing: " + ", ".join(missing)
+            + ". Run the scrape again to recreate them."
+        )
+    return paths
 
 
 def gen_anki(interface, results, output):
@@ -116,20 +133,14 @@ def gen_anki(interface, results, output):
         deck.add_note(gen_note(model, data))
 
     package = genanki.Package(deck)
-    add_audio(package, "ankichinese_audio")
+    package.media_files.extend(audio_files(results))
     package.media_files.append(get_full_path("card_template/_CNstrokeorder.ttf"))
     package.write_to_file(output_path)
     if interface:
         interface.print("Finished generating " + output_name + ".apkg")
 
 
-def update_anki(interface, results, anki, deck_name: str, model_name: str):
-    interface.print(
-        "Started updating\n\tdeck:\t\t" + deck_name + "\n\tmodel:\t\t" + model_name
-    )
-
-    notes = anki.notes(deck_name, model_name)
-    model_fields = anki.model_fields(model_name)
+def plan_update(results, notes, model_fields):
     supported_fields = [field for field in model_fields if field in NOTE_FIELDS]
     if "Hanzi" not in model_fields:
         raise ValueError("Selected note type must contain a 'Hanzi' field.")
@@ -156,101 +167,97 @@ def update_anki(interface, results, anki, deck_name: str, model_name: str):
         else:
             additions.append({name: str(result.get(name) or "") for name in model_fields})
 
-    media_names = set()
-    for result in results:
-        match = regex.search(r"\[sound:([^\]]+)\]", result.get("Audio", ""))
-        if match:
-            media_names.add(match.group(1))
-    invalid_media_names = [
-        name for name in media_names if os.path.basename(name) != name
-    ]
-    if invalid_media_names:
-        interface.print(
-            "Cannot update: invalid audio filename(s): {}".format(
-                ", ".join(sorted(invalid_media_names))
-            )
-        )
-        return
-    missing_media = [
-        name
-        for name in sorted(media_names)
-        if not os.path.isfile(os.path.join("ankichinese_audio", name))
-    ]
-    if missing_media:
-        interface.print(
-            "Cannot update: local audio file(s) are missing: {}. "
-            "Run the scrape again to recreate them.".format(", ".join(missing_media))
-        )
+    return updates, additions
+
+
+def update_anki(interface, results, anki, deck_name: str, model_name: str):
+    interface.print(
+        "Started updating\n\tdeck:\t\t" + deck_name + "\n\tmodel:\t\t" + model_name
+    )
+
+    notes = anki.notes(deck_name, model_name)
+    model_fields = anki.model_fields(model_name)
+    updates, additions = plan_update(results, notes, model_fields)
+    try:
+        media_paths = audio_files(results)
+    except ValueError as exc:
+        interface.print(f"Cannot update: {exc}")
         return
 
     interface.print("\nUpdate summary for {} / {}:".format(deck_name, model_name))
     interface.print("Notes to update: {}".format(len(updates)))
     interface.print("Notes to add: {}".format(len(additions)))
-    interface.print("Audio files to upload: {}".format(len(media_names)))
+    interface.print("Audio files to upload: {}".format(len(media_paths)))
     if not interface.confirm("Apply these changes to Anki?"):
         interface.print("Update canceled")
         return
 
+    apply_update(
+        interface, anki, deck_name, model_name, model_fields, updates, additions, media_paths
+    )
+
+
+def apply_update(
+    interface, anki, deck_name, model_name, model_fields, updates, additions, media_paths
+):
     package_path = None
-    if additions:
-        model_id = anki.model_ids().get(model_name)
-        deck_id = anki.deck_ids().get(deck_name)
-        templates = anki.model_templates(model_name)
-        styling = anki.model_styling(model_name)
-        if model_id is None or deck_id is None or not templates:
-            raise AnkiConnectError(
-                "Could not read the selected Anki deck and note type to "
-                "prepare a safe package import."
-            )
-
-        package_templates = [
-            {
-                "name": name,
-                "qfmt": template.get("Front", ""),
-                "afmt": template.get("Back", ""),
-            }
-            for name, template in templates.items()
-        ]
-        is_cloze = any(
-            "{{cloze:" in (template["qfmt"] + template["afmt"]).lower()
-            for template in package_templates
-        )
-        model = genanki.Model(
-            model_id,
-            model_name,
-            fields=[{"name": field} for field in model_fields],
-            templates=package_templates,
-            css=styling.get("css", ""),
-            model_type=1 if is_cloze else 0,
-        )
-
-        deck = genanki.Deck(deck_id, deck_name)
-        for fields in additions:
-            deck.add_note(
-                genanki.Note(
-                    model=model,
-                    fields=[str(fields.get(field) or "") for field in model_fields],
-                    guid=genanki.guid_for(fields.get("Hanzi", "")),
-                )
-            )
-        package = genanki.Package(deck)
-        package_file = tempfile.NamedTemporaryFile(
-            prefix="ankichinese_update_", suffix=".apkg", delete=False
-        )
-        package_path = package_file.name
-        package_file.close()
-        package.write_to_file(package_path)
-
-    # Upload referenced sound files before changing note fields.
     applied = 0
     try:
-        with interface.progress("Uploading audio", len(media_names), "file") as advance:
-            for media_name in sorted(media_names):
-                media_path = os.path.join("ankichinese_audio", media_name)
+        if additions:
+            model_id = anki.model_ids().get(model_name)
+            deck_id = anki.deck_ids().get(deck_name)
+            templates = anki.model_templates(model_name)
+            styling = anki.model_styling(model_name)
+            if model_id is None or deck_id is None or not templates:
+                raise AnkiConnectError(
+                    "Could not read the selected Anki deck and note type to "
+                    "prepare a safe package import."
+                )
+
+            package_templates = [
+                {
+                    "name": name,
+                    "qfmt": template.get("Front", ""),
+                    "afmt": template.get("Back", ""),
+                }
+                for name, template in templates.items()
+            ]
+            is_cloze = any(
+                "{{cloze:" in (template["qfmt"] + template["afmt"]).lower()
+                for template in package_templates
+            )
+            model = genanki.Model(
+                model_id,
+                model_name,
+                fields=[{"name": field} for field in model_fields],
+                templates=package_templates,
+                css=styling.get("css", ""),
+                model_type=1 if is_cloze else 0,
+            )
+
+            deck = genanki.Deck(deck_id, deck_name)
+            for fields in additions:
+                deck.add_note(
+                    genanki.Note(
+                        model=model,
+                        fields=[str(fields.get(field) or "") for field in model_fields],
+                        guid=genanki.guid_for(fields.get("Hanzi", "")),
+                    )
+                )
+            package = genanki.Package(deck)
+            package_file = tempfile.NamedTemporaryFile(
+                prefix="ankichinese_update_", suffix=".apkg", delete=False
+            )
+            package_path = package_file.name
+            package_file.close()
+            package.write_to_file(package_path)
+
+        with interface.progress("Uploading audio", len(media_paths), "file") as advance:
+            for media_path in media_paths:
                 with open(media_path, "rb") as media_file:
                     anki.invoke(
                         "storeMediaFile",
-                        filename=media_name,
+                        filename=os.path.basename(media_path),
                         data=base64.b64encode(media_file.read()).decode("ascii"),
                     )
                 applied += 1

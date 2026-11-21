@@ -8,6 +8,8 @@ import os.path
 import re as regex
 import asyncio
 import threading
+from concurrent.futures import Future, TimeoutError
+from queue import Empty, Queue
 
 from . import export, scraper
 from .anki_connect import AnkiConnect, AnkiConnectError
@@ -535,6 +537,7 @@ class GeneratorPage(Page):
     def __init__(self, root, controller):
         Page.__init__(self, root)
         self.name = "Generator"
+        self.controller = controller
 
         main_frame = ttk.Frame(self)
         main_frame.grid(row=0, column=0, sticky=NSEW)
@@ -559,11 +562,12 @@ class GeneratorPage(Page):
         )
         self.progress_bar.grid(row=0, column=0, padx=10, sticky=EW)
 
-        ttk.Button(
+        self.back_button = ttk.Button(
             nav_buttons_frame,
             text="Back",
             command=self.do_go_back,
-        ).grid(row=0, column=1, padx=5, pady=5)
+        )
+        self.back_button.grid(row=0, column=1, padx=5, pady=5)
         self.start_button = ttk.Button(
             nav_buttons_frame,
             text="Start",
@@ -579,52 +583,85 @@ class GeneratorPage(Page):
         self.start_button.lift()
         self.start_button.state(["!disabled"])
 
-        self.progress_bar.bind(
-            "<<StartProgressBar>>", lambda e: self.start_button.state(["disabled"])
-        )
-        self.progress_bar.bind(
-            "<<StepProgressBar>>", lambda e: self.progress_bar.step(1)
-        )
-        self.progress_bar.bind("<<FinishProgressBar>>", lambda e: self.do_finish())
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         nav_buttons_frame.grid_columnconfigure(0, weight=1)
 
     def do_go_back(self):
-        controller.show_page(controller.export_mode)
+        self.controller.show_page(self.controller.export_mode)
         self.start_button.lift()
 
     def do_finish(self):
+        self.back_button.state(["!disabled"])
         self.start_button.state(["!disabled"])
         self.finish_button.lift()
 
     def do_scrape_and_export(self):
-        thread = threading.Thread(target=controller.scrape_and_export_wrapper)
-        thread.start()
+        self.start_button.state(["disabled"])
+        self.back_button.state(["disabled"])
+        threading.Thread(target=self.run_export).start()
+
+    def run_export(self):
+        interface = self.controller.interface
+        try:
+            asyncio.run(self.controller.scrape_and_export())
+        except Exception as exc:
+            interface.print(f"Export failed: {exc}")
+        finally:
+            interface.events.put(self.do_finish)
 
 
 class GUI(Interface):
     def __init__(self, pbar, text_box):
         self.pbar = pbar
         self.text_box = text_box
+        self.events = Queue()
+        self.closed = threading.Event()
+        self.pbar.bind("<Destroy>", lambda event: self.closed.set())
+        self.pbar.after(30, self.process_events)
+
+    def process_events(self):
+        try:
+            for _ in range(100):
+                if self.closed.is_set():
+                    return
+                self.events.get_nowait()()
+        except Empty:
+            pass
+        finally:
+            if not self.closed.is_set():
+                self.pbar.after(30, self.process_events)
 
     def start_pbar(self, num):
-        self.pbar.configure(maximum=num)
-        self.pbar.event_generate("<<StartProgressBar>>")
+        self.events.put(lambda: self.pbar.configure(maximum=max(1, num), value=0))
 
     async def step_pbar(self):
-        self.pbar.event_generate("<<StepProgressBar>>")
-
-    def finish_pbar(self):
-        self.pbar.event_generate("<<FinishProgressBar>>")
+        self.events.put(lambda: self.pbar.configure(value=self.pbar["value"] + 1))
 
     def print(self, msg):
+        self.events.put(lambda: self.append_log(msg))
+
+    def append_log(self, msg):
         self.text_box.configure(state="normal")
         self.text_box.insert(END, str(msg) + "\n")
         self.text_box.configure(state="disabled")
 
     def confirm(self, msg):
-        return messagebox.askokcancel(message=msg, title="Confirm")
+        answer = Future()
+
+        def ask():
+            try:
+                answer.set_result(messagebox.askokcancel(message=msg, title="Confirm"))
+            except Exception as exc:
+                answer.set_exception(exc)
+
+        self.events.put(ask)
+        while not self.closed.is_set():
+            try:
+                return answer.result(timeout=0.1)
+            except TimeoutError:
+                pass
+        return False
 
 
 class Controller:
@@ -678,9 +715,6 @@ class Controller:
         self.num_defs = None
         self.output = None
 
-        # Create event loop for threading later
-        self.scrape_loop = asyncio.new_event_loop()
-
     def add_page(self, page):
         self.pages[page.name] = page
         page.grid(row=0, column=0, sticky=NSEW)  # Make page frame fill window
@@ -695,11 +729,6 @@ class Controller:
         if page:
             self.cur_page = name
             page.show()
-
-    def scrape_and_export_wrapper(self):
-        # Run scrape and export asynchronously so that GUI does not freeze
-        asyncio.set_event_loop(self.scrape_loop)
-        self.scrape_loop.run_until_complete(self.scrape_and_export())
 
     async def scrape_and_export(self):
         results = await scraper.main(

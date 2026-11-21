@@ -118,35 +118,7 @@ def cli():
 
     interface = CLI()
     export_mode = args.export
-    if export_mode == "csv":
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
-        )
-        export.gen_csv(
-            interface, results, os.path.join(os.getcwd(), args.output + ".csv")
-        )
-    elif export_mode == "anki":
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
-        )
-        export.gen_anki(
-            interface, results, os.path.join(os.getcwd(), args.output + ".apkg")
-        )
-    elif export_mode == "update":
+    if export_mode == "update":
         anki = AnkiConnect()
         try:
             deck_names = anki.decks()
@@ -216,16 +188,25 @@ def cli():
             ]
 
         chars.update(scraper.unique_hanzi("".join(existing_chars)))
-        results = asyncio.run(
-            scraper.main(
-                chars,
-                args.requests_at_once,
-                args.requests_per_second,
-                args.examples,
-                args.definitions,
-                interface,
-            )
+    results = asyncio.run(
+        scraper.main(
+            chars,
+            args.requests_at_once,
+            args.requests_per_second,
+            args.examples,
+            args.definitions,
+            interface,
         )
+    )
+    if export_mode == "csv":
+        export.gen_csv(
+            interface, results, os.path.join(os.getcwd(), args.output + ".csv")
+        )
+    elif export_mode == "anki":
+        export.gen_anki(
+            interface, results, os.path.join(os.getcwd(), args.output + ".apkg")
+        )
+    elif export_mode == "update":
         try:
             export.update_anki(interface, results, anki, deck_name, model_name)
         except (AnkiConnectError, ValueError) as exc:
